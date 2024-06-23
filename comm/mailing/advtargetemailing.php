@@ -1,6 +1,6 @@
 <?php
 /* Copyright (C) 2014 Florian Henry        <florian.henry@open-concept.pro>
- * Copyright (C) 2016 Laurent Destailleur  <eldy@users.sourceforge.net>
+ * Copyright (C) 2016 Laurent Destailleur  <eldy@uers.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,15 +39,15 @@ require_once DOL_DOCUMENT_ROOT.'/core/class/html.formother.class.php';
 
 // Load translation files required by the page
 $langs->loadLangs(array('mails', 'companies'));
-if (isModEnabled('category')) {
+if (isModEnabled('categorie')) {
 	$langs->load("categories");
 }
 
 // Load variable for pagination
-$limit = GETPOSTINT('limit') ? GETPOSTINT('limit') : $conf->liste_limit;
+$limit = GETPOST('limit', 'int') ? GETPOST('limit', 'int') : $conf->liste_limit;
 $sortfield = GETPOST('sortfield', 'aZ09comma');
 $sortorder = GETPOST('sortorder', 'aZ09comma');
-$page = GETPOSTISSET('pageplusone') ? (GETPOSTINT('pageplusone') - 1) : GETPOSTINT("page");
+$page = GETPOSTISSET('pageplusone') ? (GETPOST('pageplusone') - 1) : GETPOST("page", 'int');
 if (empty($page) || $page == -1) {
 	$page = 0;
 }     // If $page is not defined, or '' or -1
@@ -61,13 +61,13 @@ if (!$sortfield) {
 	$sortfield = "email";
 }
 
-$id = GETPOSTINT('id');
-$rowid = GETPOSTINT('rowid');
+$id = GETPOST('id', 'int');
+$rowid = GETPOST('rowid', 'int');
 $action = GETPOST('action', 'aZ09');
 $search_nom = GETPOST("search_nom");
 $search_prenom = GETPOST("search_prenom");
 $search_email = GETPOST("search_email");
-$template_id = GETPOSTINT('template_id');
+$template_id = GETPOST('template_id', 'int');
 
 // Do we click on purge search criteria ?
 if (GETPOST('button_removefilter_x', 'alpha')) {
@@ -134,14 +134,14 @@ if ($action == 'add') {
 				$dtarr = array();
 				$dtarr = explode('_', $key);
 				if (!array_key_exists('options_'.$dtarr[1].'_st_dt', $array_query)) {
-					$array_query['options_'.$dtarr[1].'_st_dt'] = dol_mktime(0, 0, 0, GETPOSTINT('options_'.$dtarr[1].'_st_dtmonth'), GETPOSTINT('options_'.$dtarr[1].'_st_dtday'), GETPOSTINT('options_'.$dtarr[1].'_st_dtyear'));
+					$array_query['options_'.$dtarr[1].'_st_dt'] = dol_mktime(0, 0, 0, GETPOST('options_'.$dtarr[1].'_st_dtmonth', 'int'), GETPOST('options_'.$dtarr[1].'_st_dtday', 'int'), GETPOST('options_'.$dtarr[1].'_st_dtyear', 'int'));
 				}
 			} elseif (preg_match("/end_dt/", $key)) {
 				// Special case for end date come with 3 inputs day, month, year
 				$dtarr = array();
 				$dtarr = explode('_', $key);
 				if (!array_key_exists('options_'.$dtarr[1].'_end_dt', $array_query)) {
-					$array_query['options_'.$dtarr[1].'_end_dt'] = dol_mktime(0, 0, 0, GETPOSTINT('options_'.$dtarr[1].'_end_dtmonth'), GETPOSTINT('options_'.$dtarr[1].'_end_dtday'), GETPOSTINT('options_'.$dtarr[1].'_end_dtyear'));
+					$array_query['options_'.$dtarr[1].'_end_dt'] = dol_mktime(0, 0, 0, GETPOST('options_'.$dtarr[1].'_end_dtmonth', 'int'), GETPOST('options_'.$dtarr[1].'_end_dtday', 'int'), GETPOST('options_'.$dtarr[1].'_end_dtyear', 'int'));
 				}
 			} else {
 				$array_query[$key] = GETPOST($key);
@@ -154,14 +154,14 @@ if ($action == 'add') {
 				$dtarr = array();
 				$dtarr = explode('_', $key);
 				if (!array_key_exists('options_'.$dtarr[1].'_st_dt_cnct', $array_query)) {
-					$array_query['options_'.$dtarr[1].'_st_dt_cnct'] = dol_mktime(0, 0, 0, GETPOSTINT('options_'.$dtarr[1].'_st_dtmonth_cnct'), GETPOSTINT('options_'.$dtarr[1].'_st_dtday_cnct'), GETPOSTINT('options_'.$dtarr[1].'_st_dtyear_cnct'));
+					$array_query['options_'.$dtarr[1].'_st_dt_cnct'] = dol_mktime(0, 0, 0, GETPOST('options_'.$dtarr[1].'_st_dtmonth_cnct', 'int'), GETPOST('options_'.$dtarr[1].'_st_dtday_cnct', 'int'), GETPOST('options_'.$dtarr[1].'_st_dtyear_cnct', 'int'));
 				}
 			} elseif (preg_match("/end_dt/", $key)) {
 				// Special case for end date come with 3 inputs day, month, year
 				$dtarr = array();
 				$dtarr = explode('_', $key);
 				if (!array_key_exists('options_'.$dtarr[1].'_end_dt_cnct', $array_query)) {
-					$array_query['options_'.$dtarr[1].'_end_dt_cnct'] = dol_mktime(0, 0, 0, GETPOSTINT('options_'.$dtarr[1].'_end_dtmonth_cnct'), GETPOSTINT('options_'.$dtarr[1].'_end_dtday_cnct'), GETPOSTINT('options_'.$dtarr[1].'_end_dtyear_cnct'));
+					$array_query['options_'.$dtarr[1].'_end_dt_cnct'] = dol_mktime(0, 0, 0, GETPOST('options_'.$dtarr[1].'_end_dtmonth_cnct', 'int'), GETPOST('options_'.$dtarr[1].'_end_dtday_cnct', 'int'), GETPOST('options_'.$dtarr[1].'_end_dtyear_cnct', 'int'));
 				}
 			} else {
 				$array_query[$key] = GETPOST($key);
@@ -185,7 +185,7 @@ if ($action == 'add') {
 				if ($key == $date_key) {
 					$dt = GETPOST($date_key);
 					if (!empty($dt)) {
-						$array_query[$key] = dol_mktime(0, 0, 0, GETPOSTINT($date_key.'month'), GETPOSTINT($date_key.'day'), GETPOSTINT($date_key.'year'));
+						$array_query[$key] = dol_mktime(0, 0, 0, GETPOST($date_key.'month', 'int'), GETPOST($date_key.'day', 'int'), GETPOST($date_key.'year', 'int'));
 					} else {
 						$array_query[$key] = '';
 					}
@@ -256,7 +256,7 @@ if ($action == 'add') {
 }
 
 if ($action == 'clear') {
-	// Load a new class instance
+	// Chargement de la classe
 	$classname = "MailingTargets";
 	$obj = new $classname($db);
 	$obj->clear_target($id);
@@ -285,14 +285,14 @@ if ($action == 'savefilter' || $action == 'createfilter') {
 					$dtarr = array();
 					$dtarr = explode('_', $key);
 					if (!array_key_exists('options_'.$dtarr[1].'_st_dt', $array_query)) {
-						$array_query['options_'.$dtarr[1].'_st_dt'] = dol_mktime(0, 0, 0, GETPOSTINT('options_'.$dtarr[1].'_st_dtmonth'), GETPOSTINT('options_'.$dtarr[1].'_st_dtday'), GETPOSTINT('options_'.$dtarr[1].'_st_dtyear'));
+						$array_query['options_'.$dtarr[1].'_st_dt'] = dol_mktime(0, 0, 0, GETPOST('options_'.$dtarr[1].'_st_dtmonth', 'int'), GETPOST('options_'.$dtarr[1].'_st_dtday', 'int'), GETPOST('options_'.$dtarr[1].'_st_dtyear', 'int'));
 					}
 				} elseif (preg_match("/end_dt/", $key)) {
 					// Special case for end date come with 3 inputs day, month, year
 					$dtarr = array();
 					$dtarr = explode('_', $key);
 					if (!array_key_exists('options_'.$dtarr[1].'_end_dt', $array_query)) {
-						$array_query['options_'.$dtarr[1].'_end_dt'] = dol_mktime(0, 0, 0, GETPOSTINT('options_'.$dtarr[1].'_end_dtmonth'), GETPOSTINT('options_'.$dtarr[1].'_end_dtday'), GETPOSTINT('options_'.$dtarr[1].'_end_dtyear'));
+						$array_query['options_'.$dtarr[1].'_end_dt'] = dol_mktime(0, 0, 0, GETPOST('options_'.$dtarr[1].'_end_dtmonth', 'int'), GETPOST('options_'.$dtarr[1].'_end_dtday', 'int'), GETPOST('options_'.$dtarr[1].'_end_dtyear', 'int'));
 						// print $array_query['options_'.$dtarr[1].'_end_dt'];
 						// 01/02/1013=1361228400
 					}
@@ -306,14 +306,14 @@ if ($action == 'savefilter' || $action == 'createfilter') {
 					$dtarr = array();
 					$dtarr = explode('_', $key);
 					if (!array_key_exists('options_'.$dtarr[1].'_st_dt_cnct', $array_query)) {
-						$array_query['options_'.$dtarr[1].'_st_dt_cnct'] = dol_mktime(0, 0, 0, GETPOSTINT('options_'.$dtarr[1].'_st_dtmonth_cnct'), GETPOSTINT('options_'.$dtarr[1].'_st_dtday_cnct'), GETPOSTINT('options_'.$dtarr[1].'_st_dtyear_cnct'));
+						$array_query['options_'.$dtarr[1].'_st_dt_cnct'] = dol_mktime(0, 0, 0, GETPOST('options_'.$dtarr[1].'_st_dtmonth_cnct', 'int'), GETPOST('options_'.$dtarr[1].'_st_dtday_cnct', 'int'), GETPOST('options_'.$dtarr[1].'_st_dtyear_cnct', 'int'));
 					}
 				} elseif (preg_match("/end_dt/", $key)) {
 					// Special case for end date come with 3 inputs day, month, year
 					$dtarr = array();
 					$dtarr = explode('_', $key);
 					if (!array_key_exists('options_'.$dtarr[1].'_end_dt_cnct', $array_query)) {
-						$array_query['options_'.$dtarr[1].'_end_dt_cnct'] = dol_mktime(0, 0, 0, GETPOSTINT('options_'.$dtarr[1].'_end_dtmonth_cnct'), GETPOSTINT('options_'.$dtarr[1].'_end_dtday_cnct'), GETPOSTINT('options_'.$dtarr[1].'_end_dtyear_cnct'));
+						$array_query['options_'.$dtarr[1].'_end_dt_cnct'] = dol_mktime(0, 0, 0, GETPOST('options_'.$dtarr[1].'_end_dtmonth_cnct', 'int'), GETPOST('options_'.$dtarr[1].'_end_dtday_cnct', 'int'), GETPOST('options_'.$dtarr[1].'_end_dtyear_cnct', 'int'));
 						// print $array_query['cnct_options_'.$dtarr[1].'_end_dt'];
 						// 01/02/1013=1361228400
 					}
@@ -339,7 +339,7 @@ if ($action == 'savefilter' || $action == 'createfilter') {
 					if ($key == $date_key) {
 						$dt = GETPOST($date_key);
 						if (!empty($dt)) {
-							$array_query[$key] = dol_mktime(0, 0, 0, GETPOSTINT($date_key.'month'), GETPOSTINT($date_key.'day'), GETPOSTINT($date_key.'year'));
+							$array_query[$key] = dol_mktime(0, 0, 0, GETPOST($date_key.'month', 'int'), GETPOST($date_key.'day', 'int'), GETPOST($date_key.'year', 'int'));
 						} else {
 							$array_query[$key] = '';
 						}
@@ -447,8 +447,7 @@ if ($object->fetch($id) >= 0) {
 	print '</td><td colspan="3">';
 	$nbemail = ($object->nbemail ? $object->nbemail : '0');
 	if (getDolGlobalString('MAILING_LIMIT_SENDBYWEB') && $conf->global->MAILING_LIMIT_SENDBYWEB < $nbemail) {
-		$text = $langs->trans('LimitSendingEmailing', getDolGlobalString('MAILING_LIMIT_SENDBYWEB'));
-		// @phan-suppress-next-line PhanPluginSuspiciousParamPosition
+		$text = $langs->trans('LimitSendingEmailing', $conf->global->MAILING_LIMIT_SENDBYWEB);
 		print $form->textwithpicto($nbemail, $text, 1, 'warning');
 	} else {
 		print $nbemail;
@@ -460,7 +459,7 @@ if ($object->fetch($id) >= 0) {
 	print "</div>";
 
 	// Show email selectors
-	if ($object->status == 0 && $user->hasRight('mailing', 'creer')) {
+	if ($object->statut == 0 && $user->hasRight('mailing', 'creer')) {
 		include DOL_DOCUMENT_ROOT.'/core/tpl/advtarget.tpl.php';
 	}
 }

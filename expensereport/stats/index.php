@@ -38,11 +38,11 @@ $HEIGHT = DolGraph::getDefaultGraphSizeForStats('height');
 $mode = GETPOSTISSET("mode") ? GETPOST("mode", 'aZ09') : 'customer';
 $object_status = GETPOST('object_status', 'intcomma');
 
-$userid = GETPOSTINT('userid');
-$socid = GETPOSTINT('socid'); if ($socid < 0) {
+$userid = GETPOST('userid', 'int');
+$socid = GETPOST('socid', 'int'); if ($socid < 0) {
 	$socid = 0;
 }
-$id = GETPOSTINT('id');
+$id = GETPOST('id', 'int');
 
 // Security check
 if ($user->socid > 0) {
@@ -55,7 +55,7 @@ if ($user->socid) {
 $result = restrictedArea($user, 'expensereport', $id, '');
 
 $nowyear = dol_print_date(dol_now('gmt'), "%Y", 'gmt');
-$year = GETPOST('year') > 0 ? GETPOSTINT('year') : $nowyear;
+$year = GETPOST('year') > 0 ? GETPOST('year', 'int') : $nowyear;
 $startyear = $year - (!getDolGlobalString('MAIN_STATS_GRAPHS_SHOW_N_YEARS') ? 2 : max(1, min(10, getDolGlobalString('MAIN_STATS_GRAPHS_SHOW_N_YEARS'))));
 $endyear = $year;
 
@@ -149,7 +149,7 @@ if (!$mesg) {
 
 $data = $stats->getAverageByMonthWithPrevYear($endyear, $startyear);
 
-if (!$user->hasRight('societe', 'client', 'voir')) {
+if (!$user->hasRight('societe', 'client', 'voir') || $user->socid) {
 	$filename_avg = $dir.'/ordersaverage-'.$user->id.'-'.$year.'.png';
 	if ($mode == 'customer') {
 		$fileurl_avg = DOL_URL_ROOT.'/viewimage.php?modulepart=orderstats&file=ordersaverage-'.$user->id.'-'.$year.'.png';
@@ -212,7 +212,7 @@ $h++;
 
 complete_head_from_modules($conf, $langs, null, $head, $h, 'trip_stats');
 
-print dol_get_fiche_head($head, 'byyear', '', -1);
+print dol_get_fiche_head($head, 'byyear', $langs->trans("Statistics"), -1);
 
 
 print '<div class="fichecenter"><div class="fichethirdleft">';

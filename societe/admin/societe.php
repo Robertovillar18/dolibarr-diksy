@@ -4,8 +4,6 @@
  * Copyright (C) 2005-2011  Laurent Destailleur     <eldy@users.sourceforge.net>
  * Copyright (C) 2005-2012  Regis Houssin           <regis.houssin@inodbox.com>
  * Copyright (C) 2011-2012  Juanjo Menent           <jmenent@2byte.es>
- * Copyright (C) 2024		MDW							<mdeweerd@users.noreply.github.com>
- * Copyright (C) 2024       Frédéric France             <frederic.france@free.fr>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -95,7 +93,7 @@ if ($action == 'updateoptions') {
 	}
 
 	if (GETPOST('THIRDPARTY_CUSTOMERTYPE_BY_DEFAULT')) {
-		$customertypedefault = GETPOSTINT('defaultcustomertype');
+		$customertypedefault = GETPOST('defaultcustomertype', 'int');
 		$res = dolibarr_set_const($db, "THIRDPARTY_CUSTOMERTYPE_BY_DEFAULT", $customertypedefault, 'chaine', 0, '', $conf->entity);
 		if (!($res > 0)) {
 			$error++;
@@ -171,7 +169,7 @@ if ($action == 'setdoc') {
 
 //Activate Set accountancy code customer invoice mandatory
 if ($action == "setaccountancycodecustomerinvoicemandatory") {
-	$setaccountancycodecustomerinvoicemandatory = GETPOSTINT('value');
+	$setaccountancycodecustomerinvoicemandatory = GETPOST('value', 'int');
 	$res = dolibarr_set_const($db, "SOCIETE_ACCOUNTANCY_CODE_CUSTOMER_INVOICE_MANDATORY", $setaccountancycodecustomerinvoicemandatory, 'yesno', 0, '', $conf->entity);
 	if (!($res > 0)) {
 		$error++;
@@ -185,7 +183,7 @@ if ($action == "setaccountancycodecustomerinvoicemandatory") {
 
 //Activate Set vat id unique
 if ($action == "setvatintraunique") {
-	$setvatintraunique = GETPOSTINT('value');
+	$setvatintraunique = GETPOST('value', 'int');
 	$res = dolibarr_set_const($db, "SOCIETE_VAT_INTRA_UNIQUE", $setvatintraunique, 'yesno', 0, '', $conf->entity);
 	if (!($res > 0)) {
 		$error++;
@@ -199,7 +197,7 @@ if ($action == "setvatintraunique") {
 
 //Activate Set ref in list
 if ($action == "setaddrefinlist") {
-	$setaddrefinlist = GETPOSTINT('value');
+	$setaddrefinlist = GETPOST('value', 'int');
 	$res = dolibarr_set_const($db, "SOCIETE_ADD_REF_IN_LIST", $setaddrefinlist, 'yesno', 0, '', $conf->entity);
 	if (!($res > 0)) {
 		$error++;
@@ -213,7 +211,7 @@ if ($action == "setaddrefinlist") {
 
 //Activate Set vat in list
 if ($action == "setvatinlist") {
-	$setvatinlist = GETPOSTINT('value');
+	$setvatinlist = GETPOST('value', 'int');
 	$res = dolibarr_set_const($db, "SOCIETE_SHOW_VAT_IN_LIST", $setvatinlist, 'yesno', 0, '', $conf->entity);
 	if (!($res > 0)) {
 		$error++;
@@ -225,9 +223,9 @@ if ($action == "setvatinlist") {
 	}
 }
 
-//Activate Set address in list
+//Activate Set adress in list
 if ($action == "setaddadressinlist") {
-	$val = GETPOSTINT('value');
+	$val = GETPOST('value', 'int');
 	$res = dolibarr_set_const($db, "COMPANY_SHOW_ADDRESS_SELECTLIST", $val, 'yesno', 0, '', $conf->entity);
 	if (!($res > 0)) {
 		$error++;
@@ -241,7 +239,7 @@ if ($action == "setaddadressinlist") {
 
 //Activate Set email phone town in contact list
 if ($action == "setaddemailphonetownincontactlist") {
-	$val = GETPOSTINT('value');
+	$val = GETPOST('value', 'int');
 	$res = dolibarr_set_const($db, "CONTACT_SHOW_EMAIL_PHONE_TOWN_SELECTLIST", $val, 'yesno', 0, '', $conf->entity);
 	if (!($res > 0)) {
 		$error++;
@@ -255,7 +253,7 @@ if ($action == "setaddemailphonetownincontactlist") {
 
 //Activate Ask For Preferred Shipping Method
 if ($action == "setaskforshippingmet") {
-	$setaskforshippingmet = GETPOSTINT('value');
+	$setaskforshippingmet = GETPOST('value', 'int');
 	$res = dolibarr_set_const($db, "SOCIETE_ASK_FOR_SHIPPING_METHOD", $setaskforshippingmet, 'yesno', 0, '', $conf->entity);
 	if (!($res > 0)) {
 		$error++;
@@ -269,7 +267,7 @@ if ($action == "setaskforshippingmet") {
 
 // Activate "Disable prospect/customer type"
 if ($action == "setdisableprospectcustomer") {
-	$setdisableprospectcustomer = GETPOSTINT('value');
+	$setdisableprospectcustomer = GETPOST('value', 'int');
 	$res = dolibarr_set_const($db, "SOCIETE_DISABLE_PROSPECTSCUSTOMERS", $setdisableprospectcustomer, 'yesno', 0, '', $conf->entity);
 	if (!($res > 0)) {
 		$error++;
@@ -324,7 +322,7 @@ if ($action == 'sethideinactivethirdparty') {
 	}
 }
 if ($action == 'setonsearchandlistgooncustomerorsuppliercard') {
-	$setonsearchandlistgooncustomerorsuppliercard = GETPOSTINT('value');
+	$setonsearchandlistgooncustomerorsuppliercard = GETPOST('value', 'int');
 	$res = dolibarr_set_const($db, "SOCIETE_ON_SEARCH_AND_LIST_GO_ON_CUSTOMER_OR_SUPPLIER_CARD", $setonsearchandlistgooncustomerorsuppliercard, 'yesno', 0, '', $conf->entity);
 	if (!($res > 0)) {
 		$error++;
@@ -393,8 +391,7 @@ foreach ($dirsociete as $dirroot) {
 					dol_syslog($e->getMessage(), LOG_ERR);
 				}
 
-				/** @var ModeleThirdPartyCode $modCodeTiers */
-				$modCodeTiers = new $file($db);
+				$modCodeTiers = new $file();
 
 				// Show modules according to features level
 				if ($modCodeTiers->version == 'development' && getDolGlobalInt('MAIN_FEATURES_LEVEL') < 2) {
@@ -536,9 +533,7 @@ if ($resql) {
 	$num_rows = $db->num_rows($resql);
 	while ($i < $num_rows) {
 		$array = $db->fetch_array($resql);
-		if (is_array($array)) {
-			array_push($def, $array[0]);
-		}
+		array_push($def, $array[0]);
 		$i++;
 	}
 } else {
@@ -610,7 +605,7 @@ foreach ($dirsociete as $dirroot) {
 					} else {
 						if (versioncompare($module->phpmin, versionphparray()) > 0) {
 							print '<td class="center">'."\n";
-							print img_picto(dol_escape_htmltag($langs->trans("ErrorModuleRequirePHPVersion", implode('.', $module->phpmin))), 'switch_off');
+							print img_picto(dol_escape_htmltag($langs->trans("ErrorModuleRequirePHPVersion", join('.', $module->phpmin))), 'switch_off');
 							print "</td>";
 						} else {
 							print '<td class="center">'."\n";
@@ -626,7 +621,7 @@ foreach ($dirsociete as $dirroot) {
 						$htmltooltip .= '<br>'.$langs->trans("Height").'/'.$langs->trans("Width").': '.$module->page_hauteur.'/'.$module->page_largeur;
 					}
 					$htmltooltip .= '<br><br><u>'.$langs->trans("FeaturesSupported").':</u>';
-					$htmltooltip .= '<br>'.$langs->trans("WatermarkOnDraft").': '.yn((isset($module->option_draft_watermark) ? $module->option_draft_watermark : ''), 1, 1);
+					$htmltooltip .= '<br>'.$langs->trans("WatermarkOnDraft").': '.yn((!empty($module->option_draft_watermark) ? $module->option_draft_watermark : ''), 1, 1);
 
 					print '<td class="center nowrap">';
 					print $form->textwithpicto('', $htmltooltip, 1, 0);
@@ -667,7 +662,6 @@ print '<td class="center">'.$langs->trans("MustBeMandatory").'</td>';
 print '<td class="center">'.$langs->trans("MustBeInvoiceMandatory").'</td>';
 print "</tr>\n";
 
-$profid = array('IDPROF1' => array(), 'IDPROF2' => array(), 'IDPROF3' => array(), 'IDPROF4' => array(), 'IDPROF5' => array(),'IDPROF6' => array(), 'EMAIL' => array());
 $profid['IDPROF1'][0] = $langs->trans("ProfId1");
 $profid['IDPROF1'][1] = $langs->transcountry('ProfId1', $mysoc->country_code);
 $profid['IDPROF2'][0] = $langs->trans("ProfId2");
@@ -683,10 +677,8 @@ $profid['IDPROF6'][1] = $langs->transcountry('ProfId6', $mysoc->country_code);
 $profid['EMAIL'][0] = $langs->trans("EMail");
 $profid['EMAIL'][1] = $langs->trans('Email');
 if (isModEnabled('accounting')) {
-	$profid['ACCOUNTANCY_CODE_CUSTOMER'] = array();
 	$profid['ACCOUNTANCY_CODE_CUSTOMER'][0] = $langs->trans("CustomerAccountancyCodeShort");
 	$profid['ACCOUNTANCY_CODE_CUSTOMER'][1] = $langs->trans('CustomerAccountancyCodeShort');
-	$profid['ACCOUNTANCY_CODE_SUPPLIER'] = array();
 	$profid['ACCOUNTANCY_CODE_SUPPLIER'][0] = $langs->trans("SupplierAccountancyCodeShort");
 	$profid['ACCOUNTANCY_CODE_SUPPLIER'][1] = $langs->trans('SupplierAccountancyCodeShort');
 }
@@ -739,6 +731,7 @@ foreach ($profid as $key => $val) {
 
 		print "</tr>\n";
 	}
+	$i++;
 }
 
 // VAT ID
@@ -789,10 +782,10 @@ if (!$conf->use_javascript_ajax) {
 	print "</td>";
 } else {
 	print '<td width="60" class="right">';
-	$arrval = array('0' => $langs->trans("No"),
-	'1' => $langs->trans("Yes").' ('.$langs->trans("NumberOfKeyToSearch", 1).')',
-	'2' => $langs->trans("Yes").' ('.$langs->trans("NumberOfKeyToSearch", 2).')',
-	'3' => $langs->trans("Yes").' ('.$langs->trans("NumberOfKeyToSearch", 3).')',
+	$arrval = array('0'=>$langs->trans("No"),
+	'1'=>$langs->trans("Yes").' ('.$langs->trans("NumberOfKeyToSearch", 1).')',
+	'2'=>$langs->trans("Yes").' ('.$langs->trans("NumberOfKeyToSearch", 2).')',
+	'3'=>$langs->trans("Yes").' ('.$langs->trans("NumberOfKeyToSearch", 3).')',
 	);
 	print $form->selectarray("activate_COMPANY_USE_SEARCH_TO_SELECT", $arrval, getDolGlobalString('COMPANY_USE_SEARCH_TO_SELECT'), 0, 0, 0, '', 0, 0, 0, '', 'minwidth75imp');
 	print '</td><td class="right">';
@@ -810,14 +803,14 @@ if (!$conf->use_javascript_ajax) {
 	print "</td>";
 } else {
 	print '<td width="60" class="right">';
-	$arrval = array('0' => $langs->trans("No"),
-	'1' => $langs->trans("Yes").' ('.$langs->trans("NumberOfKeyToSearch", 1).')',
-	'2' => $langs->trans("Yes").' ('.$langs->trans("NumberOfKeyToSearch", 2).')',
-	'3' => $langs->trans("Yes").' ('.$langs->trans("NumberOfKeyToSearch", 3).')',
+	$arrval = array('0'=>$langs->trans("No"),
+	'1'=>$langs->trans("Yes").' ('.$langs->trans("NumberOfKeyToSearch", 1).')',
+	'2'=>$langs->trans("Yes").' ('.$langs->trans("NumberOfKeyToSearch", 2).')',
+	'3'=>$langs->trans("Yes").' ('.$langs->trans("NumberOfKeyToSearch", 3).')',
 	);
 	print $form->selectarray("activate_CONTACT_USE_SEARCH_TO_SELECT", $arrval, getDolGlobalString('CONTACT_USE_SEARCH_TO_SELECT'), 0, 0, 0, '', 0, 0, 0, '', 'minwidth75imp');
 	print '</td><td class="right">';
-	print '<input type="submit" class="button small reposition" name="CONTACT_USE_SEARCH_TO_SELECT" value="'.$langs->trans("Modify").'">';
+	print '<input type="submit" class="button small eposition" name="CONTACT_USE_SEARCH_TO_SELECT" value="'.$langs->trans("Modify").'">';
 	print "</td>";
 }
 print '</tr>';
@@ -880,7 +873,7 @@ if (getDolGlobalString('CONTACT_SHOW_EMAIL_PHONE_TOWN_SELECTLIST')) {
 print '</a></td>';
 print '</tr>';
 
-if (isModEnabled("shipping")) {
+if (isModEnabled("expedition")) {
 	if (getDolGlobalInt('MAIN_FEATURES_LEVEL') > 0) {	// Visible on experimental only because seems to not be implemented everywhere (only on proposal)
 		print '<tr class="oddeven">';
 		print '<td width="80%">'.$langs->trans("AskForPreferredShippingMethod").'</td>';

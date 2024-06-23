@@ -26,7 +26,7 @@
  * 		\defgroup   facture     Module customer invoices
  *      \brief      Module to manage customer invoices
  *      \file       htdocs/core/modules/modFacture.class.php
- *		\ingroup    invoice
+ *		\ingroup    facture
  *		\brief      Description and activation file for the module customer invoices
  */
 include_once DOL_DOCUMENT_ROOT.'/core/modules/DolibarrModules.class.php';
@@ -44,7 +44,7 @@ class modFacture extends DolibarrModules
 	 */
 	public function __construct($db)
 	{
-		global $conf, $langs, $user, $mysoc;
+		global $conf, $user, $mysoc;
 
 		$this->db = $db;
 		$this->numero = 30;
@@ -73,7 +73,7 @@ class modFacture extends DolibarrModules
 		$this->warnings_activation_ext = array(); // Warning to show when we activate an external module. array('always'='text') or array('FR'='text')
 
 		// Config pages
-		$this->config_page_url = array("invoice.php");
+		$this->config_page_url = array("facture.php");
 
 		// Constants
 		$this->const = array();
@@ -490,12 +490,7 @@ class modFacture extends DolibarrModules
 		$uselocaltax1 = (is_object($mysoc) && $mysoc->localtax1_assuj) ? $mysoc->localtax1_assuj : 0;
 		$uselocaltax2 = (is_object($mysoc) && $mysoc->localtax2_assuj) ? $mysoc->localtax2_assuj : 0;
 
-		$r = 0;
-
-		$langs->loadLangs(array("suppliers", "multicurrency", "bills"));
-
-		$uselocaltax1 = $mysoc->localtax1_assuj ?? 0;
-		$uselocaltax2 = $mysoc->localtax2_assuj ?? 0;
+		$r = 1;
 
 		$alias_product_perentity = !getDolGlobalString('MAIN_PRODUCT_PERENTITY_SHARED') ? "p" : "ppe";
 

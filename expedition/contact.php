@@ -39,7 +39,7 @@ if (isModEnabled('project')) {
 // Load translation files required by the page
 $langs->loadLangs(array('orders', 'sendings', 'companies'));
 
-$id = GETPOSTINT('id');
+$id = GETPOST('id', 'int');
 $ref = GETPOST('ref', 'alpha');
 $action = GETPOST('action', 'aZ09');
 
@@ -55,13 +55,13 @@ if ($id > 0 || !empty($ref)) {
 	}
 
 	// Linked documents
-	if ($typeobject == 'commande' && $object->origin_object->id && isModEnabled('order')) {
+	if ($typeobject == 'commande' && $object->$typeobject->id && isModEnabled('commande')) {
 		$objectsrc = new Commande($db);
-		$objectsrc->fetch($object->origin_object->id);
+		$objectsrc->fetch($object->$typeobject->id);
 	}
-	if ($typeobject == 'propal' && $object->origin_object->id && isModEnabled("propal")) {
+	if ($typeobject == 'propal' && $object->$typeobject->id && isModEnabled("propal")) {
 		$objectsrc = new Propal($db);
-		$objectsrc->fetch($object->origin_object->id);
+		$objectsrc->fetch($object->$typeobject->id);
 	}
 }
 
@@ -85,7 +85,7 @@ if ($reshook < 0) {
 if (empty($reshook)) {
 	if ($action == 'addcontact' && $user->hasRight('expedition', 'creer')) {
 		if ($result > 0 && $id > 0) {
-			$contactid = (GETPOSTINT('userid') ? GETPOSTINT('userid') : GETPOSTINT('contactid'));
+			$contactid = (GETPOST('userid', 'int') ? GETPOST('userid', 'int') : GETPOST('contactid', 'int'));
 			$typeid    = (GETPOST('typecontact') ? GETPOST('typecontact') : GETPOST('type'));
 			$result    = $objectsrc->add_contact($contactid, $typeid, GETPOST("source", 'aZ09'));
 		}
@@ -105,10 +105,10 @@ if (empty($reshook)) {
 		}
 	} elseif ($action == 'swapstatut' && $user->hasRight('expedition', 'creer')) {
 		// bascule du statut d'un contact
-		$result = $objectsrc->swapContactStatus(GETPOSTINT('ligne'));
+		$result = $objectsrc->swapContactStatus(GETPOST('ligne', 'int'));
 	} elseif ($action == 'deletecontact' && $user->hasRight('expedition', 'creer')) {
 		// Efface un contact
-		$result = $objectsrc->delete_contact(GETPOSTINT("lineid"));
+		$result = $objectsrc->delete_contact(GETPOST("lineid", 'int'));
 
 		if ($result >= 0) {
 			header("Location: ".$_SERVER['PHP_SELF']."?id=".$object->id);
@@ -137,7 +137,7 @@ $userstatic = new User($db);
 
 /* *************************************************************************** */
 /*                                                                             */
-/* Card view and edit mode                                                       */
+/* Mode vue et edition                                                         */
 /*                                                                             */
 /* *************************************************************************** */
 
@@ -191,20 +191,20 @@ if ($id > 0 || !empty($ref)) {
 	print '<table class="border centpercent tableforfield">';
 
 	// Linked documents
-	if ($typeobject == 'commande' && $object->origin_object->id && isModEnabled('order')) {
+	if ($typeobject == 'commande' && $object->$typeobject->id && isModEnabled('commande')) {
 		print '<tr><td class="titlefield">';
 		$objectsrc = new Commande($db);
-		$objectsrc->fetch($object->origin_object->id);
+		$objectsrc->fetch($object->$typeobject->id);
 		print $langs->trans("RefOrder").'</td>';
 		print '<td colspan="3">';
 		print $objectsrc->getNomUrl(1, 'commande');
 		print "</td>\n";
 		print '</tr>';
 	}
-	if ($typeobject == 'propal' && $object->origin_object->id && isModEnabled("propal")) {
+	if ($typeobject == 'propal' && $object->$typeobject->id && isModEnabled("propal")) {
 		print '<tr><td class="titlefield">';
 		$objectsrc = new Propal($db);
-		$objectsrc->fetch($object->origin_object->id);
+		$objectsrc->fetch($object->$typeobject->id);
 		print $langs->trans("RefProposal").'</td>';
 		print '<td colspan="3">';
 		print $objectsrc->getNomUrl(1, 'expedition');

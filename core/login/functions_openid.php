@@ -35,11 +35,11 @@ include_once DOL_DOCUMENT_ROOT.'/core/class/openid.class.php';
  * @param	string	$usertotest		Login
  * @param	string	$passwordtotest	Password
  * @param   int		$entitytotest   Number of instance (always 1 if module multicompany not enabled)
- * @return	string|false				Login if OK, false otherwise
+ * @return	string					Login if OK, '' if KO
  */
 function check_user_password_openid($usertotest, $passwordtotest, $entitytotest)
 {
-	global $db, $conf;
+	global $db, $conf, $langs;
 
 	dol_syslog("functions_openid::check_user_password_openid usertotest=".$usertotest);
 
@@ -52,7 +52,7 @@ function check_user_password_openid($usertotest, $passwordtotest, $entitytotest)
 		$protocol = ($conf->file->main_force_https ? 'https://' : 'http://');
 		$openid->SetTrustRoot($protocol.$_SERVER["HTTP_HOST"]);
 		$openid->SetRequiredFields(array('email', 'fullname'));
-		$_SESSION['dol_entity'] = GETPOSTINT("entity");
+		$_SESSION['dol_entity'] = GETPOST("entity", 'int');
 		//$openid->SetOptionalFields(array('dob','gender','postcode','country','language','timezone'));
 		if ($openid->sendDiscoveryRequestToGetXRDS()) {
 			$openid->SetApprovedURL($protocol.$_SERVER["HTTP_HOST"].$_SERVER["SCRIPT_NAME"]); // Send Response from OpenID server to this script
@@ -62,11 +62,11 @@ function check_user_password_openid($usertotest, $passwordtotest, $entitytotest)
 			return false;
 		}
 		return false;
-	} elseif (GETPOST('openid_mode') == 'id_res') {
+	} elseif ($_GET['openid_mode'] == 'id_res') {
 		// Perform HTTP Request to OpenID server to validate key
 		$openid = new SimpleOpenID();
 		$openid->SetIdentity(GETPOST('openid_identity'));
-		$openid_validation_result = $openid->validateWithServer();
+		$openid_validation_result = $openid->ValidateWithServer();
 		if ($openid_validation_result === true) {
 			// OK HERE KEY IS VALID
 
@@ -93,7 +93,7 @@ function check_user_password_openid($usertotest, $passwordtotest, $entitytotest)
 			//echo "INVALID AUTHORIZATION";
 			return false;
 		}
-	} elseif (GETPOST('openid_mode') == 'cancel') {
+	} elseif ($_GET['openid_mode'] == 'cancel') {
 		// User Canceled your Request
 		//echo "USER CANCELED REQUEST";
 		return false;

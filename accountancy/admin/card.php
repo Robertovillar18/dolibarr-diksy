@@ -2,7 +2,6 @@
 /* Copyright (C) 2013-2014  Olivier Geffroy     <jeff@jeffinfo.com>
  * Copyright (C) 2013-2024  Alexandre Spangaro  <aspangaro@easya.solutions>
  * Copyright (C) 2014       Florian Henry       <florian.henry@open-concept.pro>
- * Copyright (C) 2024       Frédéric France             <frederic.france@free.fr>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,9 +37,9 @@ $langs->loadLangs(array('accountancy', 'bills', 'compta'));
 
 $action = GETPOST('action', 'aZ09');
 $backtopage = GETPOST('backtopage', 'alpha');
-$id = GETPOSTINT('id');
+$id = GETPOST('id', 'int');
 $ref = GETPOST('ref', 'alpha');
-$rowid = GETPOSTINT('rowid');
+$rowid = GETPOST('rowid', 'int');
 $cancel = GETPOST('cancel', 'alpha');
 
 $account_number = GETPOST('account_number', 'alphanohtml');
@@ -86,17 +85,23 @@ if ($action == 'add' && $user->hasRight('accounting', 'chartofaccount')) {
 			// Clean code
 
 			// To manage zero or not at the end of the accounting account
-			if (!getDolGlobalString('ACCOUNTING_MANAGE_ZERO')) {
+			if (getDolGlobalString('ACCOUNTING_MANAGE_ZERO')) {
+				$account_number = $account_number;
+			} else {
 				$account_number = clean_account($account_number);
 			}
 
-			$account_parent = (GETPOSTINT('account_parent') > 0) ? GETPOSTINT('account_parent') : 0;
+			if (GETPOST('account_parent', 'int') <= 0) {
+				$account_parent = 0;
+			} else {
+				$account_parent = GETPOST('account_parent', 'int');
+			}
 
 			$object->fk_pcg_version = $obj->pcg_version;
 			$object->pcg_type = GETPOST('pcg_type', 'alpha');
 			$object->account_number = $account_number;
 			$object->account_parent = $account_parent;
-			$object->account_category = GETPOSTINT('account_category');
+			$object->account_category = GETPOST('account_category', 'alpha');
 			$object->label = $label;
 			$object->labelshort = GETPOST('labelshort', 'alpha');
 			$object->active = 1;
@@ -143,17 +148,23 @@ if ($action == 'add' && $user->hasRight('accounting', 'chartofaccount')) {
 			// Clean code
 
 			// To manage zero or not at the end of the accounting account
-			if (!getDolGlobalString('ACCOUNTING_MANAGE_ZERO')) {
+			if (getDolGlobalString('ACCOUNTING_MANAGE_ZERO')) {
+				$account_number = $account_number;
+			} else {
 				$account_number = clean_account($account_number);
 			}
 
-			$account_parent = (GETPOSTINT('account_parent') > 0) ? GETPOSTINT('account_parent') : 0;
+			if (GETPOST('account_parent', 'int') <= 0) {
+				$account_parent = 0;
+			} else {
+				$account_parent = GETPOST('account_parent', 'int');
+			}
 
 			$object->fk_pcg_version = $obj->pcg_version;
 			$object->pcg_type = GETPOST('pcg_type', 'alpha');
 			$object->account_number = $account_number;
 			$object->account_parent = $account_parent;
-			$object->account_category = GETPOSTINT('account_category');
+			$object->account_category = GETPOST('account_category', 'alpha');
 			$object->label = $label;
 			$object->labelshort = GETPOST('labelshort', 'alpha');
 
@@ -206,7 +217,7 @@ $title = $langs->trans('AccountAccounting')." - ".$langs->trans('Card');
 
 $help_url = 'EN:Module_Double_Entry_Accounting#Setup|FR:Module_Comptabilit&eacute;_en_Partie_Double#Configuration';
 
-llxHeader('', $title, $help_url);
+llxheader('', $title, $help_url);
 
 
 // Create mode
@@ -242,7 +253,7 @@ if ($action == 'create') {
 	// Account parent
 	print '<tr><td>'.$langs->trans("Accountparent").'</td>';
 	print '<td>';
-	print $formaccounting->select_account($object->account_parent, 'account_parent', 1, [], 0, 0, 'minwidth200');
+	print $formaccounting->select_account($object->account_parent, 'account_parent', 1, null, 0, 0, 'minwidth200');
 	print '</td></tr>';
 
 	// Chart of accounts type
@@ -318,7 +329,7 @@ if ($action == 'create') {
 			// Account parent
 			print '<tr><td>'.$langs->trans("Accountparent").'</td>';
 			print '<td>';
-			// Note: We accept disabled account as parent account so we can build a hierarchy and use only children
+			// Note: We accept disabled account as parent account so we can build a hierarchy and use only childs
 			print $formaccounting->select_account($object->account_parent, 'account_parent', 1, array(), 0, 0, 'minwidth100 maxwidth300 maxwidthonsmartphone', 1, '');
 			print '</td></tr>';
 

@@ -41,14 +41,10 @@ class ExpeditionLineBatch extends CommonObject
 	public $sellby;
 	public $eatby;
 	public $batch;
-
-	/**
-	 * @var float Quantity
-	 */
 	public $qty;
 	public $dluo_qty; // deprecated, use qty
 	public $entrepot_id;
-	public $fk_origin_stock;		// rowid in llx_product_batch table (not useful)
+	public $fk_origin_stock;		// rowid in llx_product_batch table (not usefull)
 	public $fk_warehouse;			// warehouse ID
 	public $fk_expeditiondet;
 
@@ -56,7 +52,7 @@ class ExpeditionLineBatch extends CommonObject
 	/**
 	 *  Constructor
 	 *
-	 *  @param	DoliDB		$db      Database handler
+	 *  @param	DoliDb		$db      Database handler
 	 */
 	public function __construct($db)
 	{
@@ -230,8 +226,8 @@ class ExpeditionLineBatch extends CommonObject
 				$obj = $this->db->fetch_object($resql);
 
 				$tmp = new self($this->db);
-				$tmp->sellby = $this->db->jdate(($fk_product > 0 && $obj->sellby) ? $obj->sellby : $obj->oldsellby);
-				$tmp->eatby = $this->db->jdate(($fk_product > 0 && $obj->eatby) ? $obj->eatby : $obj->oldeatby);
+				$tmp->sellby = $this->db->jdate($obj->sellby ? $obj->sellby : $obj->oldsellby);
+				$tmp->eatby = $this->db->jdate($obj->eatby ? $obj->eatby : $obj->oldeatby);
 				$tmp->batch = $obj->batch;
 				$tmp->id = $obj->rowid;
 				$tmp->fk_origin_stock = $obj->fk_origin_stock;

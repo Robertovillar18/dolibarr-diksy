@@ -32,7 +32,7 @@ require_once DOL_DOCUMENT_ROOT.'/holiday/class/holiday.class.php';
 // Load translation files required by the page
 $langs->load("holiday");
 
-$id = GETPOSTINT('id');
+$id = GETPOST('id', 'int');
 $ref = GETPOST('ref', 'alpha');
 
 

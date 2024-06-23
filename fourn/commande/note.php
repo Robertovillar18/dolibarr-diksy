@@ -21,7 +21,7 @@
 
 /**
  *    \file       htdocs/fourn/commande/note.php
- *    \ingroup    order
+ *    \ingroup    commande
  *    \brief      page for notes on supplier orders
  */
 
@@ -38,7 +38,7 @@ if (isModEnabled('project')) {
 $langs->loadLangs(array("suppliers", "orders", "companies", "stocks"));
 
 // Get Parameters
-$id = GETPOSTINT('facid') ? GETPOSTINT('facid') : GETPOSTINT('id');
+$id = GETPOST('facid', 'int') ? GETPOST('facid', 'int') : GETPOST('id', 'int');
 $ref = GETPOST('ref');
 $action = GETPOST('action', 'aZ09');
 
@@ -79,13 +79,13 @@ if (empty($reshook)) {
 
 $title = $object->ref." - ".$langs->trans('Notes');
 $help_url = 'EN:Module_Suppliers_Orders|FR:CommandeFournisseur|ES:Módulo_Pedidos_a_proveedores';
-llxHeader('', $title, $help_url, '', 0, 0, '', '', '', 'mod-supplier-order page-notes');
+llxHeader('', $title, $help_url);
 
 $form = new Form($db);
 
 /* *************************************************************************** */
 /*                                                                             */
-/* Card view and edit mode                                                       */
+/* Mode vue et edition                                                         */
 /*                                                                             */
 /* *************************************************************************** */
 

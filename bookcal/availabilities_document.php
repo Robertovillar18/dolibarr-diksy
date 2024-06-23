@@ -37,14 +37,14 @@ $langs->loadLangs(array("agenda", "companies", "other", "mails"));
 
 $action = GETPOST('action', 'aZ09');
 $confirm = GETPOST('confirm');
-$id = (GETPOSTINT('socid') ? GETPOSTINT('socid') : GETPOSTINT('id'));
+$id = (GETPOST('socid', 'int') ? GETPOST('socid', 'int') : GETPOST('id', 'int'));
 $ref = GETPOST('ref', 'alpha');
 
 // Get parameters
-$limit = GETPOSTINT('limit') ? GETPOSTINT('limit') : $conf->liste_limit;
+$limit = GETPOST('limit', 'int') ? GETPOST('limit', 'int') : $conf->liste_limit;
 $sortfield = GETPOST('sortfield', 'aZ09comma');
 $sortorder = GETPOST('sortorder', 'aZ09comma');
-$page = GETPOSTISSET('pageplusone') ? (GETPOSTINT('pageplusone') - 1) : GETPOSTINT("page");
+$page = GETPOSTISSET('pageplusone') ? (GETPOST('pageplusone') - 1) : GETPOST("page", 'int');
 if (empty($page) || $page == -1) {
 	$page = 0;
 }     // If $page is not defined, or '' or -1
@@ -196,6 +196,10 @@ if ($object->id) {
 	print dol_get_fiche_end();
 
 	$modulepart = 'bookcal';
+	//$permissiontoadd = $user->hasRight('bookcal', 'availabilities', 'write');
+	$permissiontoadd = 1;
+	//$permtoedit = $user->hasRight('bookcal', 'availabilities', 'write');
+	$permtoedit = 1;
 	$param = '&id='.$object->id;
 
 	//$relativepathwithnofile='availabilities/' . dol_sanitizeFileName($object->id).'/';

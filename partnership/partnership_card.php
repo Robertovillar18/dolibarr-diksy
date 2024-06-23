@@ -34,7 +34,7 @@ require_once DOL_DOCUMENT_ROOT.'/partnership/lib/partnership.lib.php';
 $langs->loadLangs(array("partnership", "other"));
 
 // Get parameters
-$id = GETPOSTINT('id');
+$id = GETPOST('id', 'int');
 $ref = GETPOST('ref', 'alpha');
 $action = GETPOST('action', 'aZ09');
 $confirm = GETPOST('confirm', 'alpha');
@@ -42,7 +42,7 @@ $cancel = GETPOST('cancel', 'aZ09');
 $contextpage = GETPOST('contextpage', 'aZ') ? GETPOST('contextpage', 'aZ') : str_replace('_', '', basename(dirname(__FILE__)).basename(__FILE__, '.php')); // To manage different context of search
 $backtopage = GETPOST('backtopage', 'alpha');
 $backtopageforcancel = GETPOST('backtopageforcancel', 'alpha');
-$lineid   = GETPOSTINT('lineid');
+$lineid   = GETPOST('lineid', 'int');
 $dol_openinpopup = GETPOST('dol_openinpopup', 'aZ09');
 
 // Initialize technical objects
@@ -56,7 +56,7 @@ $extrafields->fetch_name_optionals_label($object->table_element);
 
 $search_array_options = $extrafields->getOptionalsFromPost($object->table_element, '', 'search_');
 
-// Initialize array of search criteria
+// Initialize array of search criterias
 $search_all = GETPOST("search_all", 'alpha');
 $search = array();
 
@@ -126,7 +126,7 @@ if (empty($reshook)) {
 		}
 	}
 
-	$fk_partner 	= ($managedfor == 'member') ? GETPOSTINT('fk_member') : GETPOSTINT('fk_soc');
+	$fk_partner 	= ($managedfor == 'member') ? GETPOST('fk_member', 'int') : GETPOST('fk_soc', 'int');
 	$obj_partner 	= ($managedfor == 'member') ? $object->fk_member : $object->fk_soc;
 
 	$triggermodname = 'PARTNERSHIP_MODIFY'; // Name of trigger action code to execute when we modify record
@@ -238,10 +238,10 @@ if (empty($reshook)) {
 	include DOL_DOCUMENT_ROOT.'/core/actions_builddoc.inc.php';
 
 	if ($action == 'set_thirdparty' && $permissiontoadd) {
-		$object->setValueFrom('fk_soc', GETPOSTINT('fk_soc'), '', '', 'date', '', $user, $triggermodname);
+		$object->setValueFrom('fk_soc', GETPOST('fk_soc', 'int'), '', '', 'date', '', $user, $triggermodname);
 	}
 	if ($action == 'classin' && $permissiontoadd) {
-		$object->setProject(GETPOSTINT('projectid'));
+		$object->setProject(GETPOST('projectid', 'int'));
 	}
 
 	// Actions to send emails
@@ -272,7 +272,7 @@ $formproject = new FormProjets($db);
 
 $title = $langs->trans("Partnership");
 $help_url = '';
-llxHeader('', $title, $help_url, '', 0, 0, '', '', '', 'mod-partnership page-card');
+llxHeader('', $title, $help_url);
 
 // Part to create
 if ($action == 'create') {
@@ -517,7 +517,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		// Show object lines
 		$result = $object->getLinesArray();
 
-		print '	<form name="addproduct" id="addproduct" action="'.$_SERVER["PHP_SELF"].'?id='.$object->id.(($action != 'editline') ? '' : '#line_'.GETPOSTINT('lineid')).'" method="POST">
+		print '	<form name="addproduct" id="addproduct" action="'.$_SERVER["PHP_SELF"].'?id='.$object->id.(($action != 'editline') ? '' : '#line_'.GETPOST('lineid', 'int')).'" method="POST">
 		<input type="hidden" name="token" value="' . newToken().'">
 		<input type="hidden" name="action" value="' . (($action != 'editline') ? 'addline' : 'updateline').'">
 		<input type="hidden" name="mode" value="">
@@ -535,7 +535,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		}
 
 		if (!empty($object->lines)) {
-			$object->printObjectLines($action, $mysoc, null, GETPOSTINT('lineid'), 1);
+			$object->printObjectLines($action, $mysoc, null, GETPOST('lineid', 'int'), 1);
 		}
 
 		// Form to add new line

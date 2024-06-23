@@ -3,7 +3,6 @@
  * Copyright (C) 2005      Marc Barilley / Ocebo <marc@ocebo.com>
  * Copyright (C) 2006-2010 Laurent Destailleur   <eldy@users.sourceforge.net>
  * Copyright (C) 2014      Marcos García         <marcosgdf@gmail.com>
- * Copyright (C) 2024		MDW							<mdeweerd@users.noreply.github.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +20,7 @@
 
 /**
  *    \file       htdocs/fourn/paiement/card.php
- *    \ingroup    invoice, fournisseur
+ *    \ingroup    facture, fournisseur
  *    \brief      Tab to show a payment of a supplier invoice
  *    \remarks    Fichier presque identique a compta/paiement/card.php
  */
@@ -41,7 +40,7 @@ $langs->loadLangs(array('banks', 'bills', 'companies', 'suppliers'));
 
 
 // Get Parameters
-$id 		= GETPOSTINT('id');
+$id 		= GETPOST('id', 'int');
 $action		= GETPOST('action', 'alpha');
 $confirm 	= GETPOST('confirm', 'alpha');
 
@@ -91,7 +90,7 @@ if ($action == 'confirm_delete' && $confirm == 'yes' && $user->hasRight("fournis
 	$db->begin();
 
 	$object->fetch($id);
-	$result = $object->delete($user);
+	$result = $object->delete();
 	if ($result > 0) {
 		$db->commit();
 		header('Location: '.DOL_URL_ROOT.'/fourn/paiement/list.php');
@@ -131,7 +130,7 @@ if ($action == 'setnum_paiement' && GETPOST('num_paiement')) {
 
 if ($action == 'setdatep' && GETPOST('datepday')) {
 	$object->fetch($id);
-	$datepaye = dol_mktime(GETPOSTINT('datephour'), GETPOSTINT('datepmin'), GETPOSTINT('datepsec'), GETPOSTINT('datepmonth'), GETPOSTINT('datepday'), GETPOSTINT('datepyear'));
+	$datepaye = dol_mktime(GETPOST('datephour', 'int'), GETPOST('datepmin', 'int'), GETPOST('datepsec', 'int'), GETPOST('datepmonth', 'int'), GETPOST('datepday', 'int'), GETPOST('datepyear', 'int'));
 	$res = $object->update_date($datepaye);
 	if ($res === 0) {
 		setEventMessages($langs->trans('PaymentDateUpdateSucceeded'), null, 'mesgs');
@@ -222,7 +221,7 @@ if ($result > 0) {
 
 	// Amount
 	print '<tr><td>'.$langs->trans('Amount').'</td>';
-	print '<td><span class="amount">'.price($object->amount, 0, $langs, 0, 0, -1, $conf->currency).'</span></td></tr>';
+	print '<td><span class="amount">'.price($object->amount, '', $langs, 0, 0, -1, $conf->currency).'</span></td></tr>';
 
 	// Status of validation of payment
 	if (getDolGlobalString('BILL_ADD_PAYMENT_VALIDATION')) {
@@ -232,7 +231,7 @@ if ($result > 0) {
 
 	$allow_delete = 1;
 	// Bank account
-	if (isModEnabled("bank")) {
+	if (isModEnabled("banque")) {
 		if ($object->fk_account) {
 			$bankline = new AccountLine($db);
 			$bankline->fetch($object->bank_line);
@@ -310,7 +309,6 @@ if ($result > 0) {
 				$facturestatic->total_tva = $objp->total_tva;
 				$facturestatic->total_ttc = $objp->total_ttc;
 				$facturestatic->statut = $objp->status;
-				$facturestatic->status = $objp->status;
 				$facturestatic->alreadypaid = -1; // unknown
 
 				print '<tr class="oddeven">';
@@ -370,7 +368,7 @@ if ($result > 0) {
 		if ($user->socid == 0 && $object->statut == 0 && $action == '') {
 			if ((!getDolGlobalString('MAIN_USE_ADVANCED_PERMS') && ($user->hasRight("fournisseur", "facture", "creer") || $user->hasRight("supplier_invoice", "creer")))
 			|| (getDolGlobalString('MAIN_USE_ADVANCED_PERMS') && $user->hasRight("fournisseur", "supplier_invoice_advance", "validate"))) {
-				print '<a class="butAction" href="'.$_SERVER['PHP_SELF'].'?id='.$object->id.'&amp;action=validate&token='.newToken().'">'.$langs->trans('Valid').'</a>';
+				print '<a class="butAction" href="'.$_SERVER['PHP_SELF'].'?id='.$object->id.'&amp;action=validate">'.$langs->trans('Valid').'</a>';
 			}
 		}
 	}

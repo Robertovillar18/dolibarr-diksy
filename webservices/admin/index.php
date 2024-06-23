@@ -37,7 +37,7 @@ if (!$user->admin) {
 
 $actionsave = GETPOST("save");
 
-// Sauvegardes parameters
+// Sauvegardes parametres
 if ($actionsave) {
 	$i = 0;
 
@@ -59,7 +59,7 @@ if ($actionsave) {
  *	View
  */
 
-llxHeader('', '', '', '', 0, 0, '', '', '', 'mod-webservices page-admin_index');
+llxHeader();
 
 $linkback = '<a href="'.DOL_URL_ROOT.'/admin/modules.php?restore_lastsearch_values=1">'.$langs->trans("BackToModuleList").'</a>';
 
@@ -105,11 +105,11 @@ $webservices = array(
 		'thirdparty'		=> 'isModEnabled("societe")',
 		'contact'			=> 'isModEnabled("societe")',
 		'productorservice'	=> '(isModEnabled("product") || isModEnabled("service"))',
-		'order'				=> 'isModEnabled("order")',
-		'invoice'			=> 'isModEnabled("invoice")',
+		'order'				=> 'isModEnabled("commande")',
+		'invoice'			=> 'isModEnabled("facture")',
 		'supplier_invoice'	=> 'isModEnabled("fournisseur")',
 		'actioncomm'		=> 'isModEnabled("agenda")',
-		'category'			=> 'isModEnabled("category")',
+		'category'			=> 'isModEnabled("categorie")',
 		'project'			=> 'isModEnabled("project")',
 		'other'				=> ''
 );

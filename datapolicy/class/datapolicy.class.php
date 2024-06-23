@@ -1,6 +1,5 @@
 <?php
 /* Copyright (C) 2018 Nicolas ZABOURI <info@inovea-conseil.com>
- * Copyright (C) 2024       Frédéric France             <frederic.france@free.fr>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -189,10 +188,10 @@ class DataPolicy
 		$la = 'TXTLINKDATAPOLICYACCEPT_'.$l;
 		$lr = 'TXTLINKDATAPOLICYREFUSE_'.$l;
 
-		$subject = getDolGlobalString($s);
-		$message = getDolGlobalString($ma);
-		$linka = getDolGlobalString($la);
-		$linkr = getDolGlobalString($lr);
+		$subject = $conf->global->$s;
+		$message = $conf->global->$ma;
+		$linka = $conf->global->$la;
+		$linkr = $conf->global->$lr;
 		$sendtocc = $sendtobcc = '';
 		$filepath = $mimetype = $filename = array();
 		$deliveryreceipt = 0;
@@ -208,7 +207,7 @@ class DataPolicy
 		$message = make_substitutions($message, $substitutionarray);
 
 		$actiontypecode = 'AC_EMAIL';
-		$actionmsg = $langs->transnoentities('MailSentByTo', $from, $sendto);
+		$actionmsg = $langs->transnoentities('MailSentBy').' '.$from.' '.$langs->transnoentities('To').' '.$sendto;
 		if ($message) {
 			if ($sendtocc) {
 				$actionmsg = dol_concatdesc($actionmsg, $langs->transnoentities('Bcc').": ".$sendtocc);
@@ -268,10 +267,10 @@ class DataPolicy
 		$la = 'TXTLINKDATAPOLICYACCEPT_'.$l;
 		$lr = 'TXTLINKDATAPOLICYREFUSE_'.$l;
 
-		$subject = getDolGlobalString($s);
-		$message = getDolGlobalString($ma);
-		$linka = getDolGlobalString($la);
-		$linkr = getDolGlobalString($lr);
+		$subject = $conf->global->$s;
+		$message = $conf->global->$ma;
+		$linka = $conf->global->$la;
+		$linkr = $conf->global->$lr;
 		$sendtocc = $sendtobcc = '';
 		$filepath = $mimetype = $filename = array();
 		$deliveryreceipt = 0;
@@ -284,7 +283,7 @@ class DataPolicy
 		$message = make_substitutions($message, $substitutionarray);
 
 		$actiontypecode = 'AC_EMAIL';
-		$actionmsg = $langs->transnoentities('MailSentByTo', $from, $sendto);
+		$actionmsg = $langs->transnoentities('MailSentBy').' '.$from.' '.$langs->transnoentities('To').' '.$sendto;
 		if ($message) {
 			if ($sendtocc) {
 				$actionmsg = dol_concatdesc($actionmsg, $langs->transnoentities('Bcc').": ".$sendtocc);
@@ -307,7 +306,7 @@ class DataPolicy
 			if ($resultmail) {
 				$resultmasssend .= $langs->trans("MailSent").': '.$sendto."<br>";
 				$societe->array_options['options_datapolicy_send'] = date('Y-m-d', time());
-				$societe->update($societe->id, $user);
+				$societe->update($societe->id);
 			} else {
 				dol_print_error($db);
 			}
@@ -343,10 +342,10 @@ class DataPolicy
 		$la = 'TXTLINKDATAPOLICYACCEPT_'.$l;
 		$lr = 'TXTLINKDATAPOLICYREFUSE_'.$l;
 
-		$subject = getDolGlobalString($s);
-		$message = getDolGlobalString($ma);
-		$linka = getDolGlobalString($la);
-		$linkr = getDolGlobalString($lr);
+		$subject = $conf->global->$s;
+		$message = $conf->global->$ma;
+		$linka = $conf->global->$la;
+		$linkr = $conf->global->$lr;
 		$sendtocc = $sendtobcc = '';
 		$filepath = $mimetype = $filename = array();
 		$deliveryreceipt = 0;
@@ -359,7 +358,7 @@ class DataPolicy
 		$message = make_substitutions($message, $substitutionarray);
 
 		$actiontypecode = 'AC_EMAIL';
-		$actionmsg = $langs->transnoentities('MailSentByTo', $from, $sendto);
+		$actionmsg = $langs->transnoentities('MailSentBy').' '.$from.' '.$langs->transnoentities('To').' '.$sendto;
 		if ($message) {
 			if ($sendtocc) {
 				$actionmsg = dol_concatdesc($actionmsg, $langs->transnoentities('Bcc').": ".$sendtocc);

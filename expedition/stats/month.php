@@ -18,7 +18,7 @@
 
 /**
  *    \file       htdocs/expedition/stats/month.php
- *    \ingroup    order
+ *    \ingroup    commande
  *    \brief      Page des stats expeditions par mois
  */
 
@@ -28,7 +28,7 @@ require_once DOL_DOCUMENT_ROOT.'/expedition/class/expedition.class.php';
 require_once DOL_DOCUMENT_ROOT.'/expedition/class/expeditionstats.class.php';
 require_once DOL_DOCUMENT_ROOT.'/core/class/dolgraph.class.php';
 
-$year = GETPOSTINT('year');
+$year = GETPOST('year', 'int');
 
 // Security check
 if ($user->socid) {

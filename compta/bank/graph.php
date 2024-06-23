@@ -2,7 +2,6 @@
 /* Copyright (C) 2005      Rodolphe Quiedeville <rodolphe@quiedeville.org>
  * Copyright (C) 2004-2010 Laurent Destailleur  <eldy@users.sourceforge.net>
  * Copyright (C) 2005-2009 Regis Houssin        <regis.houssin@inodbox.com>
- * Copyright (C) 2024		MDW							<mdeweerd@users.noreply.github.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -66,17 +65,17 @@ $datetime = dol_now();
 $year = dol_print_date($datetime, "%Y");
 $month = dol_print_date($datetime, "%m");
 $day = dol_print_date($datetime, "%d");
-if (GETPOSTINT("year")) {
-	$year = sprintf("%04d", GETPOSTINT("year"));
+if (GETPOST("year", 'int')) {
+	$year = sprintf("%04d", GETPOST("year", 'int'));
 }
-if (GETPOSTINT("month")) {
-	$month = sprintf("%02d", GETPOSTINT("month"));
+if (GETPOST("month", 'int')) {
+	$month = sprintf("%02d", GETPOST("month", 'int'));
 }
 
 
 $object = new Account($db);
 if (GETPOST('account') && !preg_match('/,/', GETPOST('account'))) {	// if for a particular account and not a list
-	$result = $object->fetch(GETPOSTINT('account'));
+	$result = $object->fetch(GETPOST('account', 'int'));
 }
 if (GETPOST("ref")) {
 	$result = $object->fetch(0, GETPOST("ref"));
@@ -126,14 +125,12 @@ if ($result < 0) {
 		// Loading table $amounts
 		$amounts = array();
 
-		$monthnext = (int) $month + 1;
-		$yearnext = (int) $year;
+		$monthnext = $month + 1;
+		$yearnext = $year;
 		if ($monthnext > 12) {
 			$monthnext = 1;
 			$yearnext++;
 		}
-		$monthnext = sprintf('%02d', $monthnext);
-		$yearnext = sprintf('%04d', $yearnext);
 
 		$sql = "SELECT date_format(b.datev,'%Y%m%d')";
 		$sql .= ", SUM(b.amount)";
@@ -198,7 +195,6 @@ if ($result < 0) {
 		$xmonth = substr($textdate, 4, 2);
 
 		$i = 0;
-		$dataall = array();
 		while ($xmonth == $month) {
 			$subtotal = $subtotal + (isset($amounts[$textdate]) ? $amounts[$textdate] : 0);
 			if ($day > time()) {
@@ -269,7 +265,7 @@ if ($result < 0) {
 		$px1 = null;
 		$graph_datas = null;
 		$datas = null;
-		$datamin = array();
+		$datamin = null;
 		$dataall = null;
 		$labels = null;
 		$amounts = null;
@@ -537,14 +533,12 @@ if ($result < 0) {
 		$credits = array();
 		$debits = array();
 
-		$monthnext = (int) $month + 1;
-		$yearnext = (int) $year;
+		$monthnext = $month + 1;
+		$yearnext = $year;
 		if ($monthnext > 12) {
 			$monthnext = 1;
 			$yearnext++;
 		}
-		$monthnext = sprintf('%02d', $monthnext);
-		$yearnext = sprintf('%04d', $yearnext);
 
 		$sql = "SELECT date_format(b.datev,'%d')";
 		$sql .= ", SUM(b.amount)";
@@ -574,14 +568,12 @@ if ($result < 0) {
 			dol_print_error($db);
 		}
 
-		$monthnext = (int) $month + 1;
-		$yearnext = (int) $year;
+		$monthnext = $month + 1;
+		$yearnext = $year;
 		if ($monthnext > 12) {
 			$monthnext = 1;
 			$yearnext++;
 		}
-		$monthnext = sprintf('%02d', $monthnext);
-		$yearnext = sprintf('%04d', $yearnext);
 
 		$sql = "SELECT date_format(b.datev,'%d')";
 		$sql .= ", SUM(b.amount)";
@@ -608,7 +600,7 @@ if ($result < 0) {
 		}
 
 
-		// Chargement de labels et data_xxx pour tableau 4 Movements
+		// Chargement de labels et data_xxx pour tableau 4 Mouvements
 		$labels = array();
 		$data_credit = array();
 		$data_debit = array();
@@ -709,7 +701,7 @@ if ($result < 0) {
 		}
 
 
-		// Chargement de labels et data_xxx pour tableau 4 Movements
+		// Chargement de labels et data_xxx pour tableau 4 Mouvements
 		$labels = array();
 		$data_credit = array();
 		$data_debit = array();
@@ -812,10 +804,10 @@ print '</table>';
 
 // Graphs
 if ($mode == 'standard') {
-	$prevyear = (int) $year;
-	$nextyear = (int) $year;
-	$prevmonth = (int) $month - 1;
-	$nextmonth = (int) $month + 1;
+	$prevyear = $year;
+	$nextyear = $year;
+	$prevmonth = $month - 1;
+	$nextmonth = $month + 1;
 	if ($prevmonth < 1) {
 		$prevmonth = 12;
 		$prevyear--;
@@ -824,10 +816,6 @@ if ($mode == 'standard') {
 		$nextmonth = 1;
 		$nextyear++;
 	}
-	$nextmonth = sprintf('%02d', $nextmonth);
-	$prevmonth = sprintf('%02d', $prevmonth);
-	$nextyear = sprintf('%04d', $nextyear);
-	$prevyear = sprintf('%04d', $prevyear);
 
 	// For month
 	$link = "<a href='".$_SERVER["PHP_SELF"]."?account=".$account.(GETPOST("option") != 'all' ? '' : '&option=all')."&year=".$prevyear."&month=".$prevmonth."'>".img_previous('', 'class="valignbottom"')."</a> ".$langs->trans("Month")." <a href='".$_SERVER["PHP_SELF"]."?account=".$account.(GETPOST("option") != 'all' ? '' : '&option=all')."&year=".$nextyear."&month=".$nextmonth."'>".img_next('', 'class="valignbottom"')."</a>";
@@ -843,10 +831,8 @@ if ($mode == 'standard') {
 	print '</div>';
 
 	// For year
-	$prevyear = (int) $year - 1;
-	$nextyear = (int) $year + 1;
-	$nextyear = sprintf('%04d', $nextyear);
-	$prevyear = sprintf('%04d', $prevyear);
+	$prevyear = $year - 1;
+	$nextyear = $year + 1;
 	$link = "<a href='".$_SERVER["PHP_SELF"]."?account=".$account.(GETPOST("option") != 'all' ? '' : '&option=all')."&year=".($prevyear)."'>".img_previous('', 'class="valignbottom"')."</a> ".$langs->trans("Year")." <a href='".$_SERVER["PHP_SELF"]."?account=".$account.(GETPOST("option") != 'all' ? '' : '&option=all')."&year=".($nextyear)."'>".img_next('', 'class="valignbottom"')."</a>";
 
 	print '<div class="right clearboth margintoponly">'.$link.'</div>';

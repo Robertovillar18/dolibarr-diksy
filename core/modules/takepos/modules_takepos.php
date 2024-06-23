@@ -30,7 +30,7 @@ require_once DOL_DOCUMENT_ROOT.'/core/class/commonnumrefgenerator.class.php';
 
 
 /**
- *  Parent Class of the models to number the cash register receipts
+ *  Classe mere des modeles de numerotation des tickets de caisse
  */
 abstract class ModeleNumRefTakepos extends CommonNumRefGenerator
 {

@@ -42,20 +42,21 @@ $langs->loadLangs(array('other', 'products', 'contracts'));
 
 $action		= GETPOST('action', 'alpha');
 $confirm	= GETPOST('confirm', 'alpha');
-$id			= GETPOSTINT('id');
+$id			= GETPOST('id', 'int');
 $ref		= GETPOST('ref', 'alpha');
 
 // Security check
 if ($user->socid > 0) {
+	unset($_GET["action"]);
 	$action = '';
 	$socid = $user->socid;
 }
 
 // Get parameters
-$limit = GETPOSTINT('limit') ? GETPOSTINT('limit') : $conf->liste_limit;
+$limit = GETPOST('limit', 'int') ? GETPOST('limit', 'int') : $conf->liste_limit;
 $sortfield = GETPOST('sortfield', 'aZ09comma');
 $sortorder = GETPOST('sortorder', 'aZ09comma');
-$page = GETPOSTISSET('pageplusone') ? (GETPOSTINT('pageplusone') - 1) : GETPOSTINT("page");
+$page = GETPOSTISSET('pageplusone') ? (GETPOST('pageplusone') - 1) : GETPOST("page", 'int');
 if (empty($page) || $page == -1) {
 	$page = 0;
 }     // If $page is not defined, or '' or -1

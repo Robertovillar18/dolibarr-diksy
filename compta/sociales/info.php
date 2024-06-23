@@ -34,7 +34,7 @@ if (isModEnabled('project')) {
 // Load translation files required by the page
 $langs->loadLangs(array('compta', 'bills'));
 
-$id = GETPOSTINT('id');
+$id = GETPOST('id', 'int');
 $action = GETPOST('action', 'aZ09');
 
 $object = new ChargeSociales($db);
@@ -43,7 +43,7 @@ if ($id > 0) {
 }
 
 // Security check
-$socid = GETPOSTINT('socid');
+$socid = GETPOST('socid', 'int');
 if ($user->socid) {
 	$socid = $user->socid;
 }
@@ -111,8 +111,8 @@ $linkback = '<a href="'.DOL_URL_ROOT.'/compta/sociales/list.php?restore_lastsear
 
 $object->totalpaid = $alreadypayed; // To give a chance to dol_banner_tab to use already paid amount to show correct status
 
-$morehtmlstatus = '';
-dol_banner_tab($object, 'id', $linkback, 1, 'rowid', 'ref', $morehtmlref, '', 0, '', $morehtmlstatus);
+$morehtmlright = '';
+dol_banner_tab($object, 'id', $linkback, 1, 'rowid', 'ref', $morehtmlref, '', 0, '', $morehtmlright);
 
 print '<div class="fichecenter">';
 print '<div class="underbanner clearboth"></div>';

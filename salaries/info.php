@@ -37,15 +37,15 @@ if (isModEnabled('project')) {
 // Load translation files required by the page
 $langs->loadLangs(array("compta", "bills", "users", "salaries", "hrm"));
 
-$id = GETPOSTINT('id');
+$id = GETPOST('id', 'int');
 $ref = GETPOST('ref', 'alpha');
 $action = GETPOST('action', 'aZ09');
 
 $label = GETPOST('label', 'alphanohtml');
-$projectid = (GETPOSTINT('projectid') ? GETPOSTINT('projectid') : GETPOSTINT('fk_project'));
+$projectid = (GETPOST('projectid', 'int') ? GETPOST('projectid', 'int') : GETPOST('fk_project', 'int'));
 
 // Security check
-$socid = GETPOSTINT('socid');
+$socid = GETPOST('socid', 'int');
 if ($user->socid) {
 	$socid = $user->socid;
 }

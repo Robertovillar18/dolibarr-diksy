@@ -92,10 +92,10 @@ class AddressBookHome extends DAV\Collection implements DAV\IExtendedCollection,
      *
      * This is currently not allowed
      *
-     * @param string   $name
+     * @param string   $filename
      * @param resource $data
      */
-    public function createFile($name, $data = null)
+    public function createFile($filename, $data = null)
     {
         throw new DAV\Exception\MethodNotAllowed('Creating new files in this collection is not supported');
     }

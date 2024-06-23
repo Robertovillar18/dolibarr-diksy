@@ -1,8 +1,6 @@
 <?php
 /* Copyright (C) 2004-2010 Laurent Destailleur  <eldy@users.sourceforge.net>
  * Copyright (C) 2005-2007 Regis Houssin        <regis.houssin@inodbox.com>
- * Copyright (C) 2024		MDW							<mdeweerd@users.noreply.github.com>
- * Copyright (C) 2024       Frédéric France             <frederic.france@free.fr>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -63,10 +61,12 @@ function getDefaultImageSizes()
  *      Return if a filename is file name of a supported image format
  *
  *      @param	int		$acceptsvg	0=Default (depends on setup), 1=Always accept SVG as image files
- *      @return string				Return list of image formats
+ *      @return string				Return list fo image format
  */
 function getListOfPossibleImageExt($acceptsvg = 0)
 {
+	global $conf;
+
 	$regeximgext = '\.gif|\.jpg|\.jpeg|\.png|\.bmp|\.webp|\.xpm|\.xbm'; // See also into product.class.php
 	if ($acceptsvg || getDolGlobalString('MAIN_ALLOW_SVG_FILES_AS_IMAGES')) {
 		$regeximgext .= '|\.svg'; // Not allowed by default. SVG can contains javascript
@@ -123,7 +123,7 @@ function image_format_supported($file, $acceptsvg = 0)
 	}
 	if ($imgfonction) {
 		if (!function_exists($imgfonction)) {
-			// Functions of conversion not available in this PHP
+			// Fonctions of conversion not available in this PHP
 			return 0;
 		}
 
@@ -199,7 +199,7 @@ function dol_imageResizeOrCrop($file, $mode, $newWidth, $newHeight, $src_x = 0, 
 		// Si le fichier n'a pas ete indique
 		return 'Bad parameter file';
 	} elseif (!file_exists($file)) {
-		// Si le fichier passe en parameter n'existe pas
+		// Si le fichier passe en parametre n'existe pas
 		return $langs->trans("ErrorFileNotFound", $file);
 	} elseif (image_format_supported($file) < 0) {
 		return 'This filename '.$file.' does not seem to be an image filename.';
@@ -255,7 +255,7 @@ function dol_imageResizeOrCrop($file, $mode, $newWidth, $newHeight, $src_x = 0, 
 	}
 	if ($imgfonction) {
 		if (!function_exists($imgfonction)) {
-			// Functions de conversion non presente dans ce PHP
+			// Fonctions de conversion non presente dans ce PHP
 			return 'Read of image not possible. This PHP does not support GD functions '.$imgfonction;
 		}
 	}
@@ -283,7 +283,7 @@ function dol_imageResizeOrCrop($file, $mode, $newWidth, $newHeight, $src_x = 0, 
 		}
 		if ($imgfonction) {
 			if (!function_exists($imgfonction)) {
-				// Functions de conversion non presente dans ce PHP
+				// Fonctions de conversion non presente dans ce PHP
 				return 'Write of image not possible. This PHP does not support GD functions '.$imgfonction;
 			}
 		}
@@ -335,7 +335,7 @@ function dol_imageResizeOrCrop($file, $mode, $newWidth, $newHeight, $src_x = 0, 
 	$trans_colour = -1;	// By default, undefined
 	switch ($newExt) {
 		case 'gif':	// Gif
-			$trans_colour = imagecolorallocate($imgTarget, 255, 255, 255); // The method is different for the GIF format
+			$trans_colour = imagecolorallocate($imgTarget, 255, 255, 255); // On procede autrement pour le format GIF
 			imagecolortransparent($imgTarget, $trans_colour);
 			break;
 		case 'jpg':	// Jpg
@@ -343,7 +343,7 @@ function dol_imageResizeOrCrop($file, $mode, $newWidth, $newHeight, $src_x = 0, 
 			$trans_colour = imagecolorallocatealpha($imgTarget, 255, 255, 255, 0);
 			break;
 		case 'png':	// Png
-			imagealphablending($imgTarget, false); // For compatibility with certain systems
+			imagealphablending($imgTarget, false); // Pour compatibilite sur certain systeme
 			$trans_colour = imagecolorallocatealpha($imgTarget, 255, 255, 255, 127); // Keep transparent channel
 			break;
 		case 'bmp':	// Bmp
@@ -453,7 +453,7 @@ function correctExifImageOrientation($fileSource, $fileDest, $quality = 95)
 					if ($infoImg[2] === IMAGETYPE_PNG) { // In fact there is no exif on PNG but just in case
 						imagealphablending($img, false);
 						imagesavealpha($img, true);
-						$img = imagerotate($img, $deg, imagecolorallocatealpha($img, 0, 0, 0, 127));
+						$img = imagerotate($img, $deg, imageColorAllocateAlpha($img, 0, 0, 0, 127));
 						imagealphablending($img, false);
 						imagesavealpha($img, true);
 					} else {
@@ -509,13 +509,13 @@ function correctExifImageOrientation($fileSource, $fileDest, $quality = 95)
  *    	@param     int		$quality        	Quality of compression (0=worst, 100=best)
  *      @param     string	$outdir           	Directory where to store thumb
  *      @param     int		$targetformat     	New format of target (IMAGETYPE_GIF, IMAGETYPE_JPG, IMAGETYPE_PNG, IMAGETYPE_BMP, IMAGETYPE_WBMP ... or 0 to keep old format)
- *    	@return    string|0						Full path of thumb or '' if it fails or 'Error...' if it fails, or 0 if it fails to detect the type of image
+ *    	@return    string						Full path of thumb or '' if it fails or 'Error...' if it fails
  */
 function vignette($file, $maxWidth = 160, $maxHeight = 120, $extName = '_small', $quality = 50, $outdir = 'thumbs', $targetformat = 0)
 {
 	require_once DOL_DOCUMENT_ROOT.'/core/lib/functions2.lib.php';
 
-	global $langs;
+	global $conf, $langs;
 
 	dol_syslog("vignette file=".$file." extName=".$extName." maxWidth=".$maxWidth." maxHeight=".$maxHeight." quality=".$quality." outdir=".$outdir." targetformat=".$targetformat);
 
@@ -633,8 +633,7 @@ function vignette($file, $maxWidth = 160, $maxHeight = 120, $extName = '_small',
 	}
 
 	// Before PHP8, img was a resource, With PHP8, it is a GdImage
-	// if (!is_resource($img) && class_exists('GdImage') && !($img instanceof GdImage)) {
-	if (is_null($img) || $img === false) {
+	if (!is_resource($img) && class_exists('GdImage') && !($img instanceof GdImage)) {
 		dol_syslog('Failed to detect type of image. We found infoImg[2]='.$infoImg[2], LOG_WARNING);
 		return 0;
 	}
@@ -663,10 +662,10 @@ function vignette($file, $maxWidth = 160, $maxHeight = 120, $extName = '_small',
 	if ($exifAngle) {
 		$rotated = false;
 
-		if ($infoImg[2] === IMAGETYPE_PNG) { // In fact there is no exif on PNG but just in case
+		if ($infoImg[2] === 'IMAGETYPE_PNG') { // In fact there is no exif on PNG but just in case
 			imagealphablending($img, false);
 			imagesavealpha($img, true);
-			$rotated = imagerotate($img, $exifAngle, imagecolorallocatealpha($img, 0, 0, 0, 127));
+			$rotated = imagerotate($img, $exifAngle, imageColorAllocateAlpha($img, 0, 0, 0, 127));
 			imagealphablending($rotated, false);
 			imagesavealpha($rotated, true);
 		} else {
@@ -702,8 +701,8 @@ function vignette($file, $maxWidth = 160, $maxHeight = 120, $extName = '_small',
 		$thumbHeight = $maxHeight;
 		$thumbWidth  = $thumbHeight * $imgWhFact;
 	}
-	$thumbHeight = (int) round($thumbHeight);
-	$thumbWidth = (int) round($thumbWidth);
+	$thumbHeight = round($thumbHeight);
+	$thumbWidth = round($thumbWidth);
 
 	// Define target format
 	if (empty($targetformat)) {
@@ -813,19 +812,4 @@ function vignette($file, $maxWidth = 160, $maxHeight = 120, $extName = '_small',
 	imagedestroy($imgThumb);
 
 	return $imgThumbName;
-}
-
-
-/**
- * Beautify an image by adding a link edit and delete on image
- *
- * @param	string		$htmlid			ID of HTML img tag
- * @param	string		$urledit		URL to submit to edit Image
- * @param	string		$urldelete		URL to call when deleting the image
- * @return	string						HTML and JS code to manage the update/delete of image.
- */
-function imgAddEditDeleteButton($htmlid, $urledit, $urldelete)
-{
-	// TODO
-	return '';
 }

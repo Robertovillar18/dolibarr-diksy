@@ -5,8 +5,6 @@
  * Copyright (C) 2015		Jean-François Ferry	    <jfefe@aternatik.fr>
  * Copyright (C) 2016		Charlie Benke		    <charlie@patas-monkey.com>
  * Copyright (C) 2017       Open-DSI                <support@open-dsi.fr>
- * Copyright (C) 2024		MDW							<mdeweerd@users.noreply.github.com>
- * Copyright (C) 2024       Frédéric France             <frederic.france@free.fr>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -66,7 +64,7 @@ if (preg_match('/set_([a-z0-9_\-]+)/i', $action, $reg)) {
 	$code = $reg[1];
 	$value = (GETPOST($code, 'alpha') ? GETPOST($code, 'alpha') : 1);
 	if (dolibarr_set_const($db, $code, $value, 'chaine', 0, '', $conf->entity) > 0) {
-		header("Location: ".$_SERVER["PHP_SELF"]);
+		Header("Location: ".$_SERVER["PHP_SELF"]);
 		exit;
 	} else {
 		dol_print_error($db);
@@ -76,7 +74,7 @@ if (preg_match('/set_([a-z0-9_\-]+)/i', $action, $reg)) {
 if (preg_match('/del_([a-z0-9_\-]+)/i', $action, $reg)) {
 	$code = $reg[1];
 	if (dolibarr_del_const($db, $code, $conf->entity) > 0) {
-		header("Location: ".$_SERVER["PHP_SELF"]);
+		Header("Location: ".$_SERVER["PHP_SELF"]);
 		exit;
 	} else {
 		dol_print_error($db);
@@ -91,7 +89,7 @@ if ($action == 'set') {
 	dolibarr_set_const($db, 'AGENDA_DEFAULT_VIEW', GETPOST('AGENDA_DEFAULT_VIEW'), 'chaine', 0, '', $conf->entity);
 
 	$defaultValues = new DefaultValues($db);
-	$result = $defaultValues->fetchAll('', '', 0, 0, array('t.page' => 'comm/action/card.php', 't.param' => 'complete', 't.user_id' => '0', 't.type' => 'createform', 't.entity' => $conf->entity));
+	$result = $defaultValues->fetchAll('', '', 0, 0, array('t.page'=>'comm/action/card.php', 't.param'=>'complete', 't.user_id'=>'0', 't.type'=>'createform', 't.entity'=>$conf->entity));
 	if (!is_array($result) && $result < 0) {
 		setEventMessages($defaultValues->error, $defaultValues->errors, 'errors');
 	} elseif (count($result) > 0) {
@@ -125,20 +123,21 @@ if ($action == 'set') {
 	// Search template files
 	$file = '';
 	$classname = '';
+	$filefound = 0;
 	$dirmodels = array_merge(array('/'), (array) $conf->modules_parts['models']);
 	foreach ($dirmodels as $reldir) {
 		$file = dol_buildpath($reldir."core/modules/action/doc/pdf_".$modele.".modules.php", 0);
 		if (file_exists($file)) {
+			$filefound = 1;
 			$classname = "pdf_".$modele;
 			break;
 		}
 	}
 
-	if ($classname !== '') {
+	if ($filefound) {
 		require_once $file;
 
 		$module = new $classname($db, $commande);
-		'@phan-var-force pdf_standard_actions $module';
 
 		if ($module->write_file($commande, $langs) > 0) {
 			header("Location: ".DOL_URL_ROOT."/document.php?modulepart=action&file=SPECIMEN.pdf");
@@ -182,13 +181,11 @@ if ($action == 'set') {
  * View
  */
 
-$form = new Form($db);
 $formactions = new FormActions($db);
-
 $dirmodels = array_merge(array('/'), (array) $conf->modules_parts['models']);
 
 $wikihelp = 'EN:Module_Agenda_En|FR:Module_Agenda|ES:Módulo_Agenda|DE:Modul_Terminplanung';
-llxHeader('', $langs->trans("AgendaSetup"), $wikihelp, '', 0, 0, '', '', '', 'mod-admin page-agenda_other');
+llxHeader('', $langs->trans("AgendaSetup"), $wikihelp);
 
 $linkback = '<a href="'.DOL_URL_ROOT.'/admin/modules.php?restore_lastsearch_values=1">'.$langs->trans("BackToModuleList").'</a>';
 print load_fiche_titre($langs->trans("AgendaSetup"), $linkback, 'title_setup');
@@ -218,9 +215,7 @@ if ($resql) {
 	$num_rows = $db->num_rows($resql);
 	while ($i < $num_rows) {
 		$array = $db->fetch_array($resql);
-		if (is_array($array)) {
-			array_push($def, $array[0]);
-		}
+		array_push($def, $array[0]);
 		$i++;
 	}
 } else {
@@ -339,7 +334,7 @@ $htmltext = $langs->trans("ThisValueCanOverwrittenOnUserLevel", $langs->transnoe
 print '<td>'.$form->textwithpicto($langs->trans("AGENDA_DEFAULT_VIEW"), $htmltext).'</td>'."\n";
 print '<td class="center">&nbsp;</td>'."\n";
 print '<td class="right">'."\n";
-$tmplist = array('' => '&nbsp;', 'show_list' => $langs->trans("ViewList"), 'show_month' => $langs->trans("ViewCal"), 'show_week' => $langs->trans("ViewWeek"), 'show_day' => $langs->trans("ViewDay"), 'show_peruser' => $langs->trans("ViewPerUser"));
+$tmplist = array(''=>'&nbsp;', 'show_list'=>$langs->trans("ViewList"), 'show_month'=>$langs->trans("ViewCal"), 'show_week'=>$langs->trans("ViewWeek"), 'show_day'=>$langs->trans("ViewDay"), 'show_peruser'=>$langs->trans("ViewPerUser"));
 print $form->selectarray('AGENDA_DEFAULT_VIEW', $tmplist, getDolGlobalString('AGENDA_DEFAULT_VIEW'));
 print '</td></tr>'."\n";
 
@@ -374,7 +369,7 @@ print '<td class="center">&nbsp;</td>'."\n";
 print '<td class="right nowrap">'."\n";
 $defval = 'na';
 $defaultValues = new DefaultValues($db);
-$result = $defaultValues->fetchAll('', '', 0, 0, array('t.page' => 'comm/action/card.php', 't.param' => 'complete', 't.user_id' => '0', 't.type' => 'createform', 't.entity' => $conf->entity));
+$result = $defaultValues->fetchAll('', '', 0, 0, array('t.page'=>'comm/action/card.php', 't.param'=>'complete', 't.user_id'=>'0', 't.type'=>'createform', 't.entity'=>$conf->entity));
 if (!is_array($result) && $result < 0) {
 	setEventMessages($defaultValues->error, $defaultValues->errors, 'errors');
 } elseif (count($result) > 0) {

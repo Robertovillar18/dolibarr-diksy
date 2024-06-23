@@ -186,17 +186,17 @@ class Calendar implements ICalendar, DAV\IProperties, DAV\Sync\ISyncCollection, 
      * The contents of the new file must be a valid ICalendar string.
      *
      * @param string   $name
-     * @param resource $data
+     * @param resource $calendarData
      *
      * @return string|null
      */
-    public function createFile($name, $data = null)
+    public function createFile($name, $calendarData = null)
     {
-        if (is_resource($data)) {
-            $data = stream_get_contents($data);
+        if (is_resource($calendarData)) {
+            $calendarData = stream_get_contents($calendarData);
         }
 
-        return $this->caldavBackend->createCalendarObject($this->calendarInfo['id'], $name, $data);
+        return $this->caldavBackend->createCalendarObject($this->calendarInfo['id'], $name, $calendarData);
     }
 
     /**
@@ -442,7 +442,7 @@ class Calendar implements ICalendar, DAV\IProperties, DAV\Sync\ISyncCollection, 
      * @param int    $syncLevel
      * @param int    $limit
      *
-     * @return array|null
+     * @return array
      */
     public function getChanges($syncToken, $syncLevel, $limit = null)
     {

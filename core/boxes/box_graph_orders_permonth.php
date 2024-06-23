@@ -1,6 +1,5 @@
 <?php
 /* Copyright (C) 2013 Laurent Destailleur  <eldy@users.sourceforge.net>
- * Copyright (C) 2024       Frédéric France             <frederic.france@free.fr>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +17,7 @@
 
 /**
  *	\file       htdocs/core/boxes/box_graph_orders_permonth.php
- *	\ingroup    orders
+ *	\ingroup    commandes
  *	\brief      Box to show graph of orders per month
  */
 include_once DOL_DOCUMENT_ROOT.'/core/boxes/modules_boxes.php';
@@ -34,7 +33,16 @@ class box_graph_orders_permonth extends ModeleBoxes
 	public $boxlabel = "BoxCustomersOrdersPerMonth";
 	public $depends  = array("commande");
 
+	/**
+	 * @var DoliDB Database handler.
+	 */
+	public $db;
+
+	public $info_box_head = array();
+	public $info_box_contents = array();
+
 	public $widgettype = 'graph';
+
 
 	/**
 	 *  Constructor
@@ -48,7 +56,7 @@ class box_graph_orders_permonth extends ModeleBoxes
 
 		$this->db = $db;
 
-		$this->hidden = !$user->hasRight('commande', 'lire');
+		$this->hidden = empty($user->rights->commande->lire);
 	}
 
 	/**
@@ -68,7 +76,7 @@ class box_graph_orders_permonth extends ModeleBoxes
 		//include_once DOL_DOCUMENT_ROOT.'/commande/class/commande.class.php';
 		//$commandestatic=new Commande($this->db);
 
-		$startmonth = getDolGlobalInt('SOCIETE_FISCAL_MONTH_START', 1);
+		$startmonth = $conf->global->SOCIETE_FISCAL_MONTH_START ? ($conf->global->SOCIETE_FISCAL_MONTH_START) : 1;
 		if (!getDolGlobalString('GRAPH_USE_FISCAL_YEAR')) {
 			$startmonth = 1;
 		}
@@ -91,7 +99,7 @@ class box_graph_orders_permonth extends ModeleBoxes
 		if ($user->socid) {
 			$socid = $user->socid;
 		}
-		if (!$user->hasRight('societe', 'client', 'voir')) {
+		if (!$user->hasRight('societe', 'client', 'voir') || $socid) {
 			$prefix .= 'private-'.$user->id.'-'; // If user has no permission to see all, output dir is specific to user
 		}
 
@@ -106,7 +114,7 @@ class box_graph_orders_permonth extends ModeleBoxes
 			include_once DOL_DOCUMENT_ROOT.'/commande/class/commandestats.class.php';
 			$autosetarray = preg_split("/[,;:]+/", GETPOST('DOL_AUTOSET_COOKIE'));
 			if (in_array('DOLUSERCOOKIE_box_'.$this->boxcode, $autosetarray)) {
-				$endyear = GETPOSTINT($param_year);
+				$endyear = GETPOST($param_year, 'int');
 				$shownb = GETPOST($param_shownb, 'alpha');
 				$showtot = GETPOST($param_showtot, 'alpha');
 			} else {
@@ -123,7 +131,7 @@ class box_graph_orders_permonth extends ModeleBoxes
 			if (empty($endyear)) {
 				$endyear = $nowarray['year'];
 			}
-			$startyear = $endyear - getDolGlobalInt('MAIN_NB_OF_YEAR_IN_WIDGET_GRAPH', 3) + 1;
+			$startyear = $endyear - (!getDolGlobalString('MAIN_NB_OF_YEAR_IN_WIDGET_GRAPH') ? 2 : ($conf->global->MAIN_NB_OF_YEAR_IN_WIDGET_GRAPH - 1));
 
 			$mode = 'customer';
 			$WIDTH = (($shownb && $showtot) || !empty($conf->dol_optimize_smallscreen)) ? '256' : '320';

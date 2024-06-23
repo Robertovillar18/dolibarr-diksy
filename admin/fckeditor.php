@@ -3,7 +3,6 @@
  * Copyright (C) 2005-2012	Regis Houssin		<regis.houssin@inodbox.com>
  * Copyright (C) 2012-2013	Juanjo Menent		<jmenent@2byte.es>
  * Copyright (C) 2019		Christophe Battarel <christophe@altairis.fr>
- * Copyright (C) 2024       Frédéric France             <frederic.france@free.fr>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,7 +31,7 @@ require_once DOL_DOCUMENT_ROOT.'/core/lib/doleditor.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/class/doleditor.class.php';
 
 // Load translation files required by the page
-$langs->loadLangs(array('admin', 'fckeditor', 'errors'));
+$langs->loadLangs(array('admin', 'fckeditor'));
 
 $action = GETPOST('action', 'aZ09');
 // Possible modes are:
@@ -66,10 +65,10 @@ $conditions = array(
 	'NOTE_PRIVATE' => 1,
 	'SOCIETE' => 1,
 	'PRODUCTDESC' => (isModEnabled("product") || isModEnabled("service")),
-	'DETAILS' => (isModEnabled('invoice') || isModEnabled("propal") || isModEnabled('order') || isModEnabled('supplier_proposal') || isModEnabled("supplier_order") || isModEnabled("supplier_invoice")),
+	'DETAILS' => (isModEnabled('facture') || isModEnabled("propal") || isModEnabled('commande') || isModEnabled('supplier_proposal') || isModEnabled("supplier_order") || isModEnabled("supplier_invoice")),
 	'USERSIGN' => 1,
 	'MAILING' => isModEnabled('mailing'),
-	'MAIL' => (isModEnabled('invoice') || isModEnabled("propal") || isModEnabled('order')),
+	'MAIL' => (isModEnabled('facture') || isModEnabled("propal") || isModEnabled('commande')),
 	'TICKET' => isModEnabled('ticket'),
 	'SPECIALCHAR' => 1,
 );
@@ -127,24 +126,21 @@ if (GETPOST('save', 'alpha')) {
 			$error++;
 		}
 	} else {
-		$error = -1;	// -1 means a warning message
+		$error++;
 	}
 
-	if ($error == 0) {
+	if (!$error) {
 		setEventMessages($langs->trans("SetupSaved"), null, 'mesgs');
-	} elseif ($error == -1) {
-		setEventMessages($langs->trans("EmptyMessageNotAllowedError"), null, 'warnings');
 	} else {
 		setEventMessages($langs->trans("Error").' '.$db->lasterror(), null, 'errors');
 	}
 }
 
-
 /*
  * View
  */
 
-llxHeader('', '', '', '', 0, 0, '', '', '', 'mod-admin page-fckeditor');
+llxHeader();
 
 $linkback = '<a href="'.DOL_URL_ROOT.'/admin/modules.php?restore_lastsearch_values=1">'.$langs->trans("BackToModuleList").'</a>';
 print load_fiche_titre($langs->trans("AdvancedEditor"), $linkback, 'title_setup');
@@ -222,12 +218,12 @@ if (empty($conf->use_javascript_ajax)) {
 	if ($mode != 'Full_inline') {
 		$uselocalbrowser = true;
 		$readonly = ($mode == 'dolibarr_readonly' ? 1 : 0);
-		$editor = new DolEditor('formtestfield', getDolGlobalString('FCKEDITOR_TEST', 'Test'), '', 200, $mode, 'In', true, $uselocalbrowser, 1, 120, 8, $readonly);
+		$editor = new DolEditor('formtestfield', isset($conf->global->FCKEDITOR_TEST) ? $conf->global->FCKEDITOR_TEST : 'Test', '', 200, $mode, 'In', true, $uselocalbrowser, 1, 120, 8, $readonly);
 		$editor->Create();
 	} else {
 		// CKEditor inline enabled with the contenteditable="true"
 		print '<div style="border: 1px solid #888;" contenteditable="true">';
-		print getDolGlobalString('FCKEDITOR_TEST');
+		print $conf->global->FCKEDITOR_TEST;
 		print '</div>';
 	}
 	print $form->buttonsSaveCancel("Save", '', null, 0, 'reposition');

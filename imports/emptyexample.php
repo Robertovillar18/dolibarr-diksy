@@ -71,7 +71,7 @@ if (empty($datatoimport)) {
 }
 
 
-$filename = $langs->transnoentitiesnoconv("ExampleOfImportFile").'_'.$datatoimport.'.'.$format;
+$filename = $langs->trans("ExampleOfImportFile").'_'.$datatoimport.'.'.$format;
 
 $objimport = new Import($db);
 $objimport->load_arrays($user, $datatoimport);
@@ -80,13 +80,13 @@ $fieldstarget = $objimport->array_import_fields[0];
 $valuestarget = $objimport->array_import_examplevalues[0];
 
 $attachment = true;
-if (GETPOSTISSET("attachment")) {
-	$attachment = GETPOST("attachment");
+if (isset($_GET["attachment"])) {
+	$attachment = $_GET["attachment"];
 }
 //$attachment = false;
 $contenttype = dol_mimetype($format);
-if (GETPOSTISSET("contenttype")) {
-	$contenttype = GETPOST("contenttype");
+if (isset($_GET["contenttype"])) {
+	$contenttype = $_GET["contenttype"];
 }
 //$contenttype='text/plain';
 $outputencoding = 'UTF-8';

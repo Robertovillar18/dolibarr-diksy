@@ -94,14 +94,14 @@ if ($action == 'setvalue' && $user->admin) {
  * View
  */
 
-llxHeader('', $langs->trans("LDAPSetup"), 'EN:Module_LDAP_En|FR:Module_LDAP|ES:M&oacute;dulo_LDAP', '', 0, 0, '', '', '', 'mod-admin page-ldap_members_types');
+llxHeader('', $langs->trans("LDAPSetup"), 'EN:Module_LDAP_En|FR:Module_LDAP|ES:M&oacute;dulo_LDAP');
 $linkback = '<a href="'.DOL_URL_ROOT.'/admin/modules.php?restore_lastsearch_values=1">'.$langs->trans("BackToModuleList").'</a>';
 
 print load_fiche_titre($langs->trans("LDAPSetup"), $linkback, 'title_setup');
 
 $head = ldap_prepare_head();
 
-// Test if the LDAP functions are enabled
+// Test si fonction LDAP actives
 if (!function_exists("ldap_connect")) {
 	setEventMessages($langs->trans("LDAPFunctionsNotAvailableOnPHP"), null, 'errors');
 }
@@ -187,27 +187,27 @@ print '</form>';
 
 
 /*
- * Test de la connection
+ * Test de la connexion
  */
 if (getDolGlobalInt('LDAP_MEMBER_TYPE_ACTIVE') === Ldap::SYNCHRO_DOLIBARR_TO_LDAP) {
 	$butlabel = $langs->trans("LDAPTestSynchroMemberType");
 	$testlabel = 'testmembertype';
-	$key = getDolGlobalString('LDAP_KEY_MEMBERS_TYPES');
-	$dn = getDolGlobalString('LDAP_MEMBER_TYPE_DN');
-	$objectclass = getDolGlobalString('LDAP_MEMBER_TYPE_OBJECT_CLASS');
+	$key = $conf->global->LDAP_KEY_MEMBERS_TYPES;
+	$dn = $conf->global->LDAP_MEMBER_TYPE_DN;
+	$objectclass = $conf->global->LDAP_MEMBER_TYPE_OBJECT_CLASS;
 
 	show_ldap_test_button($butlabel, $testlabel, $key, $dn, $objectclass);
 }
 
 if (function_exists("ldap_connect")) {
-	if ($action == 'testmembertype') {
-		// Create object
+	if ($_GET["action"] == 'testmembertype') {
+		// Creation objet
 		$object = new AdherentType($db);
 		$object->initAsSpecimen();
 
 		// Test synchro
 		$ldap = new Ldap();
-		$result = $ldap->connectBind();
+		$result = $ldap->connect_bind();
 
 		if ($result > 0) {
 			$info = $object->_load_ldap_info();
@@ -235,7 +235,7 @@ if (function_exists("ldap_connect")) {
 
 			print "<br>\n";
 			print "LDAP input file used for test:<br><br>\n";
-			print nl2br($ldap->dumpContent($dn, $info));
+			print nl2br($ldap->dump_content($dn, $info));
 			print "\n<br>";
 		} else {
 			print img_picto('', 'error').' ';

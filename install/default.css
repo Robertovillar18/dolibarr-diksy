@@ -17,11 +17,11 @@
 
 
 .center {
-	text-align: center;
+	text-align: center;	
 }
 
 .centpercent {
-	width: 100%;
+	width: 100%;	
 }
 
 .paddingright {
@@ -41,19 +41,15 @@
 }
 
 .inline-block {
-	display: inline-block;
+	display: inline-block;	
 }
 
 .no-bottom {
-	padding-bottom: 0;
+	padding-bottom: 0;	
 }
 
 .small {
-	font-size: 0.9em;
-}
-
-#divinstall {
-	overflow-x: auto;
+	font-size: 0.9em;	
 }
 
 body {
@@ -76,7 +72,7 @@ table.main-inside {
 table.main-inside-borderbottom {
 	border-bottom: 1px solid #ccc;
 }
-
+	
 table.main {
 	padding-left: 6px;
 	padding-right: 6px;
@@ -182,7 +178,7 @@ tr.title.tablesupport-title {
 	}
 
 	span.titre {
-	    font-size: 0.8em;
+	    font-size: 90%;
 	    font-weight: normal;
 	    background: #FFFFFF;
 	    color: #444;
@@ -367,7 +363,7 @@ td.label {
 /* Class for parameters example */
 td.comment {
 	color: black;
-	padding: 5px 5px 5px 50px;
+	padding: 5px 5px 5px 5px;
 	margin: 0 0 0 0;
 	text-decoration:none;
 	font-size: 12px;
@@ -405,7 +401,7 @@ tr.choiceselected td .button {
 
 a.button:link,a.button:visited,a.button:active {
     color: #555;
-
+    
 }
 .button {
     background: rgb(234,228,225);
@@ -485,17 +481,9 @@ table.tablesupport {
 		width: calc(100% - 4px);
 		padding: 4px;
 	}
-
+	
 	.tablesupport {
 		padding: 6px;
 		width: 100%;
-	}
-
-	td.comment {
-		color: black;
-		padding: 5px 5px 5px 5px;
-	}
-	select#db_type {
-    	max-width: 200px;
 	}
 }

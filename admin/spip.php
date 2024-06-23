@@ -82,15 +82,15 @@ if ($action == 'update' || $action == 'add') {
 
 // Action activation d'un sous module du module adherent
 if ($action == 'set') {
-	$result = dolibarr_set_const($db, GETPOST("name", 'aZ09'), GETPOST("value"), '', 0, '', $conf->entity);
+	$result = dolibarr_set_const($db, $_GET["name"], $_GET["value"], '', 0, '', $conf->entity);
 	if ($result < 0) {
 		dol_print_error($db);
 	}
 }
 
-// Action deactivation d'un sous module du module adherent
+// Action desactivation d'un sous module du module adherent
 if ($action == 'unset') {
-	$result = dolibarr_del_const($db, GETPOST("name", 'aZ09'), $conf->entity);
+	$result = dolibarr_del_const($db, $_GET["name"], $conf->entity);
 	if ($result < 0) {
 		dol_print_error($db);
 	}
@@ -104,7 +104,7 @@ if ($action == 'unset') {
 
 $help_url = '';
 
-llxHeader('', $langs->trans("MailmanSpipSetup"), $help_url, '', 0, 0, '', '', '', 'mod-admin page-spip');
+llxHeader('', $langs->trans("MailmanSpipSetup"), $help_url);
 
 
 $linkback = '<a href="'.DOL_URL_ROOT.'/admin/modules.php?restore_lastsearch_values=1">'.$langs->trans("BackToModuleList").'</a>';
@@ -129,7 +129,7 @@ if (getDolGlobalString('ADHERENT_USE_SPIP')) {
 	//$link.=$langs->trans("Disable");
 	$link .= img_picto($langs->trans("Activated"), 'switch_on');
 	$link .= '</a>';
-	// Edition des variables globales
+	// Edition des varibales globales
 	$constantes = array(
 		'ADHERENT_SPIP_SERVEUR',
 		'ADHERENT_SPIP_DB',

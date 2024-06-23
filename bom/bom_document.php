@@ -37,7 +37,7 @@ $langs->loadLangs(array("mrp", "companies", "other", "mails"));
 // Get parameters
 $action = GETPOST('action', 'aZ09');
 $confirm = GETPOST('confirm', 'alpha');
-$id = (GETPOSTINT('socid') ? GETPOSTINT('socid') : GETPOSTINT('id'));
+$id = (GETPOST('socid', 'int') ? GETPOST('socid', 'int') : GETPOST('id', 'int'));
 $ref = GETPOST('ref', 'alpha');
 
 // Security check - Protection if external user
@@ -46,10 +46,10 @@ $ref = GETPOST('ref', 'alpha');
 // $result = restrictedArea($user, 'bom', $id);
 
 // Load variables for pagination
-$limit = GETPOSTINT('limit') ? GETPOSTINT('limit') : $conf->liste_limit;
+$limit = GETPOST('limit', 'int') ? GETPOST('limit', 'int') : $conf->liste_limit;
 $sortfield = GETPOST('sortfield', 'aZ09comma');
 $sortorder = GETPOST('sortorder', 'aZ09comma');
-$page = GETPOSTISSET('pageplusone') ? (GETPOSTINT('pageplusone') - 1) : GETPOSTINT("page");
+$page = GETPOSTISSET('pageplusone') ? (GETPOST('pageplusone') - 1) : GETPOST("page", 'int');
 if (empty($page) || $page == -1) {
 	$page = 0;
 }     // If $page is not defined, or '' or -1
@@ -106,7 +106,7 @@ $title = $langs->trans("BillOfMaterials").' - '.$langs->trans("Files");
 $help_url = 'EN:Module_BOM';
 $morehtmlref = "";
 
-llxHeader('', $title, $help_url, '', 0, 0, '', '', '', 'mod-bom page-card_documents');
+llxHeader('', $title, $help_url);
 
 if ($object->id) {
 	/*

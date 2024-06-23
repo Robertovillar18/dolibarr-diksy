@@ -41,7 +41,7 @@ $langs->loadLangs(array('compta', 'supplier_proposal', 'other'));
 
 $action		= GETPOST('action', 'alpha');
 $confirm	= GETPOST('confirm', 'alpha');
-$id			= GETPOSTINT('id');
+$id			= GETPOST('id', 'int');
 $ref		= GETPOST('ref', 'alpha');
 
 // Security check
@@ -52,10 +52,10 @@ if (!empty($user->socid)) {
 $result = restrictedArea($user, 'supplier_proposal', $id);
 
 // Get parameters
-$limit = GETPOSTINT('limit') ? GETPOSTINT('limit') : $conf->liste_limit;
+$limit = GETPOST('limit', 'int') ? GETPOST('limit', 'int') : $conf->liste_limit;
 $sortfield = GETPOST('sortfield', 'aZ09comma');
 $sortorder = GETPOST('sortorder', 'aZ09comma');
-$page = GETPOSTISSET('pageplusone') ? (GETPOSTINT('pageplusone') - 1) : GETPOSTINT("page");
+$page = GETPOSTISSET('pageplusone') ? (GETPOST('pageplusone') - 1) : GETPOST("page", 'int');
 if (empty($page) || $page == -1) {
 	$page = 0;
 }     // If $page is not defined, or '' or -1
@@ -76,7 +76,7 @@ if ($object->id > 0) {
 	$upload_dir = $conf->supplier_proposal->dir_output.'/'.dol_sanitizeFileName($object->ref);
 }
 
-$permissiontoadd = $user->hasRight('supplier_proposal', 'creer');
+$permissiontoadd = $user->rights->supplier_proposal->creer;
 $usercancreate = $permissiontoadd;
 
 /*
@@ -164,8 +164,8 @@ if ($object->id > 0) {
 	print dol_get_fiche_end();
 
 	$modulepart = 'supplier_proposal';
-	$permissiontoadd = $user->hasRight('supplier_proposal', 'creer');
-	$permtoedit = $user->hasRight('supplier_proposal', 'creer');
+	$permissiontoadd = $user->rights->supplier_proposal->creer;
+	$permtoedit = $user->rights->supplier_proposal->creer;
 	$param = '&id='.$object->id;
 	include DOL_DOCUMENT_ROOT.'/core/tpl/document_actions_post_headers.tpl.php';
 } else {

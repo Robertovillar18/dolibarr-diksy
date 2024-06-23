@@ -26,12 +26,12 @@ require_once DOL_DOCUMENT_ROOT.'/core/class/commondocgenerator.class.php';
 
 
 /**
- *	Parent class to manage warehouse movement document templates
+ *	Parent class to manage warehouse mouvement document templates
  */
 abstract class ModelePDFMovement extends CommonDocGenerator
 {
 	/**
-	 * @var DoliDB Database handler
+	 * @var DoliDb Database handler
 	 */
 	public $db;
 

@@ -129,19 +129,19 @@ class AddressBook extends DAV\Collection implements IAddressBook, DAV\IPropertie
      * This method may return an ETag.
      *
      * @param string   $name
-     * @param resource $data
+     * @param resource $vcardData
      *
      * @return string|null
      */
-    public function createFile($name, $data = null)
+    public function createFile($name, $vcardData = null)
     {
-        if (is_resource($data)) {
-            $data = stream_get_contents($data);
+        if (is_resource($vcardData)) {
+            $vcardData = stream_get_contents($vcardData);
         }
         // Converting to UTF-8, if needed
-        $data = DAV\StringUtil::ensureUTF8($data);
+        $vcardData = DAV\StringUtil::ensureUTF8($vcardData);
 
-        return $this->carddavBackend->createCard($this->addressBookInfo['id'], $name, $data);
+        return $this->carddavBackend->createCard($this->addressBookInfo['id'], $name, $vcardData);
     }
 
     /**
@@ -317,7 +317,7 @@ class AddressBook extends DAV\Collection implements IAddressBook, DAV\IPropertie
      * @param int    $syncLevel
      * @param int    $limit
      *
-     * @return array|null
+     * @return array
      */
     public function getChanges($syncToken, $syncLevel, $limit = null)
     {

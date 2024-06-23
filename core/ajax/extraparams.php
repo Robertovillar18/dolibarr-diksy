@@ -39,7 +39,7 @@ if (!defined('NOREQUIRESOC')) {
 
 include '../../main.inc.php';
 
-$id = GETPOSTINT('id');
+$id = GETPOST('id', 'int');
 $element = GETPOST('element', 'aZ09arobase');
 $htmlelement = GETPOST('htmlelement', 'alpha');
 $type = GETPOST('type', 'alpha');

@@ -1,14 +1,11 @@
 <?php
-/* Copyright (C) 2024       Frédéric France             <frederic.france@free.fr>
- * Copyright (C) 2024		MDW							<mdeweerd@users.noreply.github.com>
- */
 
 require_once DOL_DOCUMENT_ROOT.'/core/modules/syslog/logHandler.php';
 
 /**
  * Class to manage logging to syslog
  */
-class mod_syslog_syslog extends LogHandler
+class mod_syslog_syslog extends LogHandler implements LogHandlerInterface
 {
 	public $code = 'syslog';
 
@@ -19,7 +16,7 @@ class mod_syslog_syslog extends LogHandler
 	 */
 	public function getName()
 	{
-		return 'Syslog';
+		return 'Syslogd';
 	}
 
 	/**
@@ -45,12 +42,14 @@ class mod_syslog_syslog extends LogHandler
 	}
 
 	/**
-	 * Is the logger active ?
+	 * Is the module active ?
 	 *
-	 * @return int		1 if logger enabled
+	 * @return int
 	 */
 	public function isActive()
 	{
+		global $conf;
+
 		// This function does not exists on some ISP (Ex: Free in France)
 		if (!function_exists('openlog')) {
 			return 0;
@@ -80,14 +79,15 @@ class mod_syslog_syslog extends LogHandler
 	/**
 	 * 	Return if configuration is valid
 	 *
-	 * 	@return	bool		True if ok.
+	 * 	@return	array		Array of errors. Empty array if ok.
 	 */
 	public function checkConfiguration()
 	{
-		global $langs;
+		global $conf, $langs;
 
-		$facility = constant(getDolGlobalString('SYSLOG_FACILITY'));
+		$errors = array();
 
+		$facility = constant($conf->global->SYSLOG_FACILITY);
 		if ($facility) {
 			// Only LOG_USER supported on Windows
 			if (!empty($_SERVER["WINDIR"])) {
@@ -95,21 +95,20 @@ class mod_syslog_syslog extends LogHandler
 			}
 
 			dol_syslog("admin/syslog: facility ".$facility);
-			return true;
 		} else {
-			$this->errors[] = $langs->trans("ErrorUnknownSyslogConstant", $facility);
-			return false;
+			$errors[] = $langs->trans("ErrorUnknownSyslogConstant", $facility);
 		}
+
+		return $errors;
 	}
 
 	/**
 	 * Export the message
 	 *
-	 * @param   array   $content            Array containing the info about the message
-	 * @param   string  $suffixinfilename   When output is a file, append this suffix into default log filename.
-	 * @return  void
+	 * @param  	array 	$content 	Array containing the info about the message
+	 * @return	void
 	 */
-	public function export($content, $suffixinfilename = '')
+	public function export($content)
 	{
 		global $conf;
 
@@ -125,11 +124,7 @@ class mod_syslog_syslog extends LogHandler
 
 		// (int) is required to avoid error parameter 3 expected to be long
 		openlog('dolibarr', LOG_PID | LOG_PERROR, (int) $facility);
-
-		$message = sprintf("%6s", dol_trunc($content['osuser'], 6, 'right', 'UTF-8', 1));
-		$message .= " ".$content['message'];
-
-		syslog($content['level'], $message);
+		syslog($content['level'], $content['message']);
 		closelog();
 	}
 }

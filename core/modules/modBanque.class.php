@@ -66,7 +66,7 @@ class modBanque extends DolibarrModules
 		//-------------
 		$this->config_page_url = array("bank.php");
 
-		// Dependencies
+		// Dependancies
 		$this->depends = array();
 		$this->requiredby = array("modComptabilite", "modAccounting", "modPrelevement");
 		$this->conflictwith = array();

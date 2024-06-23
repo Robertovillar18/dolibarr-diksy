@@ -2,7 +2,6 @@
 /* Copyright (C) 2007-2012 Laurent Destailleur  <eldy@users.sourceforge.net>
  * Copyright (C) 2014	   Juanjo Menent		<jmenent@2byte.es>
  * Copyright (C) 2015      Ion Agorria          <ion@agorria.com>
- * Copyright (C) 2024		Frédéric France			<frederic.france@free.fr>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,7 +25,7 @@
 
 
 /**
- *	Class for accessing price global variables table
+ *	Class for accesing price global variables table
  */
 class PriceGlobalVariable
 {
@@ -67,7 +66,7 @@ class PriceGlobalVariable
 	/**
 	 *  Constructor
 	 *
-	 *  @param	DoliDB		$db      Database handler
+	 *  @param	DoliDb		$db      Database handler
 	 */
 	public function __construct($db)
 	{
@@ -170,11 +169,11 @@ class PriceGlobalVariable
 	/**
 	 *  Update object into database
 	 *
-	 *  @param	User|null	$user       User that modifies
-	 *  @param  int			$notrigger	0=launch triggers after, 1=disable triggers
-	 *  @return int     		   	 	Return integer <0 if KO, >0 if OK
+	 *  @param	User	$user        User that modifies
+	 *  @param  int		$notrigger	 0=launch triggers after, 1=disable triggers
+	 *  @return int     		   	 Return integer <0 if KO, >0 if OK
 	 */
-	public function update($user = null, $notrigger = 0)
+	public function update($user = 0, $notrigger = 0)
 	{
 		$error = 0;
 
@@ -281,7 +280,7 @@ class PriceGlobalVariable
 	 *	Initialise object with example values
 	 *	Id must be 0 if object instance is a specimen
 	 *
-	 *	@return int
+	 *	@return	void
 	 */
 	public function initAsSpecimen()
 	{
@@ -289,8 +288,6 @@ class PriceGlobalVariable
 		$this->code = '';
 		$this->description = '';
 		$this->value = '';
-
-		return 1;
 	}
 
 	/**

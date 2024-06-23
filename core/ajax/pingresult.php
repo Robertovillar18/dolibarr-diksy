@@ -51,7 +51,7 @@ $hash_algo = GETPOST('hash_algo', 'alpha');
 
 
 // Security check
-// None. Being connected is enough.
+// None. Beeing connected is enough.
 
 
 

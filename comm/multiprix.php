@@ -34,15 +34,15 @@ $langs->loadLangs(array('orders', 'companies'));
 $action = GETPOST('action', 'alpha');
 $cancel = GETPOST('cancel', 'alpha');
 
-$id = GETPOSTINT('id');
-$_socid = GETPOSTINT("id");
+$id = GETPOST('id', 'int');
+$_socid = GETPOST("id", 'int');
 // Security check
 if ($user->socid > 0) {
 	$_socid = $user->socid;
 }
 
 // Security check
-$socid = GETPOSTINT("socid");
+$socid = GETPOST("socid", 'int');
 if ($user->socid > 0) {
 	$action = '';
 	$id = $user->socid;

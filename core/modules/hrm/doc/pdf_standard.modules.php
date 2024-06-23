@@ -7,7 +7,6 @@
  * Copyright (C) 2019       Markus Welters          <markus@welters.de>
  * Copyright (C) 2019       Rafael Ingenleuf        <ingenleuf@welters.de>
  * Copyright (C) 2020       Marc Guenneugues        <marc.guenneugues@simicar.fr>
- * Copyright (C) 2024		MDW							<mdeweerd@users.noreply.github.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,7 +40,7 @@ require_once DOL_DOCUMENT_ROOT.'/core/lib/date.lib.php';
 class pdf_standard extends ModelePDFEvaluation
 {
 	/**
-	 * @var DoliDB Database handler
+	 * @var DoliDb Database handler
 	 */
 	public $db;
 
@@ -186,7 +185,7 @@ class pdf_standard extends ModelePDFEvaluation
 					$hookmanager = new HookManager($this->db);
 				}
 				$hookmanager->initHooks(array('pdfgeneration'));
-				$parameters = array('file' => $file, 'object' => $object, 'outputlangs' => $outputlangs);
+				$parameters = array('file'=>$file, 'object'=>$object, 'outputlangs'=>$outputlangs);
 				global $action;
 				$reshook = $hookmanager->executeHooks('beforePDFCreation', $parameters, $object, $action); // Note that $action and $object may have been modified by some hooks
 				// Set nblines with the new command lines content after hook
@@ -228,7 +227,6 @@ class pdf_standard extends ModelePDFEvaluation
 					$pdf->SetCompression(false);
 				}
 
-				// @phan-suppress-next-line PhanPluginSuspiciousParamOrder
 				$pdf->SetMargins($this->marge_gauche, $this->marge_haute, $this->marge_droite); // Left, Top, Right
 
 				// New page
@@ -252,8 +250,8 @@ class pdf_standard extends ModelePDFEvaluation
 					$tab_top = 65;
 
 					$pdf->SetFont('', 'B', $default_font_size);
-					$pdf->MultiCell(190, 4, $outputlangs->transnoentities("Notes") . ":", 0, 'L', 0, 0, 12, $tab_top);
-					$tab_top += 4;
+					$pdf->MultiCell(190, 4, $outputlangs->transnoentities("Notes") . ":", 0, 'L', 0, '', 12, $tab_top);
+					$tab_top +=4;
 					$pdf->SetFont('', '', $default_font_size - 1);
 					$pdf->writeHTMLCell(190, 3, $this->posxnotes + 1, $tab_top + 1, dol_htmlentitiesbr($object->note_public), 0, 1);
 					$nexY = $pdf->GetY();
@@ -270,6 +268,7 @@ class pdf_standard extends ModelePDFEvaluation
 				}
 
 				$iniY = $tab_top + 7;
+				$initialY = $tab_top + 7;
 				$nexY = $tab_top + 7;
 
 				$pdf->setTopMargin($tab_top_newpage);
@@ -427,7 +426,7 @@ class pdf_standard extends ModelePDFEvaluation
 
 				// Add pdfgeneration hook
 				$hookmanager->initHooks(array('pdfgeneration'));
-				$parameters = array('file' => $file, 'object' => $object, 'outputlangs' => $outputlangs);
+				$parameters = array('file'=>$file, 'object'=>$object, 'outputlangs'=>$outputlangs);
 				global $action;
 				$reshook = $hookmanager->executeHooks('afterPDFCreation', $parameters, $this, $action); // Note that $action and $object may have been modified by some hooks
 				if ($reshook < 0) {
@@ -437,7 +436,7 @@ class pdf_standard extends ModelePDFEvaluation
 
 				dolChmod($file);
 
-				$this->result = array('fullpath' => $file);
+				$this->result = array('fullpath'=>$file);
 
 				return 1; // No error
 			} else {
@@ -455,7 +454,7 @@ class pdf_standard extends ModelePDFEvaluation
 	 * @param	Evaluation		$object             Object to show
 	 * @param   int         	$linenumber         line number
 	 * @param   int         	$curY               current y position
-	 * @param   int         	$default_font_size  default font size
+	 * @param   int         	$default_font_size  default siez of font
 	 * @param   Translate   	$outputlangs        Object lang for output
 	 * @param	int				$hidedetails		Hide details (0=no, 1=yes, 2=just special lines)
 	 * @return  void
@@ -522,7 +521,7 @@ class pdf_standard extends ModelePDFEvaluation
 	 *  @param  Evaluation		$object     	Object to show
 	 *  @param  int	    		$showaddress    0=no, 1=yes
 	 *  @param  Translate		$outputlangs	Object lang for output
-	 *  @return	float|int                   	Return topshift value
+	 *  @return	void
 	 */
 	protected function _pagehead(&$pdf, $object, $showaddress, $outputlangs)
 	{
@@ -584,13 +583,12 @@ class pdf_standard extends ModelePDFEvaluation
 			// Sender properties
 			$carac_emetteur = '';
 
-			// employee information
+			// employee informations
 			$employee = new User($this->db);
 			$employee->fetch($object->fk_user);
 			$carac_emetteur .= ($carac_emetteur ? "\n" : '').$outputlangs->transnoentities('Employee').' : '.$outputlangs->convToOutputCharset(ucfirst($employee->firstname) . ' ' . strtoupper($employee->lastname));
 
 			// Position
-			include_once DOL_DOCUMENT_ROOT.'/hrm/class/job.class.php';
 			$job = new Job($db);
 			$job->fetch($object->fk_job);
 			$carac_emetteur .= ($carac_emetteur ? "\n" : '').$outputlangs->transnoentities('JobProfile').' : '.$outputlangs->convToOutputCharset($job->label);
@@ -613,7 +611,7 @@ class pdf_standard extends ModelePDFEvaluation
 			/*$pdf->SetTextColor(0, 0, 0);
 			$pdf->SetFont('', 'B', $default_font_size - 2);
 			$pdf->SetXY($posx, $posy - 5);
-			$pdf->MultiCell(190, 5, $outputlangs->transnoentities("Information"), '', 'L');*/
+			$pdf->MultiCell(190, 5, $outputlangs->transnoentities("Informations"), '', 'L');*/
 			$pdf->SetXY($posx, $posy);
 			$pdf->SetFillColor(224, 224, 224);
 			$pdf->MultiCell(190, $hautcadre, "", 0, 'R', 1);
@@ -627,8 +625,6 @@ class pdf_standard extends ModelePDFEvaluation
 			$pdf->SetFont('', '', $default_font_size - 1);
 			$pdf->MultiCell(190, 4, $carac_emetteur, 0, 'L');
 		}
-
-		return 0;
 	}
 
 	// phpcs:disable PEAR.NamingConventions.ValidFunctionName.PublicUnderscore

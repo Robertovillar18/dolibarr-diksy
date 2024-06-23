@@ -1,7 +1,6 @@
 <?php
 /* Copyright (C) 2011-2019		Juanjo Menent	    <jmenent@2byte.es>
  * Copyright (C) 2018			Charlene Benke		<charlie@patas-monkey.com>
- * Copyright (C) 2024		Frédéric France			<frederic.france@free.fr>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,29 +19,44 @@
 
 /**
  *  \file       htdocs/core/modules/holiday/mod_holiday_immaculate.php
- *  \ingroup    holiday
- *  \brief      File of class to manage holiday numbering rules Immaculate
+ *  \ingroup    contract
+ *  \brief      File of class to manage contract numbering rules Magre
  */
 
 require_once DOL_DOCUMENT_ROOT.'/core/modules/holiday/modules_holiday.php';
 
 /**
- *	Class to manage holiday numbering rules Immaculate
+ *	Class to manage contract numbering rules Magre
  */
 class mod_holiday_immaculate extends ModelNumRefHolidays
 {
-
-	// variables inherited from ModelNumRefHolidays class
-	public $name = 'Immaculate';
+	/**
+	 * Dolibarr version of the loaded document
+	 * @var string
+	 */
 	public $version = 'dolibarr';
 
 	/**
-	 *	Constructor
+	 * @var string Error message
 	 */
-	public function __construct()
-	{
-		$this->code_auto = 1;
-	}
+	public $error = '';
+
+	/**
+	 * @var string Nom du modele
+	 * @deprecated
+	 * @see $name
+	 */
+	public $nom = 'Immaculate';
+
+	/**
+	 * @var string model name
+	 */
+	public $name = 'Immaculate';
+
+	/**
+	 * @var int Automatic numbering
+	 */
+	public $code_auto = 1;
 
 	/**
 	 *	Return default description of numbering model
@@ -105,8 +119,8 @@ class mod_holiday_immaculate extends ModelNumRefHolidays
 	 *	Return next value
 	 *
 	 *	@param	Societe		$objsoc     third party object
-	 *	@param	Holiday		$holiday	holiday object
-	 *	@return string|0      			Value if OK, 0 if KO
+	 *	@param	Object		$holiday	holiday object
+	 *	@return string      			Value if OK, 0 if KO
 	 */
 	public function getNextValue($objsoc, $holiday)
 	{
@@ -124,5 +138,19 @@ class mod_holiday_immaculate extends ModelNumRefHolidays
 		$numFinal = get_next_value($db, $mask, 'holiday', 'ref', '', $objsoc, $holiday->date_create);
 
 		return  $numFinal;
+	}
+
+	// phpcs:disable PEAR.NamingConventions.ValidFunctionName.ScopeNotCamelCaps
+	/**
+	 *  Return next value
+	 *
+	 *  @param  User		$fuser     	User object
+	 *  @param  Object		$objforref	Holiday object
+	 *  @return string      			Value if OK, 0 if KO
+	 */
+	public function holiday_get_num($fuser, $objforref)
+	{
+		// phpcs:enable
+		return $this->getNextValue($fuser, $objforref);
 	}
 }

@@ -40,7 +40,7 @@
 // Protection to avoid direct call of template
 if (empty($object) || !is_object($object)) {
 	print "Error, template page can't be called as URL";
-	exit(1);
+	exit;
 }
 
 print "<!-- BEGIN PHP TEMPLATE hrm/core/tpl/objectline_title.tpl.php -->\n";

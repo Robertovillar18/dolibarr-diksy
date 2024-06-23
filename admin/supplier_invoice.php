@@ -6,8 +6,6 @@
  * Copyright (C) 2004      Benoit Mortier          <benoit.mortier@opensides.be>
  * Copyright (C) 2010-2013 Juanjo Menent           <jmenent@2byte.es>
  * Copyright (C) 2011-2018 Philippe Grand          <philippe.grand@atoo-net.com>
- * Copyright (C) 2024		MDW							<mdeweerd@users.noreply.github.com>
- * Copyright (C) 2024       Frédéric France             <frederic.france@free.fr>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -104,20 +102,21 @@ if ($action == 'specimen') {  // For invoices
 	// Search template files
 	$file = '';
 	$classname = '';
+	$filefound = 0;
 	$dirmodels = array_merge(array('/'), (array) $conf->modules_parts['models']);
 	foreach ($dirmodels as $reldir) {
 		$file = dol_buildpath($reldir."core/modules/supplier_invoice/doc/pdf_".$modele.".modules.php", 0);
 		if (file_exists($file)) {
+			$filefound = 1;
 			$classname = "pdf_".$modele;
 			break;
 		}
 	}
 
-	if ($classname !== '') {
+	if ($filefound) {
 		require_once $file;
 
 		$module = new $classname($db, $facture);
-		'@phan-var-force CommonDocGenerator $module';
 
 		if ($module->write_file($facture, $langs) > 0) {
 			header("Location: ".DOL_URL_ROOT."/document.php?modulepart=facture_fournisseur&file=SPECIMEN.pdf");
@@ -158,8 +157,8 @@ if ($action == 'specimen') {  // For invoices
 }
 
 if ($action == 'setmod') {
-	// TODO Verify if the chosen numbering module can be activated
-	// by calling method canBeActivated
+	// TODO Verifier si module numerotation choisi peut etre active
+	// par appel methode canBeActivated
 
 	dolibarr_set_const($db, "INVOICE_SUPPLIER_ADDON_NUMBER", $value, 'chaine', 0, '', $conf->entity);
 }
@@ -194,7 +193,7 @@ $form = new Form($db);
 
 $dirmodels = array_merge(array('/'), (array) $conf->modules_parts['models']);
 
-llxHeader('', '', '', '', 0, 0, '', '', '', 'mod-admin page-supplier_invoice');
+llxHeader("", "");
 
 $linkback = '<a href="'.DOL_URL_ROOT.'/admin/modules.php?restore_lastsearch_values=1">'.$langs->trans("BackToModuleList").'</a>';
 print load_fiche_titre($langs->trans("SuppliersSetup"), $linkback, 'title_setup');
@@ -328,9 +327,7 @@ if ($resql) {
 	$num_rows = $db->num_rows($resql);
 	while ($i < $num_rows) {
 		$array = $db->fetch_array($resql);
-		if (is_array($array)) {
-			array_push($def, $array[0]);
-		}
+		array_push($def, $array[0]);
 		$i++;
 	}
 } else {

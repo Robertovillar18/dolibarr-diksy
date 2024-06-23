@@ -1,5 +1,4 @@
 <?php
-'@phan-var-force DolibarrModules $this';
 
 // $keyforselect = name of main table
 // keyforelement = name of picto
@@ -7,7 +6,7 @@
 
 if (empty($keyforselect) || empty($keyforelement) || empty($keyforaliasextra)) {
 	//print $keyforselet.' - '.$keyforelement.' - '.$keyforaliasextra;
-	dol_print_error(null, 'include of file extrafieldsinexport.inc.php was done but var $keyforselect or $keyforelement or $keyforaliasextra was not set');
+	dol_print_error('', 'include of file extrafieldsinexport.inc.php was done but var $keyforselect or $keyforelement or $keyforaliasextra was not set');
 	exit;
 }
 

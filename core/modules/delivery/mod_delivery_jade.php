@@ -2,8 +2,6 @@
 /* Copyright (C) 2005      Rodolphe Quiedeville <rodolphe@quiedeville.org>
  * Copyright (C) 2004-2008 Laurent Destailleur  <eldy@users.sourceforge.net>
  * Copyright (C) 2005-2010 Regis Houssin        <regis.houssin@inodbox.com>
- * Copyright (C) 2024       Frédéric France             <frederic.france@free.fr>
- * Copyright (C) 2024		MDW							<mdeweerd@users.noreply.github.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,7 +21,7 @@
 /**
  *   \file       htdocs/core/modules/delivery/mod_delivery_jade.php
  *   \ingroup    delivery
- *   \brief      Fichier contenant la class du modele de numerotation de reference de bon de livraison Jade
+ *   \brief      Fichier contenant la classe du modele de numerotation de reference de bon de livraison Jade
  */
 
 require_once DOL_DOCUMENT_ROOT.'/core/modules/delivery/modules_delivery.php';
@@ -31,7 +29,7 @@ require_once DOL_DOCUMENT_ROOT.'/core/modules/delivery/modules_delivery.php';
 
 /**
  *  \class      mod_delivery_jade
- *  \brief      Class du modele de numerotation de reference de bon de livraison Jade
+ *  \brief      Classe du modele de numerotation de reference de bon de livraison Jade
  */
 
 class mod_delivery_jade extends ModeleNumRefDeliveryOrder
@@ -88,8 +86,8 @@ class mod_delivery_jade extends ModeleNumRefDeliveryOrder
 	 *  Checks if the numbers already in the database do not
 	 *  cause conflicts that would prevent this numbering working.
 	 *
-	 *  @param  CommonObject	$object		Object we need next value for
-	 *  @return boolean     				false if conflict, true if ok
+	 *  @param  Object		$object		Object we need next value for
+	 *  @return boolean     			false if conflict, true if ok
 	 */
 	public function canBeActivated($object)
 	{
@@ -128,8 +126,8 @@ class mod_delivery_jade extends ModeleNumRefDeliveryOrder
 	 * 	Return next free value
 	 *
 	 *  @param	Societe		$objsoc     Object thirdparty
-	 *  @param  Delivery	$object		Object we need next value for
-	 *  @return string|-1      			Value if OK, -1 if KO
+	 *  @param  Object		$object		Object we need next value for
+	 *  @return string      			Value if KO, <0 if KO
 	 */
 	public function getNextValue($objsoc, $object)
 	{
@@ -164,10 +162,25 @@ class mod_delivery_jade extends ModeleNumRefDeliveryOrder
 		if ($max >= (pow(10, 4) - 1)) {
 			$num = $max + 1; // If counter > 9999, we do not format on 4 chars, we take number as it is
 		} else {
-			$num = sprintf("%04d", $max + 1);
+			$num = sprintf("%04s", $max + 1);
 		}
 
 		dol_syslog("mod_delivery_jade::getNextValue return ".$this->prefix.$yymm."-".$num);
 		return $this->prefix.$yymm."-".$num;
+	}
+
+
+	// phpcs:disable PEAR.NamingConventions.ValidFunctionName.ScopeNotCamelCaps
+	/**
+	 *  Return next free ref
+	 *
+	 *  @param  Societe     $objsoc         Object thirdparty
+	 *  @param  Object      $object         Object livraison
+	 *  @return string                      Descriptive text
+	 */
+	public function delivery_get_num($objsoc = 0, $object = '')
+	{
+		// phpcs:enable
+		return $this->getNextValue($objsoc, $object);
 	}
 }

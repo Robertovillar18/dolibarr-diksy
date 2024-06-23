@@ -5,8 +5,7 @@
  * Copyright (C) 2010-2014 Juanjo Menent         <jmenent@2byte.es>
  * Copyright (C) 2015      Marcos García         <marcosgdf@gmail.com>
  * Copyright (C) 2017      Ferran Marcet         <fmarcet@2byte.es>
- * Copyright (C) 2018-2024  Frédéric France       <frederic.france@free.fr>
- * Copyright (C) 2024		MDW							<mdeweerd@users.noreply.github.com>
+ * Copyright (C) 2018-2023 Frédéric France       <frederic.france@netlogic.fr>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,7 +42,7 @@ require_once DOL_DOCUMENT_ROOT.'/core/lib/pdf.lib.php';
 class pdf_muscadet extends ModelePDFSuppliersOrders
 {
 	/**
-	 * @var DoliDB Database handler
+	 * @var DoliDb Database handler
 	 */
 	public $db;
 
@@ -138,7 +137,7 @@ class pdf_muscadet extends ModelePDFSuppliersOrders
 		if (getDolGlobalString('MAIN_GENERATE_DOCUMENTS_WITHOUT_VAT')) {
 			$this->posxup = $this->posxtva; // posxtva is picture position reference
 		}
-		$this->posxpicture = $this->posxtva - getDolGlobalInt('MAIN_DOCUMENTS_WITH_PICTURE_WIDTH', 20); // width of images
+		$this->posxpicture = $this->posxtva - (!getDolGlobalString('MAIN_DOCUMENTS_WITH_PICTURE_WIDTH') ? 20 : $conf->global->MAIN_DOCUMENTS_WITH_PICTURE_WIDTH); // width of images
 		if ($this->page_largeur < 210) { // To work with US executive format
 			$this->posxpicture -= 20;
 			$this->posxtva -= 20;
@@ -267,7 +266,7 @@ class pdf_muscadet extends ModelePDFSuppliersOrders
 					$hookmanager = new HookManager($this->db);
 				}
 				$hookmanager->initHooks(array('pdfgeneration'));
-				$parameters = array('file' => $file, 'object' => $object, 'outputlangs' => $outputlangs);
+				$parameters = array('file'=>$file, 'object'=>$object, 'outputlangs'=>$outputlangs);
 				global $action;
 				$reshook = $hookmanager->executeHooks('beforePDFCreation', $parameters, $object, $action); // Note that $action and $object may have been modified by some hooks
 
@@ -308,7 +307,6 @@ class pdf_muscadet extends ModelePDFSuppliersOrders
 					$pdf->SetCompression(false);
 				}
 
-				// @phan-suppress-next-line PhanPluginSuspiciousParamOrder
 				$pdf->SetMargins($this->marge_gauche, $this->marge_haute, $this->marge_droite); // Left, Top, Right
 
 				// Positionne $this->atleastonediscount si on a au moins une remise
@@ -484,7 +482,7 @@ class pdf_muscadet extends ModelePDFSuppliersOrders
 						$curY = $tab_top_newpage;
 					}
 
-					$pdf->SetFont('', '', $default_font_size - 1); // On repositionne la police par default
+					$pdf->SetFont('', '', $default_font_size - 1); // On repositionne la police par defaut
 
 					// VAT Rate
 					if (!getDolGlobalString('MAIN_GENERATE_DOCUMENTS_WITHOUT_VAT') && !getDolGlobalString('MAIN_GENERATE_DOCUMENTS_WITHOUT_VAT_COLUMN')) {
@@ -507,7 +505,7 @@ class pdf_muscadet extends ModelePDFSuppliersOrders
 
 					// Unit
 					if (getDolGlobalInt('PRODUCT_USE_UNITS')) {
-						$unit = pdf_getlineunit($object, $i, $outputlangs, $hidedetails);
+						$unit = pdf_getlineunit($object, $i, $outputlangs, $hidedetails, $hookmanager);
 						$pdf->SetXY($this->posxunit, $curY);
 						$pdf->MultiCell($this->posxdiscount - $this->posxunit - 0.8, 4, $unit, 0, 'L');
 					}
@@ -590,7 +588,7 @@ class pdf_muscadet extends ModelePDFSuppliersOrders
 					if (empty($this->tva_array[$vatrate.($vatcode ? ' ('.$vatcode.')' : '')]['amount'])) {
 						$this->tva_array[$vatrate.($vatcode ? ' ('.$vatcode.')' : '')]['amount'] = 0;
 					}
-					$this->tva_array[$vatrate.($vatcode ? ' ('.$vatcode.')' : '')] = array('vatrate' => $vatrate, 'vatcode' => $vatcode, 'amount' => $this->tva_array[$vatrate.($vatcode ? ' ('.$vatcode.')' : '')]['amount'] + $tvaligne);
+					$this->tva_array[$vatrate.($vatcode ? ' ('.$vatcode.')' : '')] = array('vatrate'=>$vatrate, 'vatcode'=>$vatcode, 'amount'=> $this->tva_array[$vatrate.($vatcode ? ' ('.$vatcode.')' : '')]['amount'] + $tvaligne);
 
 					if ($posYAfterImage > $posYAfterDescription) {
 						$nexY = $posYAfterImage;
@@ -599,10 +597,10 @@ class pdf_muscadet extends ModelePDFSuppliersOrders
 					// Add line
 					if (getDolGlobalString('MAIN_PDF_DASH_BETWEEN_LINES') && $i < ($nblines - 1)) {
 						$pdf->setPage($pageposafter);
-						$pdf->SetLineStyle(array('dash' => '1,1', 'color' => array(80, 80, 80)));
+						$pdf->SetLineStyle(array('dash'=>'1,1', 'color'=>array(80, 80, 80)));
 						//$pdf->SetDrawColor(190,190,200);
 						$pdf->line($this->marge_gauche, $nexY + 1, $this->page_largeur - $this->marge_droite, $nexY + 1);
-						$pdf->SetLineStyle(array('dash' => 0));
+						$pdf->SetLineStyle(array('dash'=>0));
 					}
 
 					$nexY += 2; // Add space between lines
@@ -677,7 +675,7 @@ class pdf_muscadet extends ModelePDFSuppliersOrders
 
 				// Add pdfgeneration hook
 				$hookmanager->initHooks(array('pdfgeneration'));
-				$parameters = array('file' => $file, 'object' => $object, 'outputlangs' => $outputlangs);
+				$parameters = array('file'=>$file, 'object'=>$object, 'outputlangs'=>$outputlangs);
 				global $action;
 				$reshook = $hookmanager->executeHooks('afterPDFCreation', $parameters, $this, $action); // Note that $action and $object may have been modified by some hooks
 				if ($reshook < 0) {
@@ -687,7 +685,7 @@ class pdf_muscadet extends ModelePDFSuppliersOrders
 
 				dolChmod($file);
 
-				$this->result = array('fullpath' => $file);
+				$this->result = array('fullpath'=>$file);
 
 				return 1; // No error
 			} else {
@@ -790,7 +788,7 @@ class pdf_muscadet extends ModelePDFSuppliersOrders
 	 *	@param  Facture		$object         Object invoice
 	 *	@param  int			$deja_regle     Montant deja regle
 	 *	@param	int			$posy			Position depart
-	 *	@param	Translate	$outputlangs	Object langs
+	 *	@param	Translate	$outputlangs	Objet langs
 	 *	@return int							Position pour suite
 	 */
 	protected function _tableau_tot(&$pdf, $object, $deja_regle, $posy, $outputlangs)
@@ -892,8 +890,8 @@ class pdf_muscadet extends ModelePDFSuppliersOrders
 						$pdf->SetXY($col1x, $tab2_top + $tab2_hl * $index);
 
 						$tvacompl = '';
-						if (preg_match('/\*/', (string) $tvakey)) {
-							$tvakey = str_replace('*', '', (string) $tvakey);
+						if (preg_match('/\*/', $tvakey)) {
+							$tvakey = str_replace('*', '', $tvakey);
 							$tvacompl = " (".$outputlangs->transnoentities("NonPercuRecuperable").")";
 						}
 						$totalvat = $outputlangs->transcountrynoentities("TotalLT1", $mysoc->country_code).' ';
@@ -922,8 +920,8 @@ class pdf_muscadet extends ModelePDFSuppliersOrders
 						$pdf->SetXY($col1x, $tab2_top + $tab2_hl * $index);
 
 						$tvacompl = '';
-						if (preg_match('/\*/', (string) $tvakey)) {
-							$tvakey = str_replace('*', '', (string) $tvakey);
+						if (preg_match('/\*/', $tvakey)) {
+							$tvakey = str_replace('*', '', $tvakey);
 							$tvacompl = " (".$outputlangs->transnoentities("NonPercuRecuperable").")";
 						}
 						$totalvat = $outputlangs->transcountrynoentities("TotalLT2", $mysoc->country_code).' ';
@@ -991,8 +989,8 @@ class pdf_muscadet extends ModelePDFSuppliersOrders
 	 *   Show table for lines
 	 *
 	 *   @param		TCPDF		$pdf     		Object PDF
-	 *   @param		float|int	$tab_top		Top position of table
-	 *   @param		float|int	$tab_height		Height of table (rectangle)
+	 *   @param		string		$tab_top		Top position of table
+	 *   @param		string		$tab_height		Height of table (rectangle)
 	 *   @param		int			$nexY			Y (not used)
 	 *   @param		Translate	$outputlangs	Langs object
 	 *   @param		int			$hidetop		Hide top bar of array
@@ -1094,7 +1092,7 @@ class pdf_muscadet extends ModelePDFSuppliersOrders
 	 *  @param  CommandeFournisseur		$object     	Object to show
 	 *  @param  int	    	$showaddress    0=no, 1=yes
 	 *  @param  Translate	$outputlangs	Object lang for output
-	 *  @return	float|int                   Return topshift value
+	 *  @return	float|int
 	 */
 	protected function _pagehead(&$pdf, $object, $showaddress, $outputlangs)
 	{
@@ -1340,7 +1338,6 @@ class pdf_muscadet extends ModelePDFSuppliersOrders
 			// Show recipient name
 			$pdf->SetXY($posx + 2, $posy + 3);
 			$pdf->SetFont('', 'B', $default_font_size);
-			// @phan-suppress-next-line PhanPluginSuspiciousParamOrder
 			$pdf->MultiCell($widthrecbox, 4, $carac_client_name, 0, $ltrdirection);
 
 			$posy = $pdf->getY();
@@ -1348,7 +1345,6 @@ class pdf_muscadet extends ModelePDFSuppliersOrders
 			// Show recipient information
 			$pdf->SetFont('', '', $default_font_size - 1);
 			$pdf->SetXY($posx + 2, $posy);
-			// @phan-suppress-next-line PhanPluginSuspiciousParamOrder
 			$pdf->MultiCell($widthrecbox, 4, $carac_client, 0, $ltrdirection);
 		}
 

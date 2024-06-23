@@ -31,6 +31,13 @@ class IMipPlugin extends DAV\ServerPlugin
     protected $senderEmail;
 
     /**
+     * ITipMessage.
+     *
+     * @var ITip\Message
+     */
+    protected $itipMessage;
+
+    /**
      * Creates the email handler.
      *
      * @param string $senderEmail. The 'senderEmail' is the email that shows up

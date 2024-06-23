@@ -44,30 +44,26 @@ if (isModEnabled('project')) {
 $langs->loadLangs(array('companies', 'ticket'));
 
 // Get parameters
-$socid = GETPOSTINT("socid");
+$socid = GETPOST("socid", 'int');
 $action = GETPOST("action", 'alpha');
 $track_id = GETPOST("track_id", 'alpha');
-$id = GETPOSTINT("id");
+$id = GETPOST("id", 'int');
 $ref = GETPOST('ref', 'alpha');
 
 $type = GETPOST('type', 'alpha');
 $source = GETPOST('source', 'alpha');
 
-$ligne = GETPOSTINT('ligne');
-$lineid = GETPOSTINT('lineid');
+$ligne = GETPOST('ligne', 'int');
+$lineid = GETPOST('lineid', 'int');
 
 
 // Store current page url
 $url_page_current = DOL_URL_ROOT.'/ticket/contact.php';
 
-$hookmanager->initHooks(array('contactticketcard', 'globalcard'));
 $object = new Ticket($db);
-if ($id > 0 || $ref || $track_id) {
-	$result = $object->fetch($id, $ref, $track_id);
-}
 
 // Security check
-$id = GETPOSTINT("id");
+$id = GETPOST("id", 'int');
 if ($user->socid > 0) {
 	$socid = $user->socid;
 }
@@ -82,23 +78,18 @@ if (!$user->socid && (getDolGlobalString('TICKET_LIMIT_VIEW_ASSIGNED_ONLY') && $
 	accessforbidden();
 }
 
-$permissiontoadd = $user->hasRight('ticket', 'write');
+$permissiontoadd = $user->rights->ticket->write;
 
 
 /*
  * Actions
  */
-$parameters = array();
-$reshook = $hookmanager->executeHooks('doActions', $parameters, $object, $action); // Note that $action and $object may have been modified by some hooks
-if ($reshook < 0) {
-	setEventMessages($hookmanager->error, $hookmanager->errors, 'errors');
-}
 
 if ($action == 'addcontact' && $user->hasRight('ticket', 'write')) {
 	$result = $object->fetch($id, '', $track_id);
 
 	if ($result > 0 && ($id > 0 || (!empty($track_id)))) {
-		$contactid = (GETPOSTINT('userid') ? GETPOSTINT('userid') : GETPOSTINT('contactid'));
+		$contactid = (GETPOST('userid', 'int') ? GETPOST('userid', 'int') : GETPOST('contactid', 'int'));
 		$typeid = (GETPOST('typecontact') ? GETPOST('typecontact') : GETPOST('type'));
 
 		$error = 0;
@@ -166,7 +157,7 @@ if ($action == 'deletecontact' && $user->hasRight('ticket', 'write')) {
 		$result = $object->delete_contact($lineid);
 
 		if ($result >= 0) {
-			header("Location: ".$url_page_current."?id=".$object->id);
+			Header("Location: ".$url_page_current."?id=".$object->id);
 			exit;
 		}
 	}
@@ -174,8 +165,8 @@ if ($action == 'deletecontact' && $user->hasRight('ticket', 'write')) {
 
 // Set parent company
 if ($action == 'set_thirdparty' && $user->hasRight('ticket', 'write')) {
-	if ($object->fetch(GETPOSTINT('id'), '', GETPOST('track_id', 'alpha')) >= 0) {
-		$result = $object->setCustomer(GETPOSTINT('editcustomer'));
+	if ($object->fetch(GETPOST('id', 'int'), '', GETPOST('track_id', 'alpha')) >= 0) {
+		$result = $object->setCustomer(GETPOST('editcustomer', 'int'));
 		$url = $_SERVER["PHP_SELF"].'?track_id='.GETPOST('track_id', 'alpha');
 		header("Location: ".$url);
 		exit();
@@ -188,7 +179,7 @@ if ($action == 'set_thirdparty' && $user->hasRight('ticket', 'write')) {
  */
 
 $help_url = 'FR:DocumentationModuleTicket';
-llxHeader('', $langs->trans("TicketContacts"), $help_url, '', 0, 0, '', '', '', 'mod-ticket page-card_contacts');
+llxHeader('', $langs->trans("TicketContacts"), $help_url);
 
 $form = new Form($db);
 $formcompany = new FormCompany($db);
@@ -277,7 +268,7 @@ if ($id > 0 || !empty($track_id) || !empty($ref)) {
 
 		//print '<br>';
 
-		$permission = $user->hasRight('ticket', 'write');
+		$permission = $user->rights->ticket->write;
 
 		// Contacts lines (modules that overwrite templates must declare this into descriptor)
 		$dirtpls = array_merge($conf->modules_parts['tpl'], array('/core/tpl'));

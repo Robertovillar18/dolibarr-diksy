@@ -35,13 +35,13 @@ require_once DOL_DOCUMENT_ROOT.'/ecm/class/ecmfiles.class.php';
 // Load translation files required by the page
 $langs->loadLangs(array('ecm'));
 
-$id = GETPOSTINT('id');
+$id = GETPOST('id', 'int');
 $ref = GETPOST('ref', 'alpha');
-$socid = GETPOSTINT('socid');
+$socid = GETPOST('socid', 'int');
 $action = GETPOST('action', 'aZ09');
 
 // Get parameters
-$socid = GETPOSTINT("socid");
+$socid = GETPOST("socid", "int");
 // Security check
 if ($user->socid > 0) {
 	$action = '';
@@ -50,10 +50,10 @@ if ($user->socid > 0) {
 
 $backtopage = GETPOST('backtopage', 'alpha');
 
-$limit = GETPOSTINT('limit') ? GETPOSTINT('limit') : $conf->liste_limit;
+$limit = GETPOST('limit', 'int') ? GETPOST('limit', 'int') : $conf->liste_limit;
 $sortfield = GETPOST('sortfield', 'aZ09comma');
 $sortorder = GETPOST('sortorder', 'aZ09comma');
-$page = GETPOSTISSET('pageplusone') ? (GETPOSTINT('pageplusone') - 1) : GETPOSTINT("page");
+$page = GETPOSTISSET('pageplusone') ? (GETPOST('pageplusone') - 1) : GETPOST("page", 'int');
 if (empty($page) || $page == -1) {
 	$page = 0;
 }     // If $page is not defined, or '' or -1
@@ -69,12 +69,12 @@ if (!$sortfield) {
 
 $section = GETPOST("section", 'alpha');
 if (!$section) {
-	dol_print_error(null, 'Error, section parameter missing');
+	dol_print_error('', 'Error, section parameter missing');
 	exit;
 }
 $urlfile = (string) dol_sanitizePathName(GETPOST("urlfile"));
 if (!$urlfile) {
-	dol_print_error(null, "ErrorParamNotDefined");
+	dol_print_error('', "ErrorParamNotDefined");
 	exit;
 }
 
@@ -106,9 +106,9 @@ if ($result < 0) {
 	exit;
 }
 
-$permissionnote = $user->hasRight('ecm', 'setup'); // Used by the include of actions_setnotes.inc.php
+$permissionnote = $user->rights->ecm->setup; // Used by the include of actions_setnotes.inc.php
 
-$permissiontoread = $user->hasRight('ecm', 'read');
+$permissiontoread = $user->rights->ecm->read;
 
 if (!$permissiontoread) {
 	accessforbidden();

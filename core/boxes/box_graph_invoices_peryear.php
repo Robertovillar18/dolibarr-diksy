@@ -1,6 +1,5 @@
 <?php
 /* Copyright (C) 2013 Laurent Destailleur  <eldy@users.sourceforge.net>
- * Copyright (C) 2024       Frédéric France             <frederic.france@free.fr>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +17,7 @@
 
 /**
  *	\file       htdocs/core/boxes/box_graph_invoices_peryear.php
- *	\ingroup    invoices
+ *	\ingroup    factures
  *	\brief      Box to show graph of invoices per year
  */
 include_once DOL_DOCUMENT_ROOT.'/core/boxes/modules_boxes.php';
@@ -33,6 +32,15 @@ class box_graph_invoices_peryear extends ModeleBoxes
 	public $boximg   = "object_bill";
 	public $boxlabel = "BoxCustomersInvoicesPerYear";
 	public $depends  = array("facture");
+
+	/**
+	 * @var DoliDB Database handler.
+	 */
+	public $db;
+
+	public $info_box_head = array();
+	public $info_box_contents = array();
+
 
 	/**
 	 *  Constructor
@@ -66,7 +74,7 @@ class box_graph_invoices_peryear extends ModeleBoxes
 		//include_once DOL_DOCUMENT_ROOT.'/compta/facture/class/facture.class.php';
 		//$facturestatic=new Facture($this->db);
 
-		$startmonth = getDolGlobalInt('SOCIETE_FISCAL_MONTH_START', 1);
+		$startmonth = $conf->global->SOCIETE_FISCAL_MONTH_START ? ($conf->global->SOCIETE_FISCAL_MONTH_START) : 1;
 		if (!getDolGlobalString('GRAPH_USE_FISCAL_YEAR')) {
 			$startmonth = 1;
 		}
@@ -89,7 +97,7 @@ class box_graph_invoices_peryear extends ModeleBoxes
 		if ($user->socid) {
 			$socid = $user->socid;
 		}
-		if (!$user->hasRight('societe', 'client', 'voir')) {
+		if (!$user->hasRight('societe', 'client', 'voir') || $socid) {
 			$prefix .= 'private-'.$user->id.'-';
 		} // If user has no permission to see all, output dir is specific to user
 
@@ -103,7 +111,7 @@ class box_graph_invoices_peryear extends ModeleBoxes
 			include_once DOL_DOCUMENT_ROOT.'/compta/facture/class/facturestats.class.php';
 			$autosetarray = preg_split("/[,;:]+/", GETPOST('DOL_AUTOSET_COOKIE'));
 			if (in_array('DOLUSERCOOKIE_box_'.$this->boxcode, $autosetarray)) {
-				$endyear = GETPOSTINT($param_year);
+				$endyear = GETPOST($param_year, 'int');
 				$showtot = GETPOST($param_showtot, 'alpha');
 			} else {
 				$tmparray = json_decode($_COOKIE['DOLUSERCOOKIE_box_'.$this->boxcode], true);
@@ -117,7 +125,7 @@ class box_graph_invoices_peryear extends ModeleBoxes
 			if (empty($endyear)) {
 				$endyear = $nowarray['year'];
 			}
-			$numberyears = getDolGlobalInt('MAIN_NB_OF_YEAR_IN_WIDGET_GRAPH', 5);
+			$numberyears = (!getDolGlobalString('MAIN_NB_OF_YEAR_IN_WIDGET_GRAPH') ? 5 : $conf->global->MAIN_NB_OF_YEAR_IN_WIDGET_GRAPH);
 			$startyear = $endyear - $numberyears;
 
 			$mode = 'customer';

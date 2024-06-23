@@ -20,14 +20,13 @@
 // Protection to avoid direct call of template
 if (empty($conf) || !is_object($conf)) {
 	print "Error, template page can't be called as URL";
-	exit(1);
+	exit;
 }
 
 ?>
 
 <!-- BEGIN PHP TEMPLATE originproductline.tpl.php -->
 <?php
-'@phan-var-force CommonObject $this';
 print '<tr data-id="'.$this->tpl['id'].'" class="oddeven'.(empty($this->tpl['strike']) ? '' : ' strikefordisabled').'">';
 print '<td class="linecolref">'.$this->tpl['label'].'</td>';
 print '<td class="linecoldescription">'.$this->tpl['description'].'</td>';

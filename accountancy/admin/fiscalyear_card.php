@@ -1,6 +1,6 @@
 <?php
 /* Copyright (C) 2014-2024  Alexandre Spangaro  <aspangaro@easya.solutions>
- * Copyright (C) 2018-2024  Frédéric France     <frederic.france@netlogic.fr>
+ * Copyright (C) 2018       Frédéric France     <frederic.france@netlogic.fr>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,7 +32,7 @@ require_once DOL_DOCUMENT_ROOT.'/core/class/fiscalyear.class.php';
 $langs->loadLangs(array("admin", "compta"));
 
 // Get parameters
-$id = GETPOSTINT('id');
+$id = GETPOST('id', 'int');
 $ref = GETPOST('ref', 'alpha');
 
 $action = GETPOST('action', 'aZ09');
@@ -64,14 +64,14 @@ static $tmpstatus2label = array(
 		'1' => 'CloseFiscalYear'
 );
 $status2label = array(
-		'' => ''
+		''
 );
 foreach ($tmpstatus2label as $key => $val) {
 	$status2label[$key] = $langs->trans($val);
 }
 
-$date_start = dol_mktime(0, 0, 0, GETPOSTINT('fiscalyearmonth'), GETPOSTINT('fiscalyearday'), GETPOSTINT('fiscalyearyear'));
-$date_end = dol_mktime(0, 0, 0, GETPOSTINT('fiscalyearendmonth'), GETPOSTINT('fiscalyearendday'), GETPOSTINT('fiscalyearendyear'));
+$date_start = dol_mktime(0, 0, 0, GETPOST('fiscalyearmonth', 'int'), GETPOST('fiscalyearday', 'int'), GETPOST('fiscalyearyear', 'int'));
+$date_end = dol_mktime(0, 0, 0, GETPOST('fiscalyearendmonth', 'int'), GETPOST('fiscalyearendday', 'int'), GETPOST('fiscalyearendyear', 'int'));
 
 $permissiontoadd = $user->hasRight('accounting', 'fiscalyear', 'write');
 
@@ -95,7 +95,7 @@ if ($reshook < 0) {
 }
 
 if ($action == 'confirm_delete' && $confirm == "yes") {
-	$result = $object->delete($user);
+	$result = $object->delete($id);
 	if ($result >= 0) {
 		header("Location: fiscalyear.php");
 		exit();
@@ -109,7 +109,7 @@ if ($action == 'confirm_delete' && $confirm == "yes") {
 		$object->date_start = $date_start;
 		$object->date_end = $date_end;
 		$object->label = GETPOST('label', 'alpha');
-		$object->status = GETPOSTINT('status');
+		$object->status = GETPOST('status', 'int');
 		$object->datec = dol_now();
 
 		if (empty($object->date_start) && empty($object->date_end)) {
@@ -152,7 +152,7 @@ if ($action == 'confirm_delete' && $confirm == "yes") {
 		$object->date_start = GETPOST("fiscalyear") ? $date_start : '';
 		$object->date_end = GETPOST("fiscalyearend") ? $date_end : '';
 		$object->label = GETPOST('label', 'alpha');
-		$object->status = GETPOSTINT('status');
+		$object->status = GETPOST('status', 'int');
 
 		$result = $object->update($user);
 
@@ -183,7 +183,7 @@ if ($action == 'create') {
 
 $help_url = 'EN:Module_Double_Entry_Accounting#Setup|FR:Module_Comptabilit&eacute;_en_Partie_Double#Configuration';
 
-llxHeader('', $title, $help_url, '', 0, 0, '', '', '', 'mod-accountancy page-fiscalyear');
+llxHeader('', $title, $help_url);
 
 if ($action == 'create') {
 	print load_fiche_titre($title, '', 'object_'.$object->picto);
@@ -192,9 +192,9 @@ if ($action == 'create') {
 	print '<input type="hidden" name="token" value="'.newToken().'">';
 	print '<input type="hidden" name="action" value="add">';
 
-	print dol_get_fiche_head(array(), '');
+	print dol_get_fiche_head();
 
-	print '<table class="border centpercent tableforfieldcreate">'."\n";
+	print '<table class="border centpercent">';
 
 	// Label
 	print '<tr><td class="titlefieldcreate fieldrequired">'.$langs->trans("Label").'</td><td><input name="label" size="32" value="'.GETPOST('label', 'alpha').'"></td></tr>';
@@ -218,21 +218,13 @@ if ($action == 'create') {
 	print '</td></tr>';
 	*/
 
-	// Common attributes
-	//include DOL_DOCUMENT_ROOT.'/core/tpl/commonfields_add.tpl.php';
-
-	// Other attributes
-	//include DOL_DOCUMENT_ROOT.'/core/tpl/extrafields_add.tpl.php';
-
-	print '</table>'."\n";
+	print '</table>';
 
 	print dol_get_fiche_end();
 
 	print $form->buttonsSaveCancel("Create");
 
 	print '</form>';
-
-	dol_set_focus('input[name="label"]');
 }
 
 
@@ -281,12 +273,6 @@ if (($id || $ref) && $action == 'edit') {
 	print $object->getLibStatut(4);
 	print '</td></tr>';
 
-	// Common attributes
-	//include DOL_DOCUMENT_ROOT.'/core/tpl/commonfields_edit.tpl.php';
-
-	// Other attributes
-	//include DOL_DOCUMENT_ROOT.'/core/tpl/extrafields_edit.tpl.php';
-
 	print '</table>';
 
 	print dol_get_fiche_end();
@@ -300,11 +286,7 @@ if (($id || $ref) && $action == 'edit') {
 if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'create'))) {
 	$head = fiscalyear_prepare_head($object);
 
-	print dol_get_fiche_head($head, 'card', $langs->trans("Fiscalyear"), -1, $object->picto, 0, '', '', 0, '', 1);
-
-	$morehtmlref = '';
-	//$morehtmlref .= '<div class="refidno">';
-	//$morehtmlref .= '</div>';
+	print dol_get_fiche_head($head, 'card', $langs->trans("Fiscalyear"), 0, 'calendar');
 
 	$formconfirm = '';
 
@@ -318,45 +300,44 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	// Object card
 	// ------------------------------------------------------------
-	$linkback = '<a href="'.DOL_URL_ROOT.'/accountancy/admin/fiscalyear.php?restore_lastsearch_values=1">'.$langs->trans("BackToList").'</a>';
+	$linkback = '<a href="'.DOL_URL_ROOT.'/accountancy/admin/fiscalyear.php">'.$langs->trans("BackToList").'</a>';
 
-	dol_banner_tab($object, 'ref', $linkback, 1, 'ref', 'ref', $morehtmlref);
+	print '<table class="border centpercent">';
 
-
-	print '<div class="fichecenter">';
-	print '<div class="fichehalfleft">';
-	print '<div class="underbanner clearboth"></div>';
-	print '<table class="border centpercent tableforfield">'."\n";
+	// Ref
+	print '<tr><td class="titlefield">'.$langs->trans("Ref").'</td><td width="50%">';
+	print $object->ref;
+	print '</td><td>';
+	print $linkback;
+	print '</td></tr>';
 
 	// Label
 	print '<tr><td class="tdtop">';
 	print $form->editfieldkey("Label", 'label', $object->label, $object, 0, 'alpha:32');
-	print '</td><td>';
+	print '</td><td colspan="2">';
 	print $form->editfieldval("Label", 'label', $object->label, $object, 0, 'alpha:32');
 	print "</td></tr>";
 
 	// Date start
 	print '<tr><td>';
 	print $form->editfieldkey("DateStart", 'date_start', $object->date_start, $object, 0, 'datepicker');
-	print '</td><td>';
+	print '</td><td colspan="2">';
 	print $form->editfieldval("DateStart", 'date_start', $object->date_start, $object, 0, 'datepicker');
 	print '</td></tr>';
 
 	// Date end
 	print '<tr><td>';
 	print $form->editfieldkey("DateEnd", 'date_end', $object->date_end, $object, 0, 'datepicker');
-	print '</td><td>';
+	print '</td><td colspan="2">';
 	print $form->editfieldval("DateEnd", 'date_end', $object->date_end, $object, 0, 'datepicker');
 	print '</td></tr>';
 
-	print '</table>';
-	print '</div>';
-	print '</div>';
+	// Status
+	print '<tr><td>'.$langs->trans("Status").'</td><td colspan="2">'.$object->getLibStatut(4).'</td></tr>';
 
-	print '<div class="clearboth"></div>';
+	print "</table>";
 
 	print dol_get_fiche_end();
-
 
 	/*
 	 * Action bar

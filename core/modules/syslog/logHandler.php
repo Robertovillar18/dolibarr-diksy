@@ -1,7 +1,4 @@
 <?php
-/* Copyright (C) 2024       Frédéric France             <frederic.france@free.fr>
- * Copyright (C) 2024		MDW							<mdeweerd@users.noreply.github.com>
- */
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,33 +15,15 @@
  * or see https://www.gnu.org/
  */
 
+require_once DOL_DOCUMENT_ROOT.'/core/modules/syslog/logHandlerInterface.php';
+
 /**
  * Parent class for log handlers
  */
-abstract class LogHandler
+class LogHandler
 {
-	/**
-	 * @var string Code for the handler
-	 */
-	public $code;
-
 	protected $ident = 0;
 
-	/**
-	 * @var string[] Array of error messages
-	 */
-	public $errors = [];
-
-
-	/**
-	 * Return name of logger
-	 *
-	 * @return string
-	 */
-	public function getName()
-	{
-		return ucfirst($this->code);
-	}
 
 	/**
 	 * Content of the info tooltip.
@@ -77,13 +56,13 @@ abstract class LogHandler
 	}
 
 	/**
-	 * Is the logger active ?
+	 * Is the module active ?
 	 *
-	 * @return int		1 if logger enabled
+	 * @return boolean
 	 */
 	public function isActive()
 	{
-		return 0;
+		return false;
 	}
 
 	/**
@@ -101,11 +80,11 @@ abstract class LogHandler
 	 * It will be called after setting the configuration.
 	 * The function returns an array with error messages
 	 *
-	 * @return bool
+	 * @return array
 	 */
 	public function checkConfiguration()
 	{
-		return true;
+		return array();
 	}
 
 	/**
@@ -117,18 +96,5 @@ abstract class LogHandler
 	public function setIdent($ident)
 	{
 		$this->ident += $ident;
-	}
-
-	/**
-	 * Export the message
-	 *
-	 * @param   array   $content            Array containing the info about the message
-	 * @param   string  $suffixinfilename   When output is a file, append this suffix into default log filename.
-	 * @return  void
-	 */
-	public function export($content, $suffixinfilename = '')
-	{
-		// Code to output log
-		return;
 	}
 }

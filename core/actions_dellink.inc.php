@@ -26,9 +26,9 @@
 // $object must be defined
 // $permissiondellink must be defined
 
-$dellinkid = GETPOSTINT('dellinkid');
+$dellinkid = GETPOST('dellinkid', 'int');
 $addlink = GETPOST('addlink', 'alpha');
-$addlinkid = GETPOSTINT('idtolinkto');
+$addlinkid = GETPOST('idtolinkto', 'int');
 $addlinkref = GETPOST('reftolinkto', 'alpha');
 $cancellink = GETPOST('cancel', 'alpha');
 

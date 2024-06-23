@@ -31,7 +31,7 @@ require_once DOL_DOCUMENT_ROOT.'/user/class/user.class.php';
 require_once DOL_DOCUMENT_ROOT.'/societe/class/societe.class.php';
 require_once DOL_DOCUMENT_ROOT.'/core/class/vcard.class.php';
 
-$id = GETPOSTINT('id');
+$id = GETPOST('id', 'int');
 
 // Security check
 $socid = 0;

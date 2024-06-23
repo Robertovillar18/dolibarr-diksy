@@ -42,7 +42,11 @@ $extrafields = new ExtraFields($db);
 $form = new Form($db);
 
 // List of supported format
-$type2label = ExtraFields::getListOfTypesLabels();
+$tmptype2label = ExtraFields::$type2label;
+$type2label = array('');
+foreach ($tmptype2label as $key => $val) {
+	$type2label[$key] = $langs->transnoentitiesnoconv($val);
+}
 
 $action = GETPOST('action', 'aZ09');
 $attrname = GETPOST('attrname', 'alpha');
@@ -67,7 +71,7 @@ require DOL_DOCUMENT_ROOT.'/core/actions_extrafields.inc.php';
 
 $textobject = $langs->transnoentitiesnoconv("ResourceSingular");
 
-llxHeader('', $langs->trans("ResourceSetup"), '', '', 0, 0, '', '', '', 'mod-admin page-resource_extrafields');
+llxHeader('', $langs->trans("ResourceSetup"));
 
 $linkback = '<a href="'.DOL_URL_ROOT.'/admin/modules.php?restore_lastsearch_values=1">'.$langs->trans("BackToModuleList").'</a>';
 print load_fiche_titre($langs->trans("ResourceSetup"), $linkback, 'title_setup');

@@ -1,6 +1,5 @@
 <?php
 /* Copyright (c) 2004-2011 Laurent Destailleur  <eldy@users.sourceforge.net>
- * Copyright (C) 2024		MDW							<mdeweerd@users.noreply.github.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,7 +42,7 @@ if ($user->socid > 0) {
 }
 $result = restrictedArea($user, 'adherent', '', '', 'cotisation');
 
-$year = (int) dol_print_date(dol_now('gmt'), "%Y", 'gmt');
+$year = dol_print_date(dol_now('gmt'), "%Y", 'gmt');
 $startyear = $year - (!getDolGlobalString('MAIN_STATS_GRAPHS_SHOW_N_YEARS') ? 2 : max(1, min(10, getDolGlobalString('MAIN_STATS_GRAPHS_SHOW_N_YEARS'))));
 $endyear = $year;
 
@@ -163,40 +162,40 @@ if ($mode) {
 		while ($i < $num) {
 			$obj = $db->fetch_object($resql);
 			if ($mode == 'memberbycountry') {
-				$data[] = array('label' => (($obj->code && $langs->trans("Country".$obj->code) != "Country".$obj->code) ? img_picto('', DOL_URL_ROOT.'/theme/common/flags/'.strtolower($obj->code).'.png', '', 1).' '.$langs->trans("Country".$obj->code) : ($obj->label ? $obj->label : '<span class="opacitymedium">'.$langs->trans("Unknown").'</span>')),
-					'label_en' => (($obj->code && $langsen->transnoentitiesnoconv("Country".$obj->code) != "Country".$obj->code) ? $langsen->transnoentitiesnoconv("Country".$obj->code) : ($obj->label ? $obj->label : '<span class="opacitymedium">'.$langs->trans("Unknown").'</span>')),
-					'code' => $obj->code,
-					'nb' => $obj->nb,
-					'lastdate' => $db->jdate($obj->lastdate),
-					'lastsubscriptiondate' => $db->jdate($obj->lastsubscriptiondate)
+				$data[] = array('label'=>(($obj->code && $langs->trans("Country".$obj->code) != "Country".$obj->code) ? img_picto('', DOL_URL_ROOT.'/theme/common/flags/'.strtolower($obj->code).'.png', '', 1).' '.$langs->trans("Country".$obj->code) : ($obj->label ? $obj->label : '<span class="opacitymedium">'.$langs->trans("Unknown").'</span>')),
+					'label_en'=>(($obj->code && $langsen->transnoentitiesnoconv("Country".$obj->code) != "Country".$obj->code) ? $langsen->transnoentitiesnoconv("Country".$obj->code) : ($obj->label ? $obj->label : '<span class="opacitymedium">'.$langs->trans("Unknown").'</span>')),
+					'code'=>$obj->code,
+					'nb'=>$obj->nb,
+					'lastdate'=>$db->jdate($obj->lastdate),
+					'lastsubscriptiondate'=>$db->jdate($obj->lastsubscriptiondate)
 				);
 			}
 			if ($mode == 'memberbyregion') { //+
 				$data[] = array(
-					'label' => (($obj->code && $langs->trans("Country".$obj->code) != "Country".$obj->code) ? img_picto('', DOL_URL_ROOT.'/theme/common/flags/'.strtolower($obj->code).'.png', '', 1).' '.$langs->trans("Country".$obj->code) : ($obj->label ? $obj->label : '<span class="opacitymedium">'.$langs->trans("Unknown").'</span>')),
-					'label_en' => (($obj->code && $langsen->transnoentitiesnoconv("Country".$obj->code) != "Country".$obj->code) ? $langsen->transnoentitiesnoconv("Country".$obj->code) : ($obj->label ? $obj->label : '<span class="opacitymedium">'.$langs->trans("Unknown").'</span>')),
-					'label2' => ($obj->label2 ? $obj->label2 : '<span class="opacitymedium">'.$langs->trans("Unknown").'</span>'),
-					'nb' => $obj->nb,
-					'lastdate' => $db->jdate($obj->lastdate),
-					'lastsubscriptiondate' => $db->jdate($obj->lastsubscriptiondate)
+					'label'=>(($obj->code && $langs->trans("Country".$obj->code) != "Country".$obj->code) ? img_picto('', DOL_URL_ROOT.'/theme/common/flags/'.strtolower($obj->code).'.png', '', 1).' '.$langs->trans("Country".$obj->code) : ($obj->label ? $obj->label : '<span class="opacitymedium">'.$langs->trans("Unknown").'</span>')),
+					'label_en'=>(($obj->code && $langsen->transnoentitiesnoconv("Country".$obj->code) != "Country".$obj->code) ? $langsen->transnoentitiesnoconv("Country".$obj->code) : ($obj->label ? $obj->label : '<span class="opacitymedium">'.$langs->trans("Unknown").'</span>')),
+					'label2'=>($obj->label2 ? $obj->label2 : '<span class="opacitymedium">'.$langs->trans("Unknown").'</span>'),
+					'nb'=>$obj->nb,
+					'lastdate'=>$db->jdate($obj->lastdate),
+					'lastsubscriptiondate'=>$db->jdate($obj->lastsubscriptiondate)
 				);
 			}
 			if ($mode == 'memberbystate') {
-				$data[] = array('label' => (($obj->code && $langs->trans("Country".$obj->code) != "Country".$obj->code) ? img_picto('', DOL_URL_ROOT.'/theme/common/flags/'.strtolower($obj->code).'.png', '', 1).' '.$langs->trans("Country".$obj->code) : ($obj->label ? $obj->label : '<span class="opacitymedium">'.$langs->trans("Unknown").'</span>')),
-					'label_en' => (($obj->code && $langsen->transnoentitiesnoconv("Country".$obj->code) != "Country".$obj->code) ? $langsen->transnoentitiesnoconv("Country".$obj->code) : ($obj->label ? $obj->label : '<span class="opacitymedium">'.$langs->trans("Unknown").'</span>')),
-					'label2' => ($obj->label2 ? $obj->label2 : '<span class="opacitymedium">'.$langs->trans("Unknown").'</span>'),
-					'nb' => $obj->nb,
-					'lastdate' => $db->jdate($obj->lastdate),
-					'lastsubscriptiondate' => $db->jdate($obj->lastsubscriptiondate)
+				$data[] = array('label'=>(($obj->code && $langs->trans("Country".$obj->code) != "Country".$obj->code) ? img_picto('', DOL_URL_ROOT.'/theme/common/flags/'.strtolower($obj->code).'.png', '', 1).' '.$langs->trans("Country".$obj->code) : ($obj->label ? $obj->label : '<span class="opacitymedium">'.$langs->trans("Unknown").'</span>')),
+					'label_en'=>(($obj->code && $langsen->transnoentitiesnoconv("Country".$obj->code) != "Country".$obj->code) ? $langsen->transnoentitiesnoconv("Country".$obj->code) : ($obj->label ? $obj->label : '<span class="opacitymedium">'.$langs->trans("Unknown").'</span>')),
+					'label2'=>($obj->label2 ? $obj->label2 : '<span class="opacitymedium">'.$langs->trans("Unknown").'</span>'),
+					'nb'=>$obj->nb,
+					'lastdate'=>$db->jdate($obj->lastdate),
+					'lastsubscriptiondate'=>$db->jdate($obj->lastsubscriptiondate)
 				);
 			}
 			if ($mode == 'memberbytown') {
-				$data[] = array('label' => (($obj->code && $langs->trans("Country".$obj->code) != "Country".$obj->code) ? img_picto('', DOL_URL_ROOT.'/theme/common/flags/'.strtolower($obj->code).'.png', '', 1).' '.$langs->trans("Country".$obj->code) : ($obj->label ? $obj->label : '<span class="opacitymedium">'.$langs->trans("Unknown").'</span>')),
-					'label_en' => (($obj->code && $langsen->transnoentitiesnoconv("Country".$obj->code) != "Country".$obj->code) ? $langsen->transnoentitiesnoconv("Country".$obj->code) : ($obj->label ? $obj->label : '<span class="opacitymedium">'.$langs->trans("Unknown").'</span>')),
-					'label2' => ($obj->label2 ? $obj->label2 : '<span class="opacitymedium">'.$langs->trans("Unknown").'</span>'),
-					'nb' => $obj->nb,
-					'lastdate' => $db->jdate($obj->lastdate),
-					'lastsubscriptiondate' => $db->jdate($obj->lastsubscriptiondate)
+				$data[] = array('label'=>(($obj->code && $langs->trans("Country".$obj->code) != "Country".$obj->code) ? img_picto('', DOL_URL_ROOT.'/theme/common/flags/'.strtolower($obj->code).'.png', '', 1).' '.$langs->trans("Country".$obj->code) : ($obj->label ? $obj->label : '<span class="opacitymedium">'.$langs->trans("Unknown").'</span>')),
+					'label_en'=>(($obj->code && $langsen->transnoentitiesnoconv("Country".$obj->code) != "Country".$obj->code) ? $langsen->transnoentitiesnoconv("Country".$obj->code) : ($obj->label ? $obj->label : '<span class="opacitymedium">'.$langs->trans("Unknown").'</span>')),
+					'label2'=>($obj->label2 ? $obj->label2 : '<span class="opacitymedium">'.$langs->trans("Unknown").'</span>'),
+					'nb'=>$obj->nb,
+					'lastdate'=>$db->jdate($obj->lastdate),
+					'lastsubscriptiondate'=>$db->jdate($obj->lastsubscriptiondate)
 				);
 			}
 
@@ -297,7 +296,7 @@ if (count($arrayjs) && $mode == 'memberbycountry') {
 
 if ($mode) {
 	// Print array
-	print '<div class="div-table-responsive">'; // You can use div-table-responsive-no-min if you don't need reserved height for your table
+	print '<div class="div-table-responsive">'; // You can use div-table-responsive-no-min if you dont need reserved height for your table
 	print '<table class="liste centpercent">';
 	print '<tr class="liste_titre">';
 	print '<td>'.$label.'</td>';

@@ -40,7 +40,7 @@ require_once DOL_DOCUMENT_ROOT.'/core/class/fileupload.class.php';	// Class to u
 require_once DOL_DOCUMENT_ROOT.'/core/class/genericobject.class.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/geturl.lib.php';
 
-$id = GETPOSTINT('fk_element');
+$id = GETPOST('fk_element', 'int');
 $element = GETPOST('element', 'alpha');	// 'myobject' (myobject=mymodule) or 'myobject@mymodule' or 'myobject_mysubobject' (myobject=mymodule)
 $elementupload = $element;
 
@@ -75,6 +75,9 @@ if (!$result) {
  * View
  */
 
+$upload_handler = new FileUpload(null, $id, $elementupload);
+
+
 top_httphead();
 
 header('Pragma: no-cache');
@@ -88,26 +91,21 @@ header('Access-Control-Allow-Headers: X-File-Name, X-File-Type, X-File-Size');
 switch ($_SERVER['REQUEST_METHOD']) {
 	case 'OPTIONS':
 		break;
-	/*case 'HEAD':
+	case 'HEAD':
 	case 'GET':
 		$upload_handler->get();
 		break;
-	*/
 	case 'POST':
-		$upload_handler = new FileUpload(null, $id, $elementupload);
-
-		/*if (isset($_REQUEST['_method']) && $_REQUEST['_method'] === 'DELETE') {
-			$file = GETPOST('file');
-			$upload_handler->delete($file);
-		} else {*/
-		$upload_handler->post();
-		// Note: even if this return an error on 1 file in post(), we will return http code 200 because error must be managed by the caller (some files may be ok and some in error)
-		//}
+		if (isset($_REQUEST['_method']) && $_REQUEST['_method'] === 'DELETE') {
+			$upload_handler->delete();
+		} else {
+			$upload_handler->post();
+			// Note: even if this return an error on 1 file in post(), we will return http code 200 because error must be managed by the caller (some files may be ok and some in error)
+		}
 		break;
-	/*case 'DELETE':
-		$file = GETPOST('file');
-		$upload_handler->delete($file);
-		break;*/
+	case 'DELETE':
+		$upload_handler->delete();
+		break;
 	default:
 		header('HTTP/1.0 405 Method Not Allowed');
 		exit;

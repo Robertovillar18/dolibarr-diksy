@@ -80,12 +80,12 @@ if (GETPOST("account") || GETPOST("ref")) {
 	}
 
 	$object = new Account($db);
-	if (GETPOSTINT("account")) {
-		$result = $object->fetch(GETPOSTINT("account"));
+	if (GETPOST("account", 'int')) {
+		$result = $object->fetch(GETPOST("account", 'int'));
 	}
 	if (GETPOST("ref")) {
 		$result = $object->fetch(0, GETPOST("ref"));
-		$id = $object->id;
+		$_GET["account"] = $object->id;
 	}
 
 	$title = $object->ref.' - '.$langs->trans("PlannedTransactions");

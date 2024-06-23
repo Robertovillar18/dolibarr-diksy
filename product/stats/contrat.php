@@ -32,7 +32,7 @@ require_once DOL_DOCUMENT_ROOT.'/product/class/product.class.php';
 // Load translation files required by the page
 $langs->loadLangs(array('contracts', 'products', 'companies'));
 
-$id = GETPOSTINT('id');
+$id = GETPOST('id', 'int');
 $ref = GETPOST('ref', 'alpha');
 
 // Security check
@@ -46,10 +46,10 @@ if ($user->socid) {
 $hookmanager->initHooks(array('productstatscontract'));
 
 // Load variable for pagination
-$limit = GETPOSTINT('limit') ? GETPOSTINT('limit') : $conf->liste_limit;
+$limit = GETPOST('limit', 'int') ? GETPOST('limit', 'int') : $conf->liste_limit;
 $sortfield = GETPOST('sortfield', 'aZ09comma');
 $sortorder = GETPOST('sortorder', 'aZ09comma');
-$page = GETPOSTISSET('pageplusone') ? (GETPOSTINT('pageplusone') - 1) : GETPOSTINT("page");
+$page = GETPOSTISSET('pageplusone') ? (GETPOST('pageplusone') - 1) : GETPOST("page", 'int');
 if (empty($page) || $page == -1) {
 	$page = 0;
 }     // If $page is not defined, or '' or -1
@@ -62,8 +62,6 @@ if (!$sortorder) {
 if (!$sortfield) {
 	$sortfield = "c.date_contrat";
 }
-
-$socid = 0;
 
 $result = restrictedArea($user, 'produit|service', $fieldvalue, 'product&product', '', '', $fieldtype);
 
@@ -83,13 +81,13 @@ if ($id > 0 || !empty($ref)) {
 
 	$object = $product;
 
-	$parameters = array('id' => $id);
+	$parameters = array('id'=>$id);
 	$reshook = $hookmanager->executeHooks('doActions', $parameters, $product, $action); // Note that $action and $object may have been modified by some hooks
 	if ($reshook < 0) {
 		setEventMessages($hookmanager->error, $hookmanager->errors, 'errors');
 	}
 
-	llxHeader("", "", $langs->trans("CardProduct".$product->type), '', '', 0, 0, '', '', 'mod-product page-stats_contrat');
+	llxHeader("", "", $langs->trans("CardProduct".$product->type));
 
 	if ($result > 0) {
 		$head = product_prepare_head($product);
@@ -137,7 +135,7 @@ if ($id > 0 || !empty($ref)) {
 		$sql .= " c.rowid as rowid, c.ref, c.ref_customer, c.ref_supplier, c.date_contrat, c.statut as statut,";
 		$sql .= " s.nom as name, s.rowid as socid, s.code_client";
 		$sql .= " FROM ".MAIN_DB_PREFIX."societe as s";
-		if (!$user->hasRight('societe', 'client', 'voir')) {
+		if (!$user->hasRight('societe', 'client', 'voir') && !$socid) {
 			$sql .= ", ".MAIN_DB_PREFIX."societe_commerciaux as sc";
 		}
 		$sql .= ", ".MAIN_DB_PREFIX."contrat as c";
@@ -146,7 +144,7 @@ if ($id > 0 || !empty($ref)) {
 		$sql .= " AND c.fk_soc = s.rowid";
 		$sql .= " AND c.entity IN (".getEntity('contract').")";
 		$sql .= " AND cd.fk_product = ".((int) $product->id);
-		if (!$user->hasRight('societe', 'client', 'voir')) {
+		if (!$user->hasRight('societe', 'client', 'voir') && !$socid) {
 			$sql .= " AND s.rowid = sc.fk_soc AND sc.fk_user = ".((int) $user->id);
 		}
 		if ($socid) {
@@ -177,14 +175,12 @@ if ($id > 0 || !empty($ref)) {
 			if ($limit > 0 && $limit != $conf->liste_limit) {
 				$option .= '&limit='.((int) $limit);
 			}
-			/*
 			if (!empty($search_month)) {
 				$option .= '&search_month='.urlencode($search_month);
 			}
 			if (!empty($search_year)) {
-				$option .= '&search_year='.urlencode((string) ($search_year));
+				$option .= '&search_year='.urlencode($search_year);
 			}
-			*/
 
 			print '<form method="post" action="'.$_SERVER['PHP_SELF'].'?id='.$product->id.'" name="search_form">'."\n";
 			print '<input type="hidden" name="token" value="'.newToken().'">';
@@ -195,11 +191,10 @@ if ($id > 0 || !empty($ref)) {
 				print '<input type="hidden" name="sortorder" value="'.$sortorder.'"/>';
 			}
 
-			// @phan-suppress-next-line PhanPluginSuspiciousParamOrder
 			print_barre_liste($langs->trans("Contrats"), $page, $_SERVER["PHP_SELF"], $option, $sortfield, $sortorder, '', $num, $totalofrecords, '', 0, '', '', $limit, 0, 0, 1);
 
 			if (!empty($page)) {
-				$option .= '&page='.urlencode((string) ($page));
+				$option .= '&page='.urlencode($page);
 			}
 
 			$i = 0;
@@ -245,8 +240,6 @@ if ($id > 0 || !empty($ref)) {
 					print "</tr>\n";
 					$i++;
 				}
-			} else {
-				print '<tr><td colspan="7"><span class="opacitymedium">'.$langs->trans("None").'</span></td></tr>';
 			}
 
 			print '</table>';

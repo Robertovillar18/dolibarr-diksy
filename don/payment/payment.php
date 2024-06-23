@@ -1,7 +1,6 @@
 <?php
 /* Copyright (C) 2015       Alexandre Spangaro      <aspangaro@open-dsi.fr>
  * Copyright (C) 2018       Frédéric France         <frederic.france@netlogic.fr>
- * Copyright (C) 2024		MDW							<mdeweerd@users.noreply.github.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,7 +30,7 @@ require_once DOL_DOCUMENT_ROOT.'/compta/bank/class/account.class.php';
 
 $langs->load("bills");
 
-$chid = GETPOSTINT("rowid");
+$chid = GETPOST("rowid", 'int');
 $action = GETPOST('action', 'aZ09');
 $amounts = array();
 $cancel = GETPOST('cancel');
@@ -68,7 +67,7 @@ if ($action == 'add_payment') {
 		setEventMessages($langs->trans("ErrorFieldRequired", $langs->transnoentities("Date")), null, 'errors');
 		$error++;
 	}
-	if (isModEnabled("bank") && !(GETPOSTINT("accountid") > 0)) {
+	if (isModEnabled("banque") && !(GETPOST("accountid", 'int') > 0)) {
 		setEventMessages($langs->trans("ErrorFieldRequired", $langs->transnoentities("AccountToCredit")), null, 'errors');
 		$error++;
 	}
@@ -98,7 +97,7 @@ if ($action == 'add_payment') {
 			$payment->chid         = $chid;
 			$payment->datep     = $datepaid;
 			$payment->amounts      = $amounts; // Tableau de montant
-			$payment->paymenttype  = GETPOSTINT("paymenttype");
+			$payment->paymenttype  = GETPOST("paymenttype", 'int');
 			$payment->num_payment  = GETPOST("num_payment", 'alphanohtml');
 			$payment->note_public  = GETPOST("note_public", 'restricthtml');
 
@@ -112,7 +111,7 @@ if ($action == 'add_payment') {
 			}
 
 			if (!$error) {
-				$result = $payment->addPaymentToBank($user, 'payment_donation', '(DonationPayment)', GETPOSTINT('accountid'), '', '');
+				$result = $payment->addPaymentToBank($user, 'payment_donation', '(DonationPayment)', GETPOST('accountid', 'int'), '', '');
 				if (!($result > 0)) {
 					$errmsg = $payment->error;
 					setEventMessages($errmsg, null, 'errors');
@@ -140,8 +139,8 @@ if ($action == 'add_payment') {
  */
 
 $form = new Form($db);
-$title = $langs->trans("Payment");
-llxHeader('', $title, '', '', 0, 0, '', '', '', 'mod-donation page-payment');
+
+llxHeader();
 
 
 $sql = "SELECT sum(p.amount) as total";
@@ -167,7 +166,7 @@ if ($action == 'create') {
 		print "\n".'<script type="text/javascript">';
 		//Add js for AutoFill
 		print ' $(document).ready(function () {';
-		print ' 	$(".AutoFillAmount").on(\'click touchstart\', function(){
+		print ' 	$(".AutoFillAmout").on(\'click touchstart\', function(){
 							$("input[name="+$(this).data(\'rowname\')+"]").val($(this).data("value")).trigger("change");
 						});';
 		print '	});'."\n";
@@ -254,7 +253,7 @@ if ($action == 'create') {
 		if ($sumpaid < $objp->amount) {
 			$namef = "amount_".$objp->id;
 			if (!empty($conf->use_javascript_ajax)) {
-				print img_picto("Auto fill", 'rightarrow', "class='AutoFillAmount' data-rowname='".$namef."' data-value='".price($objp->amount - $sumpaid)."'");
+				print img_picto("Auto fill", 'rightarrow', "class='AutoFillAmout' data-rowname='".$namef."' data-value='".price($objp->amount - $sumpaid)."'");
 			}
 			print '<input type="text" size="8" name="'.$namef.'">';
 		} else {

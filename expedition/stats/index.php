@@ -32,8 +32,8 @@ require_once DOL_DOCUMENT_ROOT.'/core/class/dolgraph.class.php';
 $WIDTH = DolGraph::getDefaultGraphSizeForStats('width');
 $HEIGHT = DolGraph::getDefaultGraphSizeForStats('height');
 
-$userid = GETPOSTINT('userid');
-$socid = GETPOSTINT('socid');
+$userid = GETPOST('userid', 'int');
+$socid = GETPOST('socid', 'int');
 // Security check
 if ($user->socid > 0) {
 	$action = '';
@@ -76,7 +76,7 @@ $data = $stats->getNbByMonthWithPrevYear($endyear, $startyear);
 // $data = array(array('Lib',val1,val2,val3),...)
 
 
-if (!$user->hasRight('societe', 'client', 'voir')) {
+if (!$user->hasRight('societe', 'client', 'voir') || $user->socid) {
 	$filenamenb = $dir.'/shipmentsnbinyear-'.$user->id.'-'.$year.'.png';
 } else {
 	$filenamenb = $dir.'/shipmentsnbinyear-'.$year.'.png';
@@ -210,7 +210,7 @@ $type = 'shipment_stats';
 
 complete_head_from_modules($conf, $langs, null, $head, $h, $type);
 
-print dol_get_fiche_head($head, 'byyear', '', -1);
+print dol_get_fiche_head($head, 'byyear', $langs->trans("Statistics"), -1);
 
 
 print '<div class="fichecenter"><div class="fichethirdleft">';

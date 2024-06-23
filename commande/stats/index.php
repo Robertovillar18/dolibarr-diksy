@@ -22,7 +22,7 @@
 
 /**
  *	    \file       htdocs/commande/stats/index.php
- *      \ingroup    order
+ *      \ingroup    commande
  *		\brief      Page with customers or suppliers orders statistics
  */
 
@@ -40,8 +40,6 @@ $WIDTH = DolGraph::getDefaultGraphSizeForStats('width');
 $HEIGHT = DolGraph::getDefaultGraphSizeForStats('height');
 
 $mode = GETPOSTISSET("mode") ? GETPOST("mode", 'aZ09') : 'customer';
-
-$hookmanager->initHooks(array('orderstats', 'globalcard'));
 
 $usercanreadcustumerstatistic = $user->hasRight('commande', 'lire');
 $usercanreadsupplierstatistic = $user->hasRight('fournisseur', 'commande', 'lire');
@@ -64,21 +62,15 @@ if ($mode == 'supplier') {
 }
 
 
-$typent_id = GETPOSTINT('typent_id');
-$categ_id = GETPOSTINT('categ_id');
+$typent_id = GETPOST('typent_id', 'int');
+$categ_id = GETPOST('categ_id', 'categ_id');
 
-$userid = GETPOSTINT('userid');
-$socid = GETPOSTINT('socid');
+$userid = GETPOST('userid', 'int');
+$socid = GETPOST('socid', 'int');
 // Security check
 if ($user->socid > 0) {
 	$action = '';
 	$socid = $user->socid;
-}
-
-$parameters = array();
-$reshook = $hookmanager->executeHooks('doActions', $parameters, $object, $action); // Note that $action and $object may have been modified by some hooks
-if ($reshook < 0) {
-	setEventMessages($hookmanager->error, $hookmanager->errors, 'errors');
 }
 
 $nowyear = dol_print_date(dol_now('gmt'), "%Y", 'gmt');
@@ -109,7 +101,7 @@ if ($mode == 'supplier') {
 	$dir = $conf->fournisseur->commande->dir_temp;
 }
 
-llxHeader('', $title, '', '', 0, 0, '', '', '', 'mod-order page-stats');
+llxHeader('', $title);
 
 print load_fiche_titre($title, '', $picto);
 
@@ -135,7 +127,7 @@ $data = $stats->getNbByMonthWithPrevYear($endyear, $startyear);
 // $data = array(array('Lib',val1,val2,val3),...)
 
 
-if (!$user->hasRight('societe', 'client', 'voir')) {
+if (!$user->hasRight('societe', 'client', 'voir') || $user->socid) {
 	$filenamenb = $dir.'/ordersnbinyear-'.$user->id.'-'.$year.'.png';
 	if ($mode == 'customer') {
 		$fileurlnb = DOL_URL_ROOT.'/viewimage.php?modulepart=orderstats&file=ordersnbinyear-'.$user->id.'-'.$year.'.png';
@@ -182,7 +174,7 @@ $data = $stats->getAmountByMonthWithPrevYear($endyear, $startyear);
 //var_dump($data);
 // $data = array(array('Lib',val1,val2,val3),...)
 
-if (!$user->hasRight('societe', 'client', 'voir')) {
+if (!$user->hasRight('societe', 'client', 'voir') || $user->socid) {
 	$filenameamount = $dir.'/ordersamountinyear-'.$user->id.'-'.$year.'.png';
 	if ($mode == 'customer') {
 		$fileurlamount = DOL_URL_ROOT.'/viewimage.php?modulepart=orderstats&file=ordersamountinyear-'.$user->id.'-'.$year.'.png';
@@ -227,7 +219,7 @@ if (!$mesg) {
 
 $data = $stats->getAverageByMonthWithPrevYear($endyear, $startyear);
 
-if (!$user->hasRight('societe', 'client', 'voir')) {
+if (!$user->hasRight('societe', 'client', 'voir') || $user->socid) {
 	$filename_avg = $dir.'/ordersaverage-'.$user->id.'-'.$year.'.png';
 	if ($mode == 'customer') {
 		$fileurl_avg = DOL_URL_ROOT.'/viewimage.php?modulepart=orderstats&file=ordersaverage-'.$user->id.'-'.$year.'.png';
@@ -299,7 +291,7 @@ if ($mode == 'supplier') {
 
 complete_head_from_modules($conf, $langs, null, $head, $h, $type);
 
-print dol_get_fiche_head($head, 'byyear', '', -1);
+print dol_get_fiche_head($head, 'byyear', $langs->trans("Statistics"), -1);
 
 
 print '<div class="fichecenter"><div class="fichethirdleft">';

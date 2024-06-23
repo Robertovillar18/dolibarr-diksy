@@ -34,18 +34,18 @@ $langs->loadLangs(array("salaries", "companies", "bills"));
 $WIDTH = DolGraph::getDefaultGraphSizeForStats('width');
 $HEIGHT = DolGraph::getDefaultGraphSizeForStats('height');
 
-$userid = GETPOSTINT('userid');
+$userid = GETPOST('userid', 'int');
 if ($userid < 0) {
 	$userid = 0;
 }
-$socid = GETPOSTINT('socid');
+$socid = GETPOST('socid', 'int');
 if ($socid < 0) {
 	$socid = 0;
 }
-$id = GETPOSTINT('id');
+$id = GETPOST('id', 'int');
 
 // Security check
-$socid = GETPOSTINT("socid");
+$socid = GETPOST("socid", "int");
 if ($user->socid) {
 	$socid = $user->socid;
 }
@@ -197,7 +197,7 @@ $h++;
 
 complete_head_from_modules($conf, $langs, null, $head, $h, 'salaries_stats');
 
-print dol_get_fiche_head($head, 'byyear', '', -1);
+print dol_get_fiche_head($head, 'byyear', $langs->trans("Statistics"), -1);
 
 
 print '<div class="fichecenter"><div class="fichethirdleft">';

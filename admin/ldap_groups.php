@@ -102,14 +102,14 @@ if ($action == 'setvalue' && $user->admin) {
 
 $form = new Form($db);
 
-llxHeader('', $langs->trans("LDAPSetup"), 'EN:Module_LDAP_En|FR:Module_LDAP|ES:M&oacute;dulo_LDAP', '', 0, 0, '', '', '', 'mod-admin page-ldap_groups');
+llxHeader('', $langs->trans("LDAPSetup"), 'EN:Module_LDAP_En|FR:Module_LDAP|ES:M&oacute;dulo_LDAP');
 $linkback = '<a href="'.DOL_URL_ROOT.'/admin/modules.php?restore_lastsearch_values=1">'.$langs->trans("BackToModuleList").'</a>';
 
 print load_fiche_titre($langs->trans("LDAPSetup"), $linkback, 'title_setup');
 
 $head = ldap_prepare_head();
 
-// Test if the LDAP functionality is available
+// Test si fonction LDAP actives
 if (!function_exists("ldap_connect")) {
 	setEventMessages($langs->trans("LDAPFunctionsNotAvailableOnPHP"), null, 'errors');
 }
@@ -130,7 +130,7 @@ print '<tr class="liste_titre">';
 print '<td colspan="4">'.$langs->trans("LDAPSynchronizeGroups").'</td>';
 print "</tr>\n";
 
-// DN (Domain Name) for the groups
+// DN pour les groupes
 print '<!-- LDAP_GROUP_DN -->';
 print '<tr class="oddeven"><td><span class="fieldrequired">'.$langs->trans("LDAPGroupDn").'</span></td><td>';
 print '<input size="48" type="text" name="group" value="'.getDolGlobalString('LDAP_GROUP_DN').'">';
@@ -217,7 +217,7 @@ print '</form>';
 
 
 /*
- * Test the connection
+ * Test de la connexion
  */
 if (getDolGlobalInt('LDAP_SYNCHRO_ACTIVE') === Ldap::SYNCHRO_DOLIBARR_TO_LDAP) {
 	$butlabel = $langs->trans("LDAPTestSynchroGroup");
@@ -238,13 +238,13 @@ if (getDolGlobalInt('LDAP_SYNCHRO_ACTIVE') === Ldap::SYNCHRO_DOLIBARR_TO_LDAP) {
 
 if (function_exists("ldap_connect")) {
 	if ($action == 'testgroup') {
-		// Create object
+		// Creation objet
 		$object = new UserGroup($db);
 		$object->initAsSpecimen();
 
 		// Test synchro
 		$ldap = new Ldap();
-		$result = $ldap->connectBind();
+		$result = $ldap->connect_bind();
 
 		if ($result > 0) {
 			$info = $object->_load_ldap_info();
@@ -272,7 +272,7 @@ if (function_exists("ldap_connect")) {
 
 			print "<br>\n";
 			print "LDAP input file used for test:<br><br>\n";
-			print nl2br($ldap->dumpContent($dn, $info));
+			print nl2br($ldap->dump_content($dn, $info));
 			print "\n<br>";
 		} else {
 			print img_picto('', 'error').' ';
@@ -284,11 +284,11 @@ if (function_exists("ldap_connect")) {
 	}
 
 	if ($action == 'testsearchgroup') {
-		// TODO Mutualize code below with other ldap_xxxx.php pages
+		// TODO Mutualize code following with other ldap_xxxx.php pages
 
 		// Test synchro
 		$ldap = new Ldap();
-		$result = $ldap->connectBind();
+		$result = $ldap->connect_bind();
 
 		if ($result > 0) {
 			$required_fields = array(

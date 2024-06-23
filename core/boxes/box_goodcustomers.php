@@ -38,7 +38,16 @@ class box_goodcustomers extends ModeleBoxes
 	public $boxlabel = "BoxGoodCustomers";
 	public $depends  = array("societe");
 
+	/**
+	 * @var DoliDB Database handler.
+	 */
+	public $db;
+
 	public $enabled = 1;
+
+	public $info_box_head = array();
+	public $info_box_contents = array();
+
 
 	/**
 	 *  Constructor
@@ -48,7 +57,7 @@ class box_goodcustomers extends ModeleBoxes
 	 */
 	public function __construct($db, $param = '')
 	{
-		global $user;
+		global $conf, $user;
 
 		$this->db = $db;
 

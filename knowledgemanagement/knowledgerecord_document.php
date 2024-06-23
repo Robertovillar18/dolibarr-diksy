@@ -38,14 +38,14 @@ $langs->loadLangs(array("knowledgemanagement", "companies", "other", "mails"));
 
 $action = GETPOST('action', 'aZ09');
 $confirm = GETPOST('confirm');
-$id = (GETPOSTINT('socid') ? GETPOSTINT('socid') : GETPOSTINT('id'));
+$id = (GETPOST('socid', 'int') ? GETPOST('socid', 'int') : GETPOST('id', 'int'));
 $ref = GETPOST('ref', 'alpha');
 
 // Get parameters
-$limit = GETPOSTINT('limit') ? GETPOSTINT('limit') : $conf->liste_limit;
+$limit = GETPOST('limit', 'int') ? GETPOST('limit', 'int') : $conf->liste_limit;
 $sortfield = GETPOST('sortfield', 'aZ09comma');
 $sortorder = GETPOST('sortorder', 'aZ09comma');
-$page = GETPOSTISSET('pageplusone') ? (GETPOSTINT('pageplusone') - 1) : GETPOSTINT("page");
+$page = GETPOSTISSET('pageplusone') ? (GETPOST('pageplusone') - 1) : GETPOST("page", 'int');
 if (empty($page) || $page == -1) {
 	$page = 0;
 }     // If $page is not defined, or '' or -1
@@ -101,7 +101,7 @@ $form = new Form($db);
 $title = $langs->trans("KnowledgeRecord").' - '.$langs->trans("Files");
 $help_url = '';
 //$help_url='EN:Module_Third_Parties|FR:Module_Tiers|ES:Empresas';
-llxHeader('', $title, $help_url, '', 0, 0, '', '', '', 'mod-knowledgemanagement page-card_documents');
+llxHeader('', $title, $help_url);
 
 if ($object->id) {
 	/*
@@ -183,6 +183,10 @@ if ($object->id) {
 	print dol_get_fiche_end();
 
 	$modulepart = 'knowledgemanagement';
+	//$permission = $user->hasRight('knowledgemanagement', 'knowledgerecord', 'write');
+	$permission = 1;
+	//$permtoedit = $user->hasRight('knowledgemanagement', 'knowledgerecord', 'write');
+	$permtoedit = 1;
 	$param = '&id='.$object->id;
 
 	//$relativepathwithnofile='knowledgerecord/' . dol_sanitizeFileName($object->id).'/';

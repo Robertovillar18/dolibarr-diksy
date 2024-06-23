@@ -33,8 +33,7 @@ $langs->loadLangs(array("eventorganization"));
 
 $action = GETPOST('action', 'aZ09');
 
-$NBMAX = getDolGlobalString('MAIN_SIZE_SHORTLIST_LIMIT', 5);
-$max = getDolGlobalInt('MAIN_SIZE_SHORTLIST_LIMIT', 5);
+$max = 5;
 $now = dol_now();
 
 // Security check
@@ -147,6 +146,9 @@ END MODULEBUILDER DRAFT MYOBJECT */
 
 print '</div><div class="fichetwothirdright">';
 
+
+$NBMAX = $conf->global->MAIN_SIZE_SHORTLIST_LIMIT;
+$max = getDolGlobalInt('MAIN_SIZE_SHORTLIST_LIMIT');
 
 /* BEGIN MODULEBUILDER LASTMODIFIED MYOBJECT
 // Last modified myobject

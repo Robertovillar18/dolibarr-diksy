@@ -20,7 +20,7 @@
 
 /**
  *		\file       htdocs/core/boxes/box_commandes.php
- *		\ingroup    order
+ *		\ingroup    commande
  *		\brief      Widget for latest sale orders
  */
 
@@ -38,6 +38,17 @@ class box_commandes extends ModeleBoxes
 	public $depends  = array("commande");
 
 	/**
+	 * @var DoliDB Database handler.
+	 */
+	public $db;
+
+	public $param;
+
+	public $info_box_head = array();
+	public $info_box_contents = array();
+
+
+	/**
 	 *  Constructor
 	 *
 	 *  @param  DoliDB  $db         Database handler
@@ -49,7 +60,7 @@ class box_commandes extends ModeleBoxes
 
 		$this->db = $db;
 
-		$this->hidden = !$user->hasRight('commande', 'lire');
+		$this->hidden = empty($user->rights->commande->lire);
 	}
 
 	/**
@@ -72,10 +83,7 @@ class box_commandes extends ModeleBoxes
 		$societestatic = new Societe($this->db);
 		$userstatic = new User($this->db);
 
-		$text = $langs->trans("BoxTitleLast".(getDolGlobalString('MAIN_LASTBOX_ON_OBJECT_DATE') ? "" : "Modified")."CustomerOrders", $max);
-		$this->info_box_head = array(
-			'text' => $text.'<a class="paddingleft" href="'.DOL_URL_ROOT.'/commande/list.php?sortfield=c.tms&sortorder=DESC"><span class="badge">...</span></a>'
-		);
+		$this->info_box_head = array('text' => $langs->trans("BoxTitleLast".(getDolGlobalString('MAIN_LASTBOX_ON_OBJECT_DATE') ? "" : "Modified")."CustomerOrders", $max));
 
 		if ($user->hasRight('commande', 'lire')) {
 			$sql = "SELECT s.rowid as socid, s.nom as name, s.name_alias";
@@ -92,7 +100,7 @@ class box_commandes extends ModeleBoxes
 			$sql .= ", c.total_tva";
 			$sql .= ", c.total_ttc";
 			$sql .= " FROM ".MAIN_DB_PREFIX."commande as c, ".MAIN_DB_PREFIX."societe as s";
-			if (!$user->hasRight('societe', 'client', 'voir')) {
+			if (!$user->hasRight('societe', 'client', 'voir') && !$user->socid) {
 				$sql .= ", ".MAIN_DB_PREFIX."societe_commerciaux as sc";
 			}
 			$sql .= " WHERE c.fk_soc = s.rowid";
@@ -100,7 +108,7 @@ class box_commandes extends ModeleBoxes
 			if (getDolGlobalString('ORDER_BOX_LAST_ORDERS_VALIDATED_ONLY')) {
 				$sql .= " AND c.fk_statut = 1";
 			}
-			if (!$user->hasRight('societe', 'client', 'voir')) {
+			if (!$user->hasRight('societe', 'client', 'voir') && !$user->socid) {
 				$sql .= " AND s.rowid = sc.fk_soc AND sc.fk_user = ".((int) $user->id);
 			}
 			if ($user->socid) {

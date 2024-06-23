@@ -34,6 +34,17 @@ class box_bookmarks extends ModeleBoxes
 	public $depends = array("bookmark");
 
 	/**
+	 * @var DoliDB Database handler.
+	 */
+	public $db;
+
+	public $param;
+
+	public $info_box_head = array();
+	public $info_box_contents = array();
+
+
+	/**
 	 *  Constructor
 	 *
 	 *  @param  DoliDB  $db         Database handler
@@ -45,7 +56,7 @@ class box_bookmarks extends ModeleBoxes
 
 		$this->db = $db;
 
-		$this->hidden = !$user->hasRight('bookmark', 'lire');
+		$this->hidden = empty($user->rights->bookmark->lire);
 	}
 
 	/**

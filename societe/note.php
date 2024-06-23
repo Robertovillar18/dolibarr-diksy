@@ -37,7 +37,7 @@ $langs->load("companies");
 
 
 // Get parameters
-$id = GETPOST('id') ? GETPOSTINT('id') : GETPOSTINT('socid');
+$id = GETPOST('id') ? GETPOST('id', 'int') : GETPOST('socid', 'int');
 $action = GETPOST('action', 'aZ09');
 
 
@@ -83,7 +83,7 @@ if (empty($reshook)) {
 $form = new Form($db);
 
 $title = $langs->trans("ThirdParty").' - '.$langs->trans("Notes");
-if (getDolGlobalString('MAIN_HTML_TITLE') && preg_match('/thirdpartynameonly/', getDolGlobalString('MAIN_HTML_TITLE')) && $object->name) {
+if (getDolGlobalString('MAIN_HTML_TITLE') && preg_match('/thirdpartynameonly/', $conf->global->MAIN_HTML_TITLE) && $object->name) {
 	$title = $object->name.' - '.$langs->trans("Notes");
 }
 $help_url = 'EN:Module_Third_Parties|FR:Module_Tiers|ES:Empresas';
@@ -93,6 +93,9 @@ if ($object->id > 0) {
 	/*
 	 * Affichage onglets
 	 */
+	if (isModEnabled('notification')) {
+		$langs->load("mails");
+	}
 
 	$head = societe_prepare_head($object);
 

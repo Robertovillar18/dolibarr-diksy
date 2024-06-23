@@ -54,6 +54,7 @@ January=Jänner
 Month01=Jänner
 ReportName=Berichtname
 RefCustomer=Kunden Nr.
+MailSentBy=E-Mail-Absender
 TextUsedInTheMessageBody=E-Mail-Text
 Offered=Angeboten
 Receive=Erhalte

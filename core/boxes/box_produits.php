@@ -39,6 +39,17 @@ class box_produits extends ModeleBoxes
 	public $depends = array("produit");
 
 	/**
+	 * @var DoliDB Database handler.
+	 */
+	public $db;
+
+	public $param;
+
+	public $info_box_head = array();
+	public $info_box_contents = array();
+
+
+	/**
 	 *  Constructor
 	 *
 	 *  @param  DoliDB  $db         Database handler
@@ -46,7 +57,7 @@ class box_produits extends ModeleBoxes
 	 */
 	public function __construct($db, $param)
 	{
-		global $user;
+		global $conf, $user;
 
 		$this->db = $db;
 
@@ -71,9 +82,7 @@ class box_produits extends ModeleBoxes
 		include_once DOL_DOCUMENT_ROOT.'/product/class/product.class.php';
 		$productstatic = new Product($this->db);
 
-		$this->info_box_head = array(
-			'text' => $langs->trans("BoxTitleLastProducts", $max).'<a class="paddingleft" href="'.DOL_URL_ROOT.'/product/list.php?sortfield=p.tms&sortorder=DESC"><span class="badge">...</span></a>',
-		);
+		$this->info_box_head = array('text' => $langs->trans("BoxTitleLastProducts", $max));
 
 		if ($user->hasRight('produit', 'lire') || $user->hasRight('service', 'lire')) {
 			$sql = "SELECT p.rowid, p.label, p.ref, p.price, p.price_base_type, p.price_ttc, p.fk_product_type, p.tms, p.tosell, p.tobuy, p.fk_price_expression, p.entity";

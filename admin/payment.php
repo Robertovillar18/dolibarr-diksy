@@ -1,7 +1,6 @@
 <?php
 /* Copyright (C) 2015  Juanjo Menent				<jmenent@2byte.es>
  * Copyright (C) 2020  Maxime DEMAREST              <maxime@indelog.fr>
- * Copyright (C) 2024		MDW							<mdeweerd@users.noreply.github.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,7 +18,7 @@
 
 /**
  *      \file       htdocs/admin/payment.php
- *		\ingroup    invoice
+ *		\ingroup    facture
  *		\brief      Page to setup invoices payments
  */
 
@@ -80,7 +79,7 @@ if ($action == 'setparams') {
 		$error++;
 	}
 
-	$res = dolibarr_set_const($db, "PAYMENTS_REPORT_GROUP_BY_MOD", GETPOSTINT('PAYMENTS_REPORT_GROUP_BY_MOD'), 'chaine', 0, '', $conf->entity);
+	$res = dolibarr_set_const($db, "PAYMENTS_REPORT_GROUP_BY_MOD", GETPOST('PAYMENTS_REPORT_GROUP_BY_MOD', 'int'), 'chaine', 0, '', $conf->entity);
 	if (!($res > 0)) {
 		$error++;
 	}
@@ -100,7 +99,7 @@ if ($action == 'setparams') {
 
 $dirmodels = array_merge(array('/'), (array) $conf->modules_parts['models']);
 
-llxHeader('', $langs->trans("BillsSetup"), 'EN:Invoice_Configuration|FR:Configuration_module_facture|ES:ConfiguracionFactura', '', 0, 0, '', '', '', 'mod-admin page-payment');
+llxHeader("", $langs->trans("BillsSetup"), 'EN:Invoice_Configuration|FR:Configuration_module_facture|ES:ConfiguracionFactura');
 
 $form = new Form($db);
 
@@ -155,7 +154,6 @@ foreach ($dirmodels as $reldir) {
 						require_once $dir.$filebis;
 
 						$module = new $classname($db);
-						'@phan-var-force ModeleNumRefPayments $module';
 
 						// Show modules according to features level
 						if ($module->version == 'development' && getDolGlobalInt('MAIN_FEATURES_LEVEL') < 2) {

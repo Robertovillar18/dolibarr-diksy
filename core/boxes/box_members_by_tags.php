@@ -1,9 +1,9 @@
 <?php
-/* Copyright (C) 2003-2007  Rodolphe Quiedeville    <rodolphe@quiedeville.org>
- * Copyright (C) 2004-2017  Laurent Destailleur     <eldy@users.sourceforge.net>
- * Copyright (C) 2005-2012  Regis Houssin           <regis.houssin@inodbox.com>
- * Copyright (C) 2015-2024  Frédéric France         <frederic.france@free.fr>
- * Copyright (C) 2021-2023  Waël Almoman            <info@almoman.com>
+/* Copyright (C) 2003-2007 Rodolphe Quiedeville <rodolphe@quiedeville.org>
+ * Copyright (C) 2004-2017 Laurent Destailleur  <eldy@users.sourceforge.net>
+ * Copyright (C) 2005-2012 Regis Houssin        <regis.houssin@inodbox.com>
+ * Copyright (C) 2015-2023 Frédéric France      <frederic.france@netlogic.fr>
+ * Copyright (C) 2021-2023 Waël Almoman         <info@almoman.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,7 +38,17 @@ class box_members_by_tags extends ModeleBoxes
 	public $boxlabel = "BoxTitleMembersByTags";
 	public $depends  = array("adherent", "categorie");
 
+	/**
+	 * @var DoliDB Database handler.
+	 */
+	public $db;
+
+	public $param;
 	public $enabled = 1;
+
+	public $info_box_head = array();
+	public $info_box_contents = array();
+
 
 	/**
 	 *  Constructor
@@ -58,7 +68,7 @@ class box_members_by_tags extends ModeleBoxes
 			$this->enabled = 0; // disabled for external users
 		}
 
-		$this->hidden = !(isModEnabled('member') && $user->hasRight('adherent', 'lire'));
+		$this->hidden = !(isModEnabled('adherent') && $user->rights->adherent->lire);
 	}
 
 	/**
@@ -89,7 +99,7 @@ class box_members_by_tags extends ModeleBoxes
 			$stats = new AdherentStats($this->db, $user->socid, $user->id);
 
 			// Show array
-			$sumMembers = $stats->countMembersByTagAndStatus($numberyears);
+			$sumMembers= $stats->countMembersByTagAndStatus($numberyears);
 			if ($sumMembers) {
 				$line = 0;
 				$this->info_box_contents[$line][] = array(
@@ -138,13 +148,13 @@ class box_members_by_tags extends ModeleBoxes
 					'text' => $langs->trans("Total")
 				);
 				$line++;
-				$AdherentTag = array();
 				foreach ($sumMembers as $key => $data) {
-					if ($key == 'total') {
+					$adhtag = new Categorie($this->db);
+					$adhtag->id = $key;
+
+					if ($key=='total') {
 						break;
 					}
-					$adhtag = new Categorie($this->db);
-					$adhtag->id = (int) $key;
 					$adhtag->label = $data['label'];
 					$AdherentTag[$key] = $adhtag;
 

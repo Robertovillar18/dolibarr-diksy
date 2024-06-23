@@ -35,7 +35,7 @@ require_once DOL_DOCUMENT_ROOT.'/recruitment/lib/recruitment_recruitmentcandidat
 $langs->loadLangs(array("recruitment", "other", "users"));
 
 // Get parameters
-$id = GETPOSTINT('id');
+$id = GETPOST('id', 'int');
 $ref = GETPOST('ref', 'alpha');
 $action = GETPOST('action', 'aZ09');
 $confirm = GETPOST('confirm', 'alpha');
@@ -43,7 +43,7 @@ $cancel = GETPOST('cancel', 'aZ09');
 $contextpage = GETPOST('contextpage', 'aZ') ? GETPOST('contextpage', 'aZ') : 'recruitmentcandidaturecard'; // To manage different context of search
 $backtopage = GETPOST('backtopage', 'alpha');
 $backtopageforcancel = GETPOST('backtopageforcancel', 'alpha');
-$lineid = GETPOSTINT('lineid');
+$lineid = GETPOST('lineid', 'int');
 
 // Initialize technical objects
 $object = new RecruitmentCandidature($db);
@@ -56,7 +56,7 @@ $extrafields->fetch_name_optionals_label($object->table_element);
 
 $search_array_options = $extrafields->getOptionalsFromPost($object->table_element, '', 'search_');
 
-// Initialize array of search criteria
+// Initialize array of search criterias
 $search_all = GETPOST("search_all", 'alpha');
 $search = array();
 foreach ($object->fields as $key => $val) {
@@ -131,7 +131,7 @@ if (empty($reshook)) {
 	include DOL_DOCUMENT_ROOT.'/core/actions_builddoc.inc.php';
 
 	if ($action == 'classin' && $permissiontoadd) {
-		$object->setProject(GETPOSTINT('projectid'));
+		$object->setProject(GETPOST('projectid', 'int'));
 	}
 	if ($action == 'confirm_decline' && $confirm == 'yes' && $permissiontoadd) {
 		$result = $object->setStatut($object::STATUS_REFUSED, null, '', $triggermodname);
@@ -141,7 +141,7 @@ if (empty($reshook)) {
 	}
 
 	if ($action == 'confirm_makeofferordecline' && $permissiontoadd && !GETPOST('cancel', 'alpha')) {
-		if (!(GETPOSTINT('status') > 0)) {
+		if (!(GETPOST('status', 'int') > 0)) {
 			setEventMessages($langs->trans("ErrorFieldRequired", $langs->transnoentitiesnoconv("CloseAs")), null, 'errors');
 			$action = 'makeofferordecline';
 		} else {
@@ -149,7 +149,7 @@ if (empty($reshook)) {
 			if ($object->status == $object::STATUS_VALIDATED) {
 				$db->begin();
 
-				if (GETPOSTINT('status') == $object::STATUS_REFUSED) {
+				if (GETPOST('status', 'int') == $object::STATUS_REFUSED) {
 					$result = $object->setStatut($object::STATUS_REFUSED, null, '', $triggermodname);
 					if ($result < 0) {
 						setEventMessages($object->error, $object->errors, 'errors');
@@ -171,7 +171,7 @@ if (empty($reshook)) {
 	}
 
 	if ($action == 'confirm_closeas' && $permissiontoadd && !GETPOST('cancel', 'alpha')) {
-		if (!(GETPOSTINT('status') > 0)) {
+		if (!(GETPOST('status', 'int') > 0)) {
 			setEventMessages($langs->trans("ErrorFieldRequired", $langs->transnoentitiesnoconv("CloseAs")), null, 'errors');
 			$action = 'makeofferordecline';
 		} else {
@@ -179,7 +179,7 @@ if (empty($reshook)) {
 			if ($object->status == $object::STATUS_CONTRACT_PROPOSED) {
 				$db->begin();
 
-				if (GETPOSTINT('status') == $object::STATUS_CONTRACT_REFUSED) {
+				if (GETPOST('status', 'int') == $object::STATUS_CONTRACT_REFUSED) {
 					$result = $object->setStatut($object::STATUS_CONTRACT_REFUSED, null, '', $triggermodname);
 					if ($result < 0) {
 						setEventMessages($object->error, $object->errors, 'errors');
@@ -348,7 +348,7 @@ if (($id || $ref) && $action == 'edit') {
 if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'create'))) {
 	$res = $object->fetch_optionals();
 
-	$head = recruitmentCandidaturePrepareHead($object);
+	$head = recruitmentcandidaturePrepareHead($object);
 	print dol_get_fiche_head($head, 'card', $langs->trans("RecruitmentCandidature"), -1, $object->picto);
 
 	$formconfirm = '';
@@ -487,7 +487,9 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			$fuser->fetch($object->fk_user_creat);
 			$morehtmlref .= $fuser->getNomUrl(-1);
 		}
-		$morehtmlref .= ' <small class="hideonsmartphone opacitymedium">('.$form->textwithpicto($langs->trans("CreatedByEmailCollector"), $langs->trans("EmailMsgID").': '.$object->email_msgid).')</small>';
+		if (!empty($object->email_msgid)) {
+			$morehtmlref .= ' <small class="hideonsmartphone opacitymedium">('.$form->textwithpicto($langs->trans("CreatedByEmailCollector"), $langs->trans("EmailMsgID").': '.$object->email_msgid).')</small>';
+		}
 	} /* elseif (!empty($object->origin_email)) {
 		$morehtmlref .= $langs->trans("CreatedBy").' : ';
 		$morehtmlref .= img_picto('', 'email', 'class="paddingrightonly"');

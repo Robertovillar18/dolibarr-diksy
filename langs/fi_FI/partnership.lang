@@ -91,7 +91,8 @@ CountLastUrlCheckError=Viimeisimmän URL-osoitteen tarkistuksen virheiden määr
 LastCheckBacklink=päiväys viimeisestä URL-osoitteen tarkistuksesta
 
 NewPartnershipRequest=Uusi kumppanuuspyyntö
-NewPartnershipRequestDesc=This form allows you to request to be part of one of our partnership program. If you need help to fill this form, please contact by email <b>%s</b>.
+NewPartnershipRequestDesc=Tällä lomakkeella voit pyytää liittymistä johonkin kumppanuusohjelmaamme. Jos tarvitset apua tämän lomakkeen täyttämisessä, ota yhteyttä sähköpostitse <b>%s</b><span class='notranslate'> span>.
 ThisUrlMustContainsAtLeastOneLinkToWebsite=Tällä sivulla on oltava vähintään yksi linkki johonkin seuraavista verkkotunnuksista: %s
 
 IPOfApplicant=Hakijan IP
+

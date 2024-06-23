@@ -19,7 +19,7 @@
 
 /**
  *   	\file       htdocs/compta/paiement/info.php
- *		\ingroup    invoice
+ *		\ingroup    facture
  *		\brief      Onglet info d'un paiement
  */
 
@@ -32,7 +32,7 @@ require_once DOL_DOCUMENT_ROOT.'/core/lib/payments.lib.php';
 // Load translation files required by the page
 $langs->loadLangs(array('bills', 'companies'));
 
-$id = GETPOSTINT('id');
+$id = GETPOST('id', 'int');
 $ref = GETPOST('ref', 'alpha');
 $action = GETPOST('action', 'aZ09');
 $confirm = GETPOST('confirm', 'alpha');
@@ -66,8 +66,6 @@ if ($socid && $socid != $object->thirdparty->id) {
 /*
  * View
  */
-
-$form = new Form($db);	// Used in dol_banner_tab
 
 llxHeader('', $langs->trans("Payment"));
 

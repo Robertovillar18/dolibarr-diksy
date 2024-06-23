@@ -1,7 +1,6 @@
 <?php
 /* Copyright (C) 2018 Laurent Destailleur  <eldy@users.sourceforge.net>
  * Copyright (C) 2022 Charlene Benke	   <charlene@patas-monkey.com>
- * Copyright (C) 2024		MDW							<mdeweerd@users.noreply.github.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,6 +37,7 @@ include_once DOL_DOCUMENT_ROOT.'/emailcollector/lib/emailcollector.lib.php';
 
 use Webklex\PHPIMAP\ClientManager;
 use Webklex\PHPIMAP\Exceptions\ConnectionFailedException;
+use Webklex\PHPIMAP\Exceptions\InvalidWhereQueryCriteriaException;
 
 
 use OAuth\Common\Storage\DoliStorage;
@@ -54,7 +54,7 @@ if (!isModEnabled('emailcollector')) {
 $langs->loadLangs(array("admin", "mails", "other"));
 
 // Get parameters
-$id = GETPOSTINT('id');
+$id = GETPOST('id', 'int');
 $ref        = GETPOST('ref', 'alpha');
 $action = GETPOST('action', 'aZ09');
 $confirm    = GETPOST('confirm', 'alpha');
@@ -62,7 +62,7 @@ $cancel     = GETPOST('cancel', 'aZ09');
 $contextpage = GETPOST('contextpage', 'aZ') ? GETPOST('contextpage', 'aZ') : 'emailcollectorcard'; // To manage different context of search
 $backtopage = GETPOST('backtopage', 'alpha');
 
-$operationid = GETPOSTINT('operationid');
+$operationid = GETPOST('operationid', 'int');
 
 // Initialize technical objects
 $object = new EmailCollector($db);
@@ -75,7 +75,7 @@ $extrafields->fetch_name_optionals_label($object->table_element);
 
 $search_array_options = $extrafields->getOptionalsFromPost($object->table_element, '', 'search_');
 
-// Initialize array of search criteria
+// Initialize array of search criterias
 $search_all = GETPOST("search_all", 'alpha');
 $search = array();
 foreach ($object->fields as $key => $val) {
@@ -155,7 +155,7 @@ if (GETPOST('addfilter', 'alpha')) {
 
 if ($action == 'deletefilter') {
 	$emailcollectorfilter = new EmailCollectorFilter($db);
-	$emailcollectorfilter->fetch(GETPOSTINT('filterid'));
+	$emailcollectorfilter->fetch(GETPOST('filterid', 'int'));
 	if ($emailcollectorfilter->id > 0) {
 		$result = $emailcollectorfilter->delete($user);
 		if ($result > 0) {
@@ -199,7 +199,7 @@ if (GETPOST('addoperation', 'alpha')) {
 
 if ($action == 'updateoperation') {
 	$emailcollectoroperation = new EmailCollectorAction($db);
-	$emailcollectoroperation->fetch(GETPOSTINT('rowidoperation2'));
+	$emailcollectoroperation->fetch(GETPOST('rowidoperation2', 'int'));
 
 	$emailcollectoroperation->actionparam = GETPOST('operationparam2', 'alphawithlgt');
 
@@ -222,7 +222,7 @@ if ($action == 'updateoperation') {
 }
 if ($action == 'deleteoperation') {
 	$emailcollectoroperation = new EmailCollectorAction($db);
-	$emailcollectoroperation->fetch(GETPOSTINT('operationid'));
+	$emailcollectoroperation->fetch(GETPOST('operationid', 'int'));
 	if ($emailcollectoroperation->id > 0) {
 		$result = $emailcollectoroperation->delete($user);
 		if ($result > 0) {
@@ -274,7 +274,7 @@ $formfile = new FormFile($db);
 
 $help_url = "EN:Module_EMail_Collector|FR:Module_Collecteur_de_courrier_électronique|ES:Module_EMail_Collector";
 
-llxHeader('', 'EmailCollector', $help_url, '', 0, 0, '', '', '', 'mod-admin page-emailcollector_card');
+llxHeader('', 'EmailCollector', $help_url);
 
 // Part to create
 if ($action == 'create') {
@@ -402,8 +402,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			require_once DOL_DOCUMENT_ROOT.'/includes/webklex/php-imap/vendor/autoload.php';
 
 			if ($object->acces_type == 1) {
-				dol_syslog("Scan IMAP with authentication mode = OAUTH2");
-
 				// Mode OAUth2 with PHP-IMAP
 				require_once DOL_DOCUMENT_ROOT.'/core/lib/oauth.lib.php';
 
@@ -462,7 +460,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 						$tokenobj->setRefreshToken($refreshtoken);
 						$storage->storeAccessToken($OAUTH_SERVICENAME, $tokenobj);
 					}
-
 					$tokenobj = $storage->retrieveAccessToken($OAUTH_SERVICENAME);
 					if (is_object($tokenobj)) {
 						$token = $tokenobj->getAccessToken();
@@ -492,8 +489,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 					'authentication' => "oauth",
 				]);
 			} else {
-				dol_syslog("Scan IMAP with authentication mode = PASS");
-
 				// Mode login/pass with PHP-IMAP
 				$cm = new ClientManager();
 				$client = $cm->make([
@@ -521,20 +516,8 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 					// See github.com/Webklex/php-imap/issues/81
 					$client->connect();
 
-					// Uncomment this to output debug info
-					//$client->getConnection()->enableDebug();	// Add debug
-
 					$f = $client->getFolders(false, $object->source_directory);
-					if ($f) {	// $f is Webklex\PHPIMAP\Support\FolderCollection
-						$folder = $f[0];
-						if ($folder instanceof Webklex\PHPIMAP\Folder) {
-							$nbemail = $folder->examine()["exists"];
-						} else {
-							$nbemail = 0;
-						}
-					} else {
-						$nbemail = 0;
-					}
+					$nbemail = $f[0]->examine()["exists"];
 					$morehtml .= $nbemail;
 				} catch (ConnectionFailedException $e) {
 					$morehtml .= 'ConnectionFailedException '.$e->getMessage();
@@ -552,8 +535,8 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 						$connectstringtarget = $connectstringserver.$object->getEncodedUtf7($targetdir);
 					}
 
-					$timeoutconnect = getDolGlobalInt('MAIN_USE_CONNECT_TIMEOUT', 5);
-					$timeoutread = getDolGlobalInt('MAIN_USE_RESPONSE_TIMEOUT', 20);
+					$timeoutconnect = !getDolGlobalString('MAIN_USE_CONNECT_TIMEOUT') ? 5 : $conf->global->MAIN_USE_CONNECT_TIMEOUT;
+					$timeoutread = !getDolGlobalString('MAIN_USE_RESPONSE_TIMEOUT') ? 20 : $conf->global->MAIN_USE_RESPONSE_TIMEOUT;
 
 					dol_syslog("imap_open connectstring=".$connectstringsource." login=".$object->login." password=".$object->password." timeoutconnect=".$timeoutconnect." timeoutread=".$timeoutread);
 
@@ -629,31 +612,31 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	print '<tr class="oddeven nodrag nodrop">';
 	print '<td>';
 	$arrayoftypes = array(
-		'from' => array('label' => 'MailFrom', 'data-placeholder' => $langs->trans('SearchString')),
-		'to' => array('label' => 'MailTo', 'data-placeholder' => $langs->trans('SearchString')),
-		'cc' => array('label' => 'Cc', 'data-placeholder' => $langs->trans('SearchString')),
-		'bcc' => array('label' => 'Bcc', 'data-placeholder' => $langs->trans('SearchString')),
-		'replyto' => array('label' => 'ReplyTo', 'data-placeholder' => $langs->trans('SearchString')),
-		'subject' => array('label' => 'Subject', 'data-placeholder' => $langs->trans('SearchString')),
-		'body' => array('label' => 'Body', 'data-placeholder' => $langs->trans('SearchString')),
+		'from'=>array('label'=>'MailFrom', 'data-placeholder'=>$langs->trans('SearchString')),
+		'to'=>array('label'=>'MailTo', 'data-placeholder'=>$langs->trans('SearchString')),
+		'cc'=>array('label'=>'Cc', 'data-placeholder'=>$langs->trans('SearchString')),
+		'bcc'=>array('label'=>'Bcc', 'data-placeholder'=>$langs->trans('SearchString')),
+		'replyto'=>array('label'=>'ReplyTo', 'data-placeholder'=>$langs->trans('SearchString')),
+		'subject'=>array('label'=>'Subject', 'data-placeholder'=>$langs->trans('SearchString')),
+		'body'=>array('label'=>'Body', 'data-placeholder'=>$langs->trans('SearchString')),
 		// disabled because PHP imap_search is not compatible IMAPv4, only IMAPv2
 		//'header'=>array('label'=>'Header', 'data-placeholder'=>'HeaderKey SearchString'),                // HEADER key value
 		//'X1'=>'---',
-		'X2' => '---',
-		'seen' => array('label' => 'AlreadyRead', 'data-noparam' => 1),
-		'unseen' => array('label' => 'NotRead', 'data-noparam' => 1),
-		'unanswered' => array('label' => 'Unanswered', 'data-noparam' => 1),
-		'answered' => array('label' => 'Answered', 'data-noparam' => 1),
-		'smaller' => array('label' => $langs->trans("Size").' ('.$langs->trans("SmallerThan").")", 'data-placeholder' => $langs->trans('NumberOfBytes')),
-		'larger' => array('label' => $langs->trans("Size").' ('.$langs->trans("LargerThan").")", 'data-placeholder' => $langs->trans('NumberOfBytes')),
-		'X3' => '---',
-		'withtrackingid' => array('label' => 'WithDolTrackingID', 'data-noparam' => 1),
-		'withouttrackingid' => array('label' => 'WithoutDolTrackingID', 'data-noparam' => 1),
-		'withtrackingidinmsgid' => array('label' => 'WithDolTrackingIDInMsgId', 'data-noparam' => 1),
-		'withouttrackingidinmsgid' => array('label' => 'WithoutDolTrackingIDInMsgId', 'data-noparam' => 1),
-		'X4' => '---',
-		'isnotanswer' => array('label' => 'IsNotAnAnswer', 'data-noparam' => 1),
-		'isanswer' => array('label' => 'IsAnAnswer', 'data-noparam' => 1)
+		'X2'=>'---',
+		'seen'=>array('label'=>'AlreadyRead', 'data-noparam'=>1),
+		'unseen'=>array('label'=>'NotRead', 'data-noparam'=>1),
+		'unanswered'=>array('label'=>'Unanswered', 'data-noparam'=>1),
+		'answered'=>array('label'=>'Answered', 'data-noparam'=>1),
+		'smaller'=>array('label'=>$langs->trans("Size").' ('.$langs->trans("SmallerThan").")", 'data-placeholder'=>$langs->trans('NumberOfBytes')),
+		'larger'=>array('label'=>$langs->trans("Size").' ('.$langs->trans("LargerThan").")", 'data-placeholder'=>$langs->trans('NumberOfBytes')),
+		'X3'=>'---',
+		'withtrackingid'=>array('label'=>'WithDolTrackingID', 'data-noparam'=>1),
+		'withouttrackingid'=>array('label'=>'WithoutDolTrackingID', 'data-noparam'=>1),
+		'withtrackingidinmsgid'=>array('label'=>'WithDolTrackingIDInMsgId', 'data-noparam'=>1),
+		'withouttrackingidinmsgid'=>array('label'=>'WithoutDolTrackingIDInMsgId', 'data-noparam'=>1),
+		'X4'=>'---',
+		'isnotanswer'=>array('label'=>'IsNotAnAnswer', 'data-noparam'=>1),
+		'isanswer'=>array('label'=>'IsAnAnswer', 'data-noparam'=>1)
 	);
 	print $form->selectarray('filtertype', $arrayoftypes, '', 1, 0, 0, '', 1, 0, 0, '', 'maxwidth300', 1, '', 2);
 

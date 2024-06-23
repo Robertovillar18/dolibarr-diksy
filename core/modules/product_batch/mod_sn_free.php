@@ -1,7 +1,6 @@
 <?php
 /* Copyright (C) 2004      Rodolphe Quiedeville <rodolphe@quiedeville.org>
  * Copyright (C) 2006-2009 Laurent Destailleur  <eldy@users.sourceforge.net>
- * Copyright (C) 2024		Frédéric France			<frederic.france@free.fr>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,19 +27,41 @@ require_once DOL_DOCUMENT_ROOT.'/core/modules/product_batch/modules_product_batc
 
 /**
  *	\class 		mod_codeproduct_leopard
- *	\brief 		Class permettant la gestion leopard des codes produits
+ *	\brief 		Classe permettant la gestion leopard des codes produits
  */
 class mod_sn_free extends ModeleNumRefBatch
 {
 	/*
-	 * :warning:
-	 *    This module is used by default if none was set in the configuration.
-	 *    Therefore, the implementation must remain as open as possible.
+	 * Attention ce module est utilise par defaut si aucun module n'a
+	 * ete definit dans la configuration
+	 *
+	 * Le fonctionnement de celui-ci doit donc rester le plus ouvert possible
 	 */
 
-	// variables inherited from ModeleThirdPartyCode class
+	/**
+	 * @var string model name
+	 */
 	public $name = 'sn_free';
-	public $version = 'dolibarr';
+
+	public $code_modifiable; // Code modifiable
+
+	public $code_modifiable_invalide; // Code modifiable si il est invalide
+
+	public $code_modifiable_null; // Code modifiables si il est null
+
+	public $code_null; // Code facultatif
+
+	/**
+	 * Dolibarr version of the loaded document
+	 * @var string
+	 */
+	public $version = 'dolibarr'; // 'development', 'experimental', 'dolibarr'
+
+	/**
+	 * @var int Automatic numbering
+	 */
+	public $code_auto;
+
 
 	/**
 	 *	Constructor

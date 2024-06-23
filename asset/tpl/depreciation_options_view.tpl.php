@@ -1,6 +1,5 @@
 <?php
 /* Copyright (C) 2021  Open-Dsi  <support@open-dsi.fr>
- * Copyright (C) 2024		MDW							<mdeweerd@users.noreply.github.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,7 +27,7 @@
 // Protection to avoid direct call of template
 if (empty($object) || !is_object($object)) {
 	print "Error, template page can't be called as URL";
-	exit(1);
+	exit;
 }
 
 if (!is_object($form)) {
@@ -54,25 +53,26 @@ if ($reshook < 0) {
 
 if (empty($reshook)) {
 	$class_type = get_class($object) == 'Asset' ? 0 : 1;
-	print '<br>';
 	foreach ($assetdepreciationoptions->deprecation_options_fields as $mode_key => $mode_info) {
 		if (!empty($mode_info['enabled_field'])) {
 			$info = explode(':', $mode_info['enabled_field']);
-			if (empty($assetdepreciationoptions->deprecation_options[$info[0]][$info[1]]) || $assetdepreciationoptions->deprecation_options[$info[0]][$info[1]] != $info[2]) {
+			if ($assetdepreciationoptions->deprecation_options[$info[0]][$info[1]] != $info[2]) {
 				continue;
 			}
 		}
 
 		$assetdepreciationoptions->setInfosForMode($mode_key, $class_type, true);
 
-		$width = "pull-left";
-		print '<table class="liste centpercent '. $width .'" id="block_' . $mode_key . '">' . "\n";
-		print '<tr class="liste_titre"><td colspan="5">'.$langs->trans($mode_info['label']).'</td></tr>';
+		print load_fiche_titre($langs->trans($mode_info['label']), '', '');
+		print '<div class="fichecenter">';
+		print '<div class="fichehalfleft">';
+		print '<div class="underbanner clearboth"></div>';
+		print '<table class="border centpercent tableforfield">' . "\n";
 		$mode_info['fields'] = dol_sort_array($mode_info['fields'], 'position');
 		foreach ($mode_info['fields'] as $field_key => $field_info) {
 			if (!empty($field_info['enabled_field'])) {
 				$info = explode(':', $field_info['enabled_field']);
-				if (empty($assetdepreciationoptions->deprecation_options[$info[0]][$info[1]]) || $assetdepreciationoptions->deprecation_options[$info[0]][$info[1]] != $info[2]) {
+				if ($assetdepreciationoptions->deprecation_options[$info[0]][$info[1]] != $info[2]) {
 					continue;
 				}
 			}
@@ -83,11 +83,22 @@ if (empty($reshook)) {
 			if (array_key_exists('enabled', $field_info) && isset($field_info['enabled']) && !verifCond($field_info['enabled'])) {
 				continue; // We don't want this field
 			}
-			$key = $mode_key . '_' . $field_key;
-			$value = $assetdepreciationoptions->deprecation_options[$mode_key][$field_key] ?? null;
+			if (!empty($field_info['column_break'])) {
+				print '</table>';
 
-			print '<tr class="field_' . $key . '" id="block_' . $mode_key . '"><td';
-			print ' class="' . (empty($field_info['tdcss']) ? 'titlefieldmiddle' : $field_info['tdcss']) . ' fieldname_' . $key;
+				// We close div and reopen for second column
+				print '</div>';
+				print '<div class="fichehalfright">';
+
+				print '<div class="underbanner clearboth"></div>';
+				print '<table class="border centpercent tableforfield">';
+			}
+
+			$key = $mode_key . '_' . $field_key;
+			$value = $assetdepreciationoptions->deprecation_options[$mode_key][$field_key];
+
+			print '<tr class="field_' . $key . '"><td';
+			print ' class="' . (empty($field_info['tdcss']) ? 'titlefield' : $field_info['tdcss']) . ' fieldname_' . $key;
 			if ($field_info['type'] == 'text' || $field_info['type'] == 'html') {
 				print ' tdtop';
 			}
@@ -133,8 +144,9 @@ if (empty($reshook)) {
 			print '</tr>';
 		}
 		print '</table>';
+		print '</div>';
+		print '</div>';
 		print '<div class="clearboth"></div>';
-		print '<br>';
 	}
 }
 

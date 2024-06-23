@@ -15,7 +15,6 @@
  * Copyright (C) 2016      Raphaël Doursenaud   <rdoursenaud@gpcsolutions.fr>
  * Copyright (C) 2018-2023 Frédéric France      <frederic.france@netlogic.fr>
  * Copyright (C) 2018      David Beniamine      <David.Beniamine@Tetras-Libre.fr>
- * Copyright (C) 2024		MDW							<mdeweerd@users.noreply.github.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -54,10 +53,10 @@ require_once DOL_DOCUMENT_ROOT.'/core/lib/security2.lib.php';
 if (isModEnabled('ldap')) {
 	require_once DOL_DOCUMENT_ROOT.'/core/class/ldap.class.php';
 }
-if (isModEnabled('member')) {
+if (isModEnabled('adherent')) {
 	require_once DOL_DOCUMENT_ROOT.'/adherents/class/adherent.class.php';
 }
-if (isModEnabled('category')) {
+if (isModEnabled('categorie')) {
 	require_once DOL_DOCUMENT_ROOT.'/categories/class/categorie.class.php';
 }
 if (isModEnabled('stock')) {
@@ -67,11 +66,11 @@ if (isModEnabled('stock')) {
 // Load translation files required by page
 $langs->loadLangs(array('users', 'companies', 'ldap', 'admin', 'hrm', 'stocks', 'other'));
 
-$id = GETPOSTINT('id');
+$id = GETPOST('id', 'int');
 $action		= GETPOST('action', 'aZ09');
 $mode = GETPOST('mode', 'alpha');
 $confirm	= GETPOST('confirm', 'alpha');
-$group = GETPOSTINT("group", 3);
+$group = GETPOST("group", "int", 3);
 $cancel		= GETPOST('cancel', 'alpha');
 $contextpage = GETPOST('contextpage', 'aZ') ? GETPOST('contextpage', 'aZ') : 'useracard'; // To manage different context of search
 
@@ -79,11 +78,11 @@ if (empty($id) && $action != 'create') {
 	$id = $user->id;
 }
 
-$dateemployment = dol_mktime(0, 0, 0, GETPOSTINT('dateemploymentmonth'), GETPOSTINT('dateemploymentday'), GETPOSTINT('dateemploymentyear'));
-$dateemploymentend = dol_mktime(0, 0, 0, GETPOSTINT('dateemploymentendmonth'), GETPOSTINT('dateemploymentendday'), GETPOSTINT('dateemploymentendyear'));
-$datestartvalidity = dol_mktime(0, 0, 0, GETPOSTINT('datestartvaliditymonth'), GETPOSTINT('datestartvalidityday'), GETPOSTINT('datestartvalidityyear'));
-$dateendvalidity = dol_mktime(0, 0, 0, GETPOSTINT('dateendvaliditymonth'), GETPOSTINT('dateendvalidityday'), GETPOSTINT('dateendvalidityyear'));
-$dateofbirth = dol_mktime(0, 0, 0, GETPOSTINT('dateofbirthmonth'), GETPOSTINT('dateofbirthday'), GETPOSTINT('dateofbirthyear'));
+$dateemployment = dol_mktime(0, 0, 0, GETPOST('dateemploymentmonth', 'int'), GETPOST('dateemploymentday', 'int'), GETPOST('dateemploymentyear', 'int'));
+$dateemploymentend = dol_mktime(0, 0, 0, GETPOST('dateemploymentendmonth', 'int'), GETPOST('dateemploymentendday', 'int'), GETPOST('dateemploymentendyear', 'int'));
+$datestartvalidity = dol_mktime(0, 0, 0, GETPOST('datestartvaliditymonth', 'int'), GETPOST('datestartvalidityday', 'int'), GETPOST('datestartvalidityyear', 'int'));
+$dateendvalidity = dol_mktime(0, 0, 0, GETPOST('dateendvaliditymonth', 'int'), GETPOST('dateendvalidityday', 'int'), GETPOST('dateendvalidityyear', 'int'));
+$dateofbirth = dol_mktime(0, 0, 0, GETPOST('dateofbirthmonth', 'int'), GETPOST('dateofbirthday', 'int'), GETPOST('dateofbirthyear', 'int'));
 
 $childids = $user->getAllChildIds(1);	// For later, test on salary visibility
 
@@ -293,9 +292,9 @@ if (empty($reshook)) {
 			$object->note_public = GETPOST("note_public", 'restricthtml');
 			$object->note_private = GETPOST("note_private", 'restricthtml');
 			$object->ldap_sid = GETPOST("ldap_sid", 'alphanohtml');
-			$object->fk_user = GETPOSTINT("fk_user") > 0 ? GETPOSTINT("fk_user") : 0;
-			$object->fk_user_expense_validator = GETPOSTINT("fk_user_expense_validator") > 0 ? GETPOSTINT("fk_user_expense_validator") : 0;
-			$object->fk_user_holiday_validator = GETPOSTINT("fk_user_holiday_validator") > 0 ? GETPOSTINT("fk_user_holiday_validator") : 0;
+			$object->fk_user = GETPOST("fk_user", 'int') > 0 ? GETPOST("fk_user", 'int') : 0;
+			$object->fk_user_expense_validator = GETPOST("fk_user_expense_validator", 'int') > 0 ? GETPOST("fk_user_expense_validator", 'int') : 0;
+			$object->fk_user_holiday_validator = GETPOST("fk_user_holiday_validator", 'int') > 0 ? GETPOST("fk_user_holiday_validator", 'int') : 0;
 			$object->employee = GETPOST('employee', 'alphanohtml');
 
 			$object->thm = GETPOST("thm", 'alphanohtml') != '' ? GETPOST("thm", 'alphanohtml') : '';
@@ -326,9 +325,9 @@ if (empty($reshook)) {
 			}
 
 			// Set entity property
-			$entity = GETPOSTINT('entity');
+			$entity = GETPOST('entity', 'int');
 			if (isModEnabled('multicompany')) {
-				if (GETPOSTINT('superadmin')) {
+				if (GETPOST('superadmin', 'int')) {
 					$object->entity = 0;
 				} else {
 					if (getDolGlobalString('MULTICOMPANY_TRANSVERSE_MODE')) {
@@ -358,7 +357,7 @@ if (empty($reshook)) {
 					setEventMessages($object->error, $object->errors, 'errors');
 					$action = "create"; // Go back to create page
 				} else {
-					if (isModEnabled("category")) {
+					if (isModEnabled("categorie")) {
 						// Categories association
 						$usercats = GETPOST('usercats', 'array');
 						$object->setCategories($usercats);
@@ -446,7 +445,7 @@ if (empty($reshook)) {
 				if (!empty($user->admin) && $user->id != $id) {
 					// admin flag can only be set/unset by an admin user and not four ourself
 					// A test is also done later when forging sql request
-					$object->admin = GETPOSTINT("admin");
+					$object->admin = GETPOST("admin", "int");
 				}
 				if ($user->admin && !$object->ldap_sid) {	// same test than on edit page
 					$object->login = GETPOST("login", 'alphanohtml');
@@ -454,8 +453,8 @@ if (empty($reshook)) {
 				$object->address = GETPOST('address', 'alphanohtml');
 				$object->zip = GETPOST('zipcode', 'alphanohtml');
 				$object->town = GETPOST('town', 'alphanohtml');
-				$object->country_id = GETPOSTINT('country_id');
-				$object->state_id = GETPOSTINT('state_id');
+				$object->country_id = GETPOST('country_id', 'int');
+				$object->state_id = GETPOST('state_id', 'int');
 				$object->office_phone = GETPOST("office_phone", 'alphanohtml');
 				$object->office_fax = GETPOST("office_fax", 'alphanohtml');
 				$object->user_mobile = GETPOST("user_mobile", 'alphanohtml');
@@ -474,10 +473,10 @@ if (empty($reshook)) {
 				$object->signature = GETPOST("signature", 'restricthtml');
 				$object->accountancy_code = GETPOST("accountancy_code", 'alphanohtml');
 				$object->openid = GETPOST("openid", 'alphanohtml');
-				$object->fk_user = GETPOSTINT("fk_user") > 0 ? GETPOSTINT("fk_user") : 0;
-				$object->fk_user_expense_validator = GETPOSTINT("fk_user_expense_validator") > 0 ? GETPOSTINT("fk_user_expense_validator") : 0;
-				$object->fk_user_holiday_validator = GETPOSTINT("fk_user_holiday_validator") > 0 ? GETPOSTINT("fk_user_holiday_validator") : 0;
-				$object->employee = GETPOSTINT('employee');
+				$object->fk_user = GETPOST("fk_user", 'int') > 0 ? GETPOST("fk_user", 'int') : 0;
+				$object->fk_user_expense_validator = GETPOST("fk_user_expense_validator", 'int') > 0 ? GETPOST("fk_user_expense_validator", 'int') : 0;
+				$object->fk_user_holiday_validator = GETPOST("fk_user_holiday_validator", 'int') > 0 ? GETPOST("fk_user_holiday_validator", 'int') : 0;
+				$object->employee = GETPOST('employee', 'int');
 
 				$object->thm = GETPOST("thm", 'alphanohtml') != '' ? GETPOST("thm", 'alphanohtml') : '';
 				$object->thm = price2num($object->thm);
@@ -498,14 +497,14 @@ if (empty($reshook)) {
 				$object->birth = $dateofbirth;
 
 				if (isModEnabled('stock')) {
-					$object->fk_warehouse = GETPOSTINT('fk_warehouse');
+					$object->fk_warehouse = GETPOST('fk_warehouse', 'int');
 				}
 
 				$object->lang = GETPOST('default_lang', 'aZ09');
 
 				// Do we update also ->entity ?
 				if (isModEnabled('multicompany') && empty($user->entity) && !empty($user->admin)) {	// If multicompany is not enabled, we never update the entity of a user.
-					if (GETPOSTINT('superadmin')) {
+					if (GETPOST('superadmin', 'int')) {
 						$object->entity = 0;
 					} else {
 						if (getDolGlobalString('MULTICOMPANY_TRANSVERSE_MODE')) {
@@ -560,8 +559,8 @@ if (empty($reshook)) {
 				}
 
 				if (!$error && GETPOSTISSET('contactid')) {
-					$contactid = GETPOSTINT('contactid');
-					$socid = GETPOSTINT('socid');
+					$contactid = GETPOST('contactid', 'int');
+					$socid = GETPOST('socid', 'int');
 
 					if ($contactid > 0) {	// The 'contactid' is used inpriority over the 'socid'
 						$contact = new Contact($db);
@@ -681,7 +680,7 @@ if (empty($reshook)) {
 			// Echec
 			setEventMessages($langs->trans("ErrorFailedToSetNewPassword"), null, 'errors');
 		} else {
-			// Success
+			// Succes
 			if ($action == 'confirm_passwordsend' && $confirm == 'yes') {
 				if ($object->send_password($user, $newpassword) > 0) {
 					setEventMessages($langs->trans("PasswordChangedAndSentTo", $object->email), null, 'mesgs');
@@ -722,7 +721,7 @@ if (empty($reshook)) {
 		}
 
 		$ldap = new Ldap();
-		$result = $ldap->connectBind();
+		$result = $ldap->connect_bind();
 		if ($result >= 0) {
 			// Remove from required_fields all entries not configured in LDAP (empty) and duplicated
 			$required_fields = array_unique(array_values(array_filter($required_fields, "dol_validElement")));
@@ -743,7 +742,6 @@ if (empty($reshook)) {
 					$ldap_mobile = $attribute[getDolGlobalString('LDAP_FIELD_MOBILE')];
 					$ldap_mail = $attribute[getDolGlobalString('LDAP_FIELD_MAIL')];
 					$ldap_sid = $attribute[getDolGlobalString('LDAP_FIELD_SID')];
-					$ldap_social = array();
 
 					if (isModEnabled('socialnetworks')) {
 						$arrayofsocialnetworks = array('skype', 'twitter', 'facebook', 'linkedin');
@@ -785,19 +783,6 @@ if (isModEnabled('stock')) {
 	$formproduct = new FormProduct($db);
 }
 
-// Count nb of users
-$nbofusers = 1;
-$sql = "SELECT COUNT(rowid) as nb FROM ".MAIN_DB_PREFIX.'user WHERE entity IN ('.getEntity('user').')';
-$resql = $db->query($sql);
-if ($resql) {
-	$obj = $db->fetch_object($resql);
-	if ($obj) {
-		$nbofusers = $obj->nb;
-	}
-} else {
-	dol_print_error($db);
-}
-
 if ($object->id > 0) {
 	$person_name = !empty($object->firstname) ? $object->lastname.", ".$object->firstname : $object->lastname;
 	$title = $person_name." - ".$langs->trans('Card');
@@ -810,7 +795,7 @@ if ($object->id > 0) {
 }
 $help_url = '';
 
-llxHeader('', $title, $help_url, '', 0, 0, '', '', '', 'mod-user page-card');
+llxHeader('', $title, $help_url);
 
 
 if ($action == 'create' || $action == 'adduserldap') {
@@ -825,7 +810,7 @@ if ($action == 'create' || $action == 'adduserldap') {
 
 		// Show form to add an account from LDAP if sync LDAP -> Dolibarr is set
 		$ldap = new Ldap();
-		$result = $ldap->connectBind();
+		$result = $ldap->connect_bind();
 		if ($result >= 0) {
 			$required_fields = array(
 				getDolGlobalString('LDAP_KEY_USERS'),
@@ -905,7 +890,7 @@ if ($action == 'create' || $action == 'adduserldap') {
 	}
 	print '<input type="hidden" name="entity" value="'.$conf->entity.'">';
 
-	print dol_get_fiche_head(array(), '', '', 0, '');
+	print dol_get_fiche_head('', '', '', 0, '');
 
 	dol_set_focus('#lastname');
 
@@ -954,34 +939,18 @@ if ($action == 'create' || $action == 'adduserldap') {
 	print '</td></tr>';
 
 	if (!empty($conf->use_javascript_ajax)) {
-		// Add code to generate the login when creating a new user.
-		// Best rule to generate would be to use the same rule than dol_buildlogin() but currently it is a PHP function not available in js.
-		// TODO Implement a dol_buildlogin in javascript.
-		$charforseparator = getDolGlobalString("MAIN_USER_SEPARATOR_CHAR_FOR_GENERATED_LOGIN", '.');
-		if ($charforseparator == 'none') {
-			$charforseparator = '';
-		}
 		print '<script>
 			jQuery(document).ready(function() {
-				$(".createloginauto").on("keyup", function() {
-					console.log(".createloginauto change: We generate login when we have a lastname");
-
-					lastname = $("#lastname").val().toLowerCase();
-			';
-		if (getDolGlobalString('MAIN_BUILD_LOGIN_RULE') == 'f.lastname') {
-			print '			firstname = $("#firstname").val().toLowerCase()[0];';
-		} else {
-			print '			firstname = $("#firstname").val().toLowerCase();';
-		}
-		print '
-					login = "";
-					if (lastname) {
-						if (firstname) {
-							login = firstname + \''. dol_escape_js($charforseparator).'\';
-						}
-						login += lastname;
+				$(".createloginauto").on("change", function(){
+					lastname = $("#lastname").val();
+					firstname = $("#firstname").val();
+					if($(this).attr("id") == "firstname"){
+						firstname = firstname.toLowerCase();
+						firstname = firstname[0];
 					}
-					$("#login").val(login);
+					lastname = lastname.toLowerCase();
+					console.log("We create a login from firstname and lastname");
+					$("#login").val(firstname+lastname);
 				})
 			});
 		</script>';
@@ -1027,8 +996,8 @@ if ($action == 'create' || $action == 'adduserldap') {
                             });
                     </script>';
 			}
-			$checked = (GETPOSTINT('superadmin') ? ' checked' : '');
-			$disabled = (GETPOSTINT('superadmin') ? '' : ' disabled');
+			$checked = (GETPOST('superadmin', 'int') ? ' checked' : '');
+			$disabled = (GETPOST('superadmin', 'int') ? '' : ' disabled');
 			print '<input type="checkbox" name="superadmin" id="superadmin" value="1"'.$checked.$disabled.' /> <label for="superadmin">'.$langs->trans("SuperAdministrator").'</span>';
 		}
 		print "</td></tr>\n";
@@ -1037,7 +1006,7 @@ if ($action == 'create' || $action == 'adduserldap') {
 	// Gender
 	print '<tr><td>'.$langs->trans("Gender").'</td>';
 	print '<td>';
-	$arraygender = array('man' => $langs->trans("Genderman"), 'woman' => $langs->trans("Genderwoman"), 'other' => $langs->trans("Genderother"));
+	$arraygender = array('man'=>$langs->trans("Genderman"), 'woman'=>$langs->trans("Genderwoman"), 'other'=>$langs->trans("Genderother"));
 	print $form->selectarray('gender', $arraygender, GETPOST('gender'), 1);
 	print '</td></tr>';
 
@@ -1281,9 +1250,9 @@ if ($action == 'create' || $action == 'adduserldap') {
 	}
 
 	// Categories
-	if (isModEnabled('category') && $user->hasRight("categorie", "read")) {
+	if (isModEnabled('categorie') && $user->hasRight("categorie", "read")) {
 		print '<tr><td>'.$form->editfieldkey('Categories', 'usercats', '', $object, 0).'</td><td>';
-		$cate_arbo = $form->select_all_categories('user', '', 'parent', 0, 0, 3);
+		$cate_arbo = $form->select_all_categories('user', null, 'parent', null, null, 1);
 		print img_picto('', 'category', 'class="pictofixedwidth"').$form->multiselectarray('usercats', $cate_arbo, GETPOST('usercats', 'array'), 0, 0, 'maxwdith300 widthcentpercentminusx', 0, '90%');
 		print "</td></tr>";
 	}
@@ -1443,11 +1412,11 @@ if ($action == 'create' || $action == 'adduserldap') {
 			}
 		}
 
-		// Connection ldap
+		// Connexion ldap
 		// pour recuperer passDoNotExpire et userChangePassNextLogon
 		if (isModEnabled('ldap') && !empty($object->ldap_sid)) {
 			$ldap = new Ldap();
-			$result = $ldap->connectBind();
+			$result = $ldap->connect_bind();
 			if ($result > 0) {
 				$userSearchFilter = '(' . getDolGlobalString('LDAP_FILTER_CONNECTION').'('.$ldap->getUserIdentifier().'='.$object->login.'))';
 				$entries = $ldap->fetch($object->login, $userSearchFilter);
@@ -1495,14 +1464,14 @@ if ($action == 'create' || $action == 'adduserldap') {
 		$head = user_prepare_head($object);
 
 		/*
-		 * Confirmation reinitialisation password
+		 * Confirmation reinitialisation mot de passe
 		 */
 		if ($action == 'password') {
 			print $form->formconfirm($_SERVER['PHP_SELF']."?id=$object->id", $langs->trans("ReinitPassword"), $langs->trans("ConfirmReinitPassword", $object->login), "confirm_password", '', 0, 1);
 		}
 
 		/*
-		 * Confirmation envoi password
+		 * Confirmation envoi mot de passe
 		 */
 		if ($action == 'passwordsend') {
 			print $form->formconfirm($_SERVER['PHP_SELF']."?id=$object->id", $langs->trans("SendNewPassword"), $langs->trans("ConfirmSendNewPassword", $object->login), "confirm_passwordsend", '', 0, 1);
@@ -1597,63 +1566,59 @@ if ($action == 'create' || $action == 'adduserldap') {
 
 			// Employee
 			print '<tr><td>'.$langs->trans("Employee").'</td><td>';
-			if (getDolGlobalInt('MAIN_OPTIMIZEFORTEXTBROWSER') < 2) {
-				print '<input type="checkbox" disabled name="employee" value="1"'.($object->employee ? ' checked="checked"' : '').'>';
-			} else {
-				print yn($object->employee);
-			}
+			print '<input type="checkbox" disabled name="employee" value="1"'.($object->employee ? ' checked="checked"' : '').'>';
+			//print yn($object->employee);
 			print '</td></tr>'."\n";
 
 			// TODO This is also available into the tab RH
-			if ($nbofusers > 1) {
-				// Hierarchy
-				print '<tr><td>'.$langs->trans("HierarchicalResponsible").'</td>';
-				print '<td>';
-				if (empty($object->fk_user)) {
-					print '<span class="opacitymedium">'.$langs->trans("None").'</span>';
+
+			// Hierarchy
+			print '<tr><td>'.$langs->trans("HierarchicalResponsible").'</td>';
+			print '<td>';
+			if (empty($object->fk_user)) {
+				print '<span class="opacitymedium">'.$langs->trans("None").'</span>';
+			} else {
+				$huser = new User($db);
+				if ($object->fk_user > 0) {
+					$huser->fetch($object->fk_user);
+					print $huser->getNomUrl(-1);
 				} else {
-					$huser = new User($db);
-					if ($object->fk_user > 0) {
-						$huser->fetch($object->fk_user);
-						print $huser->getNomUrl(-1);
-					} else {
-						print '<span class="opacitymedium">'.$langs->trans("None").'</span>';
-					}
+					print '<span class="opacitymedium">'.$langs->trans("None").'</span>';
+				}
+			}
+			print '</td>';
+			print "</tr>\n";
+
+			// Expense report validator
+			if (isModEnabled('expensereport')) {
+				print '<tr><td>';
+				$text = $langs->trans("ForceUserExpenseValidator");
+				print $form->textwithpicto($text, $langs->trans("ValidatorIsSupervisorByDefault"), 1, 'help');
+				print '</td>';
+				print '<td>';
+				if (!empty($object->fk_user_expense_validator)) {
+					$evuser = new User($db);
+					$evuser->fetch($object->fk_user_expense_validator);
+					print $evuser->getNomUrl(-1);
 				}
 				print '</td>';
 				print "</tr>\n";
+			}
 
-				// Expense report validator
-				if (isModEnabled('expensereport')) {
-					print '<tr><td>';
-					$text = $langs->trans("ForceUserExpenseValidator");
-					print $form->textwithpicto($text, $langs->trans("ValidatorIsSupervisorByDefault"), 1, 'help');
-					print '</td>';
-					print '<td>';
-					if (!empty($object->fk_user_expense_validator)) {
-						$evuser = new User($db);
-						$evuser->fetch($object->fk_user_expense_validator);
-						print $evuser->getNomUrl(-1);
-					}
-					print '</td>';
-					print "</tr>\n";
+			// Holiday request validator
+			if (isModEnabled('holiday')) {
+				print '<tr><td>';
+				$text = $langs->trans("ForceUserHolidayValidator");
+				print $form->textwithpicto($text, $langs->trans("ValidatorIsSupervisorByDefault"), 1, 'help');
+				print '</td>';
+				print '<td>';
+				if (!empty($object->fk_user_holiday_validator)) {
+					$hvuser = new User($db);
+					$hvuser->fetch($object->fk_user_holiday_validator);
+					print $hvuser->getNomUrl(-1);
 				}
-
-				// Holiday request validator
-				if (isModEnabled('holiday')) {
-					print '<tr><td>';
-					$text = $langs->trans("ForceUserHolidayValidator");
-					print $form->textwithpicto($text, $langs->trans("ValidatorIsSupervisorByDefault"), 1, 'help');
-					print '</td>';
-					print '<td>';
-					if (!empty($object->fk_user_holiday_validator)) {
-						$hvuser = new User($db);
-						$hvuser->fetch($object->fk_user_holiday_validator);
-						print $hvuser->getNomUrl(-1);
-					}
-					print '</td>';
-					print "</tr>\n";
-				}
+				print '</td>';
+				print "</tr>\n";
 			}
 
 			// Position/Job
@@ -1677,7 +1642,7 @@ if ($action == 'create' || $action == 'adduserldap') {
 				// Salary
 				print '<tr><td>'.$langs->trans("Salary").'</td>';
 				print '<td>';
-				print($object->salary != '' ? img_picto('', 'salary', 'class="pictofixedwidth paddingright"').'<span class="amount">'.price($object->salary, 0, $langs, 1, -1, -1, $conf->currency) : '').'</span>';
+				print($object->salary != '' ? img_picto('', 'salary', 'class="pictofixedwidth paddingright"').'<span class="amount">'.price($object->salary, '', $langs, 1, -1, -1, $conf->currency) : '').'</span>';
 				print '</td>';
 				print "</tr>\n";
 
@@ -1687,7 +1652,7 @@ if ($action == 'create' || $action == 'adduserldap') {
 				print $form->textwithpicto($text, $langs->trans("THMDescription"), 1, 'help', 'classthm');
 				print '</td>';
 				print '<td>';
-				print($object->thm != '' ? price($object->thm, 0, $langs, 1, -1, -1, $conf->currency) : '');
+				print($object->thm != '' ? price($object->thm, '', $langs, 1, -1, -1, $conf->currency) : '');
 				print '</td>';
 				print "</tr>\n";
 
@@ -1697,7 +1662,7 @@ if ($action == 'create' || $action == 'adduserldap') {
 				print $form->textwithpicto($text, $langs->trans("TJMDescription"), 1, 'help', 'classtjm');
 				print '</td>';
 				print '<td>';
-				print($object->tjm != '' ? price($object->tjm, 0, $langs, 1, -1, -1, $conf->currency) : '');
+				print($object->tjm != '' ? price($object->tjm, '', $langs, 1, -1, -1, $conf->currency) : '');
 				print '</td>';
 				print "</tr>\n";
 			}
@@ -1754,7 +1719,7 @@ if ($action == 'create' || $action == 'adduserldap') {
 			}
 
 			// Categories
-			if (isModEnabled('category') && $user->hasRight("categorie", "read")) {
+			if (isModEnabled('categorie') && $user->hasRight("categorie", "read")) {
 				print '<tr><td class="titlefield">'.$langs->trans("Categories").'</td>';
 				print '<td colspan="3">';
 				print $form->showCategories($object->id, Categorie::TYPE_USER, 1);
@@ -1834,7 +1799,7 @@ if ($action == 'create' || $action == 'adduserldap') {
 			}
 
 			// Module Adherent
-			if (isModEnabled('member')) {
+			if (isModEnabled('adherent')) {
 				$langs->load("members");
 				print '<tr><td>'.$langs->trans("LinkedToDolibarrMember").'</td>';
 				print '<td>';
@@ -1922,7 +1887,7 @@ if ($action == 'create' || $action == 'adduserldap') {
 					if ($user->admin && $user->id == $object->id) {
 						$valuetoshow .= ($valuetoshow ? (' '.$langs->trans("or").' ') : '');
 						$valuetoshow .= '<span class="opacitymedium">'.$langs->trans("Hidden").'</span>';
-						$valuetoshow .= '<!-- Encrypted into '.$object->pass_indatabase_crypted.' -->';
+						$valuetoshow .= '<!-- Crypted into '.$object->pass_indatabase_crypted.' -->';
 					} else {
 						$valuetoshow .= ($valuetoshow ? (' '.$langs->trans("or").' ') : '');
 						$valuetoshow .= '<span class="opacitymedium">'.$langs->trans("Hidden").'</span>';
@@ -2113,7 +2078,7 @@ if ($action == 'create' || $action == 'adduserldap') {
 
 					print load_fiche_titre($langs->trans("ListOfGroupsForUser"), '', '');
 
-					// We select the groups that the users belongs to
+					// On selectionne les groupes auquel fait parti le user
 					$exclude = array();
 
 					$usergroup = new UserGroup($db);
@@ -2334,7 +2299,7 @@ if ($action == 'create' || $action == 'adduserldap') {
 			// Gender
 			print '<tr><td>'.$langs->trans("Gender").'</td>';
 			print '<td>';
-			$arraygender = array('man' => $langs->trans("Genderman"), 'woman' => $langs->trans("Genderwoman"), 'other' => $langs->trans("Genderother"));
+			$arraygender = array('man'=>$langs->trans("Genderman"), 'woman'=>$langs->trans("Genderwoman"), 'other'=>$langs->trans("Genderother"));
 			if ($caneditfield) {
 				print $form->selectarray('gender', $arraygender, GETPOSTISSET('gender') ? GETPOST('gender') : $object->gender, 1);
 			} else {
@@ -2358,58 +2323,56 @@ if ($action == 'create' || $action == 'adduserldap') {
 			}
 			print '</td></tr>';
 
-			if ($nbofusers > 1) {
-				// Hierarchy
-				print '<tr><td class="titlefieldcreate">'.$langs->trans("HierarchicalResponsible").'</td>';
+			// Hierarchy
+			print '<tr><td class="titlefieldcreate">'.$langs->trans("HierarchicalResponsible").'</td>';
+			print '<td>';
+			if ($caneditfield) {
+				print img_picto('', 'user', 'class="pictofixedwidth"').$form->select_dolusers($object->fk_user, 'fk_user', 1, array($object->id), 0, '', 0, $object->entity, 0, 0, '', 0, '', 'widthcentpercentminusx maxwidth300');
+			} else {
+				print '<input type="hidden" name="fk_user" value="'.$object->fk_user.'">';
+				$huser = new User($db);
+				$huser->fetch($object->fk_user);
+				print $huser->getNomUrl(-1);
+			}
+			print '</td>';
+			print "</tr>\n";
+
+			// Expense report validator
+			if (isModEnabled('expensereport')) {
+				print '<tr><td class="titlefieldcreate">';
+				$text = $langs->trans("ForceUserExpenseValidator");
+				print $form->textwithpicto($text, $langs->trans("ValidatorIsSupervisorByDefault"), 1, 'help');
+				print '</td>';
 				print '<td>';
 				if ($caneditfield) {
-					print img_picto('', 'user', 'class="pictofixedwidth"').$form->select_dolusers($object->fk_user, 'fk_user', 1, array($object->id), 0, '', 0, $object->entity, 0, 0, '', 0, '', 'widthcentpercentminusx maxwidth300');
+					print img_picto('', 'user', 'class="pictofixedwidth"').$form->select_dolusers($object->fk_user_expense_validator, 'fk_user_expense_validator', 1, array($object->id), 0, '', 0, $object->entity, 0, 0, '', 0, '', 'widthcentpercentminusx maxwidth300');
 				} else {
-					print '<input type="hidden" name="fk_user" value="'.$object->fk_user.'">';
-					$huser = new User($db);
-					$huser->fetch($object->fk_user);
-					print $huser->getNomUrl(-1);
+					print '<input type="hidden" name="fk_user_expense_validator" value="'.$object->fk_user_expense_validator.'">';
+					$evuser = new User($db);
+					$evuser->fetch($object->fk_user_expense_validator);
+					print $evuser->getNomUrl(-1);
 				}
 				print '</td>';
 				print "</tr>\n";
+			}
 
-				// Expense report validator
-				if (isModEnabled('expensereport')) {
-					print '<tr><td class="titlefieldcreate">';
-					$text = $langs->trans("ForceUserExpenseValidator");
-					print $form->textwithpicto($text, $langs->trans("ValidatorIsSupervisorByDefault"), 1, 'help');
-					print '</td>';
-					print '<td>';
-					if ($caneditfield) {
-						print img_picto('', 'user', 'class="pictofixedwidth"').$form->select_dolusers($object->fk_user_expense_validator, 'fk_user_expense_validator', 1, array($object->id), 0, '', 0, $object->entity, 0, 0, '', 0, '', 'widthcentpercentminusx maxwidth300');
-					} else {
-						print '<input type="hidden" name="fk_user_expense_validator" value="'.$object->fk_user_expense_validator.'">';
-						$evuser = new User($db);
-						$evuser->fetch($object->fk_user_expense_validator);
-						print $evuser->getNomUrl(-1);
-					}
-					print '</td>';
-					print "</tr>\n";
+			// Holiday request validator
+			if (isModEnabled('holiday')) {
+				print '<tr><td class="titlefieldcreate">';
+				$text = $langs->trans("ForceUserHolidayValidator");
+				print $form->textwithpicto($text, $langs->trans("ValidatorIsSupervisorByDefault"), 1, 'help');
+				print '</td>';
+				print '<td>';
+				if ($caneditfield) {
+					print img_picto('', 'user', 'class="pictofixedwidth"').$form->select_dolusers($object->fk_user_holiday_validator, 'fk_user_holiday_validator', 1, array($object->id), 0, '', 0, $object->entity, 0, 0, '', 0, '', 'widthcentpercentminusx maxwidth300');
+				} else {
+					print '<input type="hidden" name="fk_user_holiday_validator" value="'.$object->fk_user_holiday_validator.'">';
+					$hvuser = new User($db);
+					$hvuser->fetch($object->fk_user_holiday_validator);
+					print $hvuser->getNomUrl(-1);
 				}
-
-				// Holiday request validator
-				if (isModEnabled('holiday')) {
-					print '<tr><td class="titlefieldcreate">';
-					$text = $langs->trans("ForceUserHolidayValidator");
-					print $form->textwithpicto($text, $langs->trans("ValidatorIsSupervisorByDefault"), 1, 'help');
-					print '</td>';
-					print '<td>';
-					if ($caneditfield) {
-						print img_picto('', 'user', 'class="pictofixedwidth"').$form->select_dolusers($object->fk_user_holiday_validator, 'fk_user_holiday_validator', 1, array($object->id), 0, '', 0, $object->entity, 0, 0, '', 0, '', 'widthcentpercentminusx maxwidth300');
-					} else {
-						print '<input type="hidden" name="fk_user_holiday_validator" value="'.$object->fk_user_holiday_validator.'">';
-						$hvuser = new User($db);
-						$hvuser->fetch($object->fk_user_holiday_validator);
-						print $hvuser->getNomUrl(-1);
-					}
-					print '</td>';
-					print "</tr>\n";
-				}
+				print '</td>';
+				print "</tr>\n";
 			}
 
 			// External user ?
@@ -2421,7 +2384,6 @@ if ($action == 'create' || $action == 'adduserldap') {
 				if ($object->socid) {
 					$type = $langs->trans("External");
 				}
-				// @phan-suppress-next-line PhanPluginSuspiciousParamPosition
 				print $form->textwithpicto($type, $langs->trans("InternalExternalDesc"));
 				if ($object->ldap_sid) {
 					print ' ('.$langs->trans("DomainUser").')';
@@ -2435,36 +2397,29 @@ if ($action == 'create' || $action == 'adduserldap') {
 
 				if ($object->socid > 0 && !($object->contact_id > 0)) {	// external user but no link to a contact
 					print img_picto('', 'company').$form->select_company($object->socid, 'socid', '', '&nbsp;', 0, 0, null, 0, 'maxwidth300');
-					print img_picto('', 'contact');
-					//print $form->selectcontacts(0, 0, 'contactid', 1, '', '', 1, 'maxwidth300', false, 1);
-					print $form->select_contact(0, 0, 'contactid', 1, '', '', 1, 'minwidth100imp widthcentpercentminusxx maxwidth300', true, 1);
+					print img_picto('', 'contact').$form->selectcontacts(0, 0, 'contactid', 1, '', '', 1, 'maxwidth300', false, 1);
 					if ($object->ldap_sid) {
 						print ' ('.$langs->trans("DomainUser").')';
 					}
 				} elseif ($object->socid > 0 && $object->contact_id > 0) {	// external user with a link to a contact
 					print img_picto('', 'company').$form->select_company($object->socid, 'socid', '', '&nbsp;', 0, 0, null, 0, 'maxwidth300'); // We keep thirdparty empty, contact is already set
-					print img_picto('', 'contact');
-					//print $form->selectcontacts(0, $object->contact_id, 'contactid', 1, '', '', 1, 'maxwidth300', false, 1);
-					print $form->select_contact(0, $object->contact_id, 'contactid', 1, '', '', 1, 'minwidth100imp widthcentpercentminusxx maxwidth300', true, 1);
+					print img_picto('', 'contact').$form->selectcontacts(0, $object->contact_id, 'contactid', 1, '', '', 1, 'maxwidth300', false, 1);
 					if ($object->ldap_sid) {
 						print ' ('.$langs->trans("DomainUser").')';
 					}
 				} elseif (!($object->socid > 0) && $object->contact_id > 0) {	// internal user with a link to a contact
 					print img_picto('', 'company').$form->select_company(0, 'socid', '', '&nbsp;', 0, 0, null, 0, 'maxwidth300'); // We keep thirdparty empty, contact is already set
-					print img_picto('', 'contact');
-					//print $form->selectcontacts(0, $object->contact_id, 'contactid', 1, '', '', 1, 'maxwidth300', false, 1);
-					print $form->select_contact(0, $object->contact_id, 'contactid', 1, '', '', 1, 'minwidth100imp widthcentpercentminusxx maxwidth300', true, 1);
+					print img_picto('', 'contact').$form->selectcontacts(0, $object->contact_id, 'contactid', 1, '', '', 1, 'maxwidth300', false, 1);
 					if ($object->ldap_sid) {
 						print ' ('.$langs->trans("DomainUser").')';
 					}
 				} else {	// $object->socid is not > 0 here
 					print img_picto('', 'company').$form->select_company(0, 'socid', '', '&nbsp;', 0, 0, null, 0, 'maxwidth300'); // We keep thirdparty empty, contact is already set
-					print img_picto('', 'contact');
-					//print $form->selectcontacts(0, 0, 'contactid', 1, '', '', 1, 'maxwidth300', false, 1);
-					print $form->select_contact(0, 0, 'contactid', 1, '', '', 1, 'minwidth100imp widthcentpercentminusxx maxwidth300', true, 1);
+					print img_picto('', 'contact').$form->selectcontacts(0, 0, 'contactid', 1, '', '', 1, 'maxwidth300', false, 1);
 				}
 			}
 			print '</td></tr>';
+
 
 			print '</table>';
 
@@ -2723,7 +2678,7 @@ if ($action == 'create' || $action == 'adduserldap') {
 			print '</tr>';
 
 			// Categories
-			if (isModEnabled('category') && $user->hasRight("categorie", "read")) {
+			if (isModEnabled('categorie') && $user->hasRight("categorie", "read")) {
 				print '<tr><td>'.$form->editfieldkey('Categories', 'usercats', '', $object, 0).'</td>';
 				print '<td>';
 				print img_picto('', 'category', 'class="pictofixedwidth"');
@@ -2757,7 +2712,6 @@ if ($action == 'create' || $action == 'adduserldap') {
 			print '</td></tr>';
 
 			// Company / Contact
-			/* Disabled, this is already on field "External user ?"
 			if (isModEnabled("societe")) {
 				print '<tr><td>'.$langs->trans("LinkToCompanyContact").'</td>';
 				print '<td>';
@@ -2777,10 +2731,9 @@ if ($action == 'create' || $action == 'adduserldap') {
 				print '</td>';
 				print "</tr>\n";
 			}
-			*/
 
 			// Module Adherent
-			if (isModEnabled('member')) {
+			if (isModEnabled('adherent')) {
 				$langs->load("members");
 				print '<tr><td>'.$langs->trans("LinkedToDolibarrMember").'</td>';
 				print '<td>';
@@ -2892,7 +2845,7 @@ if ($action == 'create' || $action == 'adduserldap') {
 				if ($caneditfield) {
 					print '<input size="8" type="text" name="thm" value="'.price2num(GETPOST('thm') ? GETPOST('thm') : $object->thm).'">';
 				} else {
-					print($object->thm != '' ? price($object->thm, 0, $langs, 1, -1, -1, $conf->currency) : '');
+					print($object->thm != '' ? price($object->thm, '', $langs, 1, -1, -1, $conf->currency) : '');
 				}
 				print '</td>';
 				print "</tr>\n";
@@ -2906,7 +2859,7 @@ if ($action == 'create' || $action == 'adduserldap') {
 				if ($caneditfield) {
 					print '<input size="8" type="text" name="tjm" value="'.price2num(GETPOST('tjm') ? GETPOST('tjm') : $object->tjm).'">';
 				} else {
-					print($object->tjm != '' ? price($object->tjm, 0, $langs, 1, -1, -1, $conf->currency) : '');
+					print($object->tjm != '' ? price($object->tjm, '', $langs, 1, -1, -1, $conf->currency) : '');
 				}
 				print '</td>';
 				print "</tr>\n";

@@ -29,12 +29,12 @@ require_once DOL_DOCUMENT_ROOT.'/compta/facture/class/facture.class.php';
 
 // Load translation files required by the page
 $langs->load("companies");
-if (isModEnabled('invoice')) {
+if (isModEnabled('facture')) {
 	$langs->load("bills");
 }
 
 // Security check
-$socid = GETPOSTINT("socid");
+$socid = GETPOST("socid", 'int');
 if ($user->socid > 0) {
 	$action = '';
 	$id = $user->socid;

@@ -35,12 +35,12 @@ require_once DOL_DOCUMENT_ROOT.'/recruitment/lib/recruitment_recruitmentcandidat
 $langs->loadLangs(array("recruitment", "other"));
 
 // Get parameters
-$id = GETPOSTINT('id');
+$id = GETPOST('id', 'int');
 $ref = GETPOST('ref', 'alpha');
 $action = GETPOST('action', 'aZ09');
 $cancel = GETPOST('cancel', 'aZ09');
 $backtopage = GETPOST('backtopage', 'alpha');
-$socid = GETPOSTINT('socid');
+$socid = GETPOST('socid', 'int');
 $contextpage = GETPOST('contextpage', 'aZ') ? GETPOST('contextpage', 'aZ') : str_replace('_', '', basename(dirname(__FILE__)).basename(__FILE__, '.php')); // To manage different context of search
 
 if (GETPOST('actioncode', 'array')) {
@@ -54,10 +54,10 @@ if (GETPOST('actioncode', 'array')) {
 $search_rowid = GETPOST('search_rowid');
 $search_agenda_label = GETPOST('search_agenda_label');
 
-$limit = GETPOSTINT('limit') ? GETPOSTINT('limit') : $conf->liste_limit;
+$limit = GETPOST('limit', 'int') ? GETPOST('limit', 'int') : $conf->liste_limit;
 $sortfield = GETPOST('sortfield', 'aZ09comma');
 $sortorder = GETPOST('sortorder', 'aZ09comma');
-$page = GETPOSTISSET('pageplusone') ? (GETPOSTINT('pageplusone') - 1) : GETPOSTINT("page");
+$page = GETPOSTISSET('pageplusone') ? (GETPOST('pageplusone') - 1) : GETPOST("page", 'int');
 if (empty($page) || $page == -1) {
 	$page = 0;
 }     // If $page is not defined, or '' or -1
@@ -128,6 +128,7 @@ $form = new Form($db);
 
 if ($object->id > 0) {
 	$title = $object->ref." - ".$langs->trans('Agenda');
+	//if (!empty($conf->global->MAIN_HTML_TITLE) && preg_match('/thirdpartynameonly/',$conf->global->MAIN_HTML_TITLE) && $object->name) $title=$object->name." - ".$title;
 	$help_url = 'Module_Agenda_En|DE:Modul_Terminplanung';
 	llxHeader('', $title, $help_url);
 

@@ -1,7 +1,6 @@
 <?php
 /* Copyright (C) 2004-2015 	Laurent Destailleur   	<eldy@users.sourceforge.net>
  * Copyright (C) 2015 		Florian HENRY 			<florian.henry@open-concept.pro>
- * Copyright (C) 2024       Frédéric France             <frederic.france@free.fr>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,7 +23,7 @@
  */
 
 require_once DOL_DOCUMENT_ROOT."/core/class/commonobject.class.php";
-require_once DOL_DOCUMENT_ROOT.'/core/class/commonobjectline.class.php';
+
 
 
 /**
@@ -42,42 +41,23 @@ class Propalmergepdfproduct extends CommonObject
 	 */
 	public $table_element = 'propal_merge_pdf_product';
 
-	/**
-	 * @var int Id of product
-	 */
 	public $fk_product;
-
-	/**
-	 * @var string Filename
-	 */
 	public $file_name;
-
-	/**
-	 * @var int Id user
-	 */
 	public $fk_user_author;
-
-	/**
-	 * @var int Id user
-	 */
 	public $fk_user_mod;
 	public $datec = '';
-
-	/**
-	 * @var string lang code
-	 */
+	public $tms = '';
 	public $lang;
 
-	/**
-	 * @var PropalmergepdfproductLine[]
-	 */
 	public $lines = array();
+
+
 
 
 	/**
 	 *  Constructor
 	 *
-	 *  @param	DoliDB		$db      Database handler
+	 *  @param	DoliDb		$db      Database handler
 	 */
 	public function __construct($db)
 	{
@@ -100,16 +80,16 @@ class Propalmergepdfproduct extends CommonObject
 		// Clean parameters
 
 		if (isset($this->fk_product)) {
-			$this->fk_product = (int) $this->fk_product;
+			$this->fk_product = trim($this->fk_product);
 		}
 		if (isset($this->file_name)) {
 			$this->file_name = trim($this->file_name);
 		}
 		if (isset($this->fk_user_author)) {
-			$this->fk_user_author = (int) $this->fk_user_author;
+			$this->fk_user_author = trim($this->fk_user_author);
 		}
 		if (isset($this->fk_user_mod)) {
-			$this->fk_user_mod = (int) $this->fk_user_mod;
+			$this->fk_user_mod = trim($this->fk_user_mod);
 		}
 		if (isset($this->lang)) {
 			$this->lang = trim($this->lang);
@@ -117,6 +97,7 @@ class Propalmergepdfproduct extends CommonObject
 		if (isset($this->import_key)) {
 			$this->import_key = trim($this->import_key);
 		}
+
 
 
 		// Check parameters
@@ -262,7 +243,7 @@ class Propalmergepdfproduct extends CommonObject
 		if ($resql) {
 			if ($this->db->num_rows($resql)) {
 				while ($obj = $this->db->fetch_object($resql)) {
-					$line = new PropalmergepdfproductLine($this->db);
+					$line = new PropalmergepdfproductLine();
 
 					$line->id = $obj->rowid;
 
@@ -303,7 +284,7 @@ class Propalmergepdfproduct extends CommonObject
 	 *  @param  int		$notrigger	 0=launch triggers after, 1=disable triggers
 	 *  @return int     		   	 Return integer <0 if KO, >0 if OK
 	 */
-	public function update(User $user, $notrigger = 0)
+	public function update($user = 0, $notrigger = 0)
 	{
 		global $conf, $langs;
 		$error = 0;
@@ -311,13 +292,13 @@ class Propalmergepdfproduct extends CommonObject
 		// Clean parameters
 
 		if (isset($this->fk_product)) {
-			$this->fk_product = (int) $this->fk_product;
+			$this->fk_product = trim($this->fk_product);
 		}
 		if (isset($this->file_name)) {
 			$this->file_name = trim($this->file_name);
 		}
 		if (isset($this->fk_user_mod)) {
-			$this->fk_user_mod = (int) $this->fk_user_mod;
+			$this->fk_user_mod = trim($this->fk_user_mod);
 		}
 		if (isset($this->lang)) {
 			$this->lang = trim($this->lang);
@@ -548,28 +529,26 @@ class Propalmergepdfproduct extends CommonObject
 	 *	Initialise object with example values
 	 *	Id must be 0 if object instance is a specimen
 	 *
-	 *	@return int
+	 *	@return	void
 	 */
 	public function initAsSpecimen()
 	{
 		$this->id = 0;
 
-		$this->fk_product = 0;
+		$this->fk_product = '';
 		$this->file_name = '';
-		$this->fk_user_author = 0;
-		$this->fk_user_mod = 0;
+		$this->fk_user_author = '';
+		$this->fk_user_mod = '';
 		$this->datec = '';
-		$this->tms = dol_now();
+		$this->tms = '';
 		$this->import_key = '';
-
-		return 1;
 	}
 }
 
 /**
  * Class to manage propal merge of product line
  */
-class PropalmergepdfproductLine extends CommonObjectLine
+class PropalmergepdfproductLine
 {
 	/**
 	 * @var int ID
@@ -581,14 +560,7 @@ class PropalmergepdfproductLine extends CommonObjectLine
 	 */
 	public $fk_product;
 
-	/**
-	 * @var string Filename
-	 */
 	public $file_name;
-
-	/**
-	 * @var string Code lang
-	 */
 	public $lang;
 
 	/**
@@ -602,6 +574,14 @@ class PropalmergepdfproductLine extends CommonObjectLine
 	public $fk_user_mod;
 
 	public $datec = '';
-
+	public $tms = '';
 	public $import_key;
+
+	/**
+	 *  Constructor
+	 */
+	public function __construct()
+	{
+		return;
+	}
 }

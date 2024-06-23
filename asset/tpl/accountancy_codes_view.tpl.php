@@ -1,6 +1,5 @@
 <?php
 /* Copyright (C) 2021  Open-Dsi  <support@open-dsi.fr>
- * Copyright (C) 2024		MDW							<mdeweerd@users.noreply.github.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,7 +27,7 @@
 // Protection to avoid direct call of template
 if (empty($object) || !is_object($object)) {
 	print "Error, template page can't be called as URL";
-	exit(1);
+	exit;
 }
 
 if (!is_object($form)) {
@@ -56,15 +55,14 @@ if (empty($reshook)) {
 	}
 
 	foreach ($assetaccountancycodes->accountancy_codes_fields as $mode_key => $mode_info) {
-		if (empty($assetdepreciationoptions->deprecation_options[$mode_key]) && $mode_key == "accelerated_depreciation") {
-			continue;
-		}
-		$width = "pull-left";
-		print '<table class="liste centpercent '. $width .'" id="block_' . $mode_key . '">' . "\n";
-		print '<tr class="liste_titre"><td colspan="5">'.$langs->trans($mode_info['label']).'</td></tr>';
+		//if (empty($object->enabled_modes[$mode_key])) continue;
+
+		print load_fiche_titre($langs->trans($mode_info['label']), '', '');
+		print '<div class="fichecenter">';
+		print '<div class="underbanner clearboth"></div>';
+		print '<table class="border centpercent tableforfield">';
 		foreach ($mode_info['fields'] as $field_key => $field_info) {
-			$key = $mode_key . '_' . $field_key;
-			print '<tr class="field_' . $key . '" id="block_' . $mode_key . '"><td class="titlefieldmiddle">' . $langs->trans($field_info['label']) . '</td><td colspan="3">';
+			print '<tr><td class="titlefieldcreate">' . $langs->trans($field_info['label']) . '</td><td colspan="3">';
 			if (!empty($assetaccountancycodes->accountancy_codes[$mode_key][$field_key])) {
 				$accountancy_code = $assetaccountancycodes->accountancy_codes[$mode_key][$field_key];
 				if (isModEnabled('accounting')) {
@@ -79,10 +77,8 @@ if (empty($reshook)) {
 			print '</td></tr>';
 		}
 		print '</table>';
-		print '<div class="clearboth"></div>';
-		print '<br>';
+		print '</div>';
 	}
-	print '<div class="clearboth"></div>';
 }
 ?>
 <!-- END PHP TEMPLATE accountancy_code_view.tpl.php -->

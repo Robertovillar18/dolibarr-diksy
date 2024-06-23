@@ -21,7 +21,7 @@
 /**
  *     \file       htdocs/compta/prelevement/factures.php
  *     \ingroup    prelevement
- *     \brief      Page list of invoice paid by direct debit or credit transfer
+ *     \brief      Page list of invoice paied by direct debit or credit transfer
  */
 
 // Load Dolibarr environment
@@ -38,17 +38,17 @@ require_once DOL_DOCUMENT_ROOT.'/salaries/class/salary.class.php';
 $langs->loadLangs(array('banks', 'categories', 'bills', 'companies', 'withdrawals', 'salaries', 'suppliers'));
 
 // Get supervariables
-$id = GETPOSTINT('id');
+$id = GETPOST('id', 'int');
 $ref = GETPOST('ref', 'alpha');
-$socid = GETPOSTINT('socid');
-$userid = GETPOSTINT('userid');
+$socid = GETPOST('socid', 'int');
+$userid = GETPOST('userid', 'int');
 $type = GETPOST('type', 'aZ09');
 
 // Load variable for pagination
-$limit = GETPOSTINT('limit') ? GETPOSTINT('limit') : $conf->liste_limit;
+$limit = GETPOST('limit', 'int') ? GETPOST('limit', 'int') : $conf->liste_limit;
 $sortfield = GETPOST('sortfield', 'aZ09comma');
 $sortorder = GETPOST('sortorder', 'aZ09comma');
-$page = GETPOSTISSET('pageplusone') ? (GETPOSTINT('pageplusone') - 1) : GETPOSTINT("page");
+$page = GETPOSTISSET('pageplusone') ? (GETPOST('pageplusone') - 1) : GETPOST("page", 'int');
 if (empty($page) || $page == -1) {
 	$page = 0;
 }     // If $page is not defined, or '' or -1
@@ -274,10 +274,10 @@ if ($resql) {
 	$num = $db->num_rows($resql);
 	$i = 0;
 
-	$param = "&id=".((int) $id);
 	if ($limit > 0 && $limit != $conf->liste_limit) {
-		$param .= '&limit='.((int) $limit);
+		$param.='&limit='.((int) $limit);
 	}
+	$param = "&id=".urlencode($id);
 
 	// Lines of title fields
 	print '<form method="POST" id="searchFormList" action="'.$_SERVER["PHP_SELF"].'">';
@@ -299,7 +299,7 @@ if ($resql) {
 	print_barre_liste($title, $page, $_SERVER["PHP_SELF"], $param, $sortfield, $sortorder, $massactionbutton, $num, $nbtotalofrecords, '', 0, '', '', $limit);
 
 	print"\n<!-- debut table -->\n";
-	print '<div class="div-table-responsive-no-min">'; // You can use div-table-responsive-no-min if you don't need reserved height for your table
+	print '<div class="div-table-responsive-no-min">'; // You can use div-table-responsive-no-min if you dont need reserved height for your table
 	print '<table class="liste centpercent">';
 	print '<tr class="liste_titre">';
 	print_liste_field_titre(($salaryBonPl ? "Salary" : "Bill"), $_SERVER["PHP_SELF"], "p.ref", '', $param, '', $sortfield, $sortorder);
@@ -325,14 +325,10 @@ if ($resql) {
 
 	while ($i < min($num, $limit)) {
 		$obj = $db->fetch_object($resql);
-		$itemurl = '';
-		$partyurl = '';
-		if ($salaryBonPl && ($salarytmp instanceof Salary) && ($user instanceof User)) {
+		if ($salaryBonPl) {
 			$salarytmp->fetch($obj->salaryid);
 			$usertmp->fetch($obj->userid);
-			$itemurl = $salarytmp->getNomUrl(1);
-			$partyurl = $usertmp->getNomUrl(1);
-		} elseif ($invoicetmp instanceof Facture && $invoicetmpsupplier instanceof FactureFournisseur) {
+		} else {
 			if ($obj->type == 'bank-transfer') {
 				$invoicetmp = $invoicetmpsupplier;
 			} else {
@@ -341,24 +337,22 @@ if ($resql) {
 			$invoicetmp->fetch($obj->facid);
 
 			$thirdpartytmp->fetch($obj->socid);
-			$itemurl = $invoicetmp->getNomUrl(1);
-			$partyurl = $thirdpartytmp->getNomUrl(1);
 		}
 
 		print '<tr class="oddeven">';
 
 		print '<td class="nowraponall">';
-		print $itemurl;
+		print ($salaryBonPl ? $salarytmp->getNomUrl(1) : $invoicetmp->getNomUrl(1));
 		print "</td>\n";
 
-		if ($object->type == 'bank-transfer' && !$salaryBonPl && $invoicetmp instanceof Facture) {
+		if ($object->type == 'bank-transfer' && !$salaryBonPl) {
 			print '<td class="tdoverflowmax150" title="'.dol_escape_htmltag($invoicetmp->ref_supplier).'">';
 			print dol_escape_htmltag($invoicetmp->ref_supplier);
 			print "</td>\n";
 		}
 
 		print '<td class="tdoverflowmax125">';
-		print $partyurl;
+		print($salaryBonPl ? $usertmp->getNomUrl(-1) : $thirdpartytmp->getNomUrl(1));
 		print "</td>\n";
 
 		// Amount of invoice

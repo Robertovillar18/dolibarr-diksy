@@ -6,7 +6,6 @@
  * Copyright (C) 2014-2020  Alexandre Spangaro		<aspangaro@open-dsi.fr>
  * Copyright (C) 2015  		Benoit Bruchard			<benoitb21@gmail.com>
  * Copyright (C) 2015  		Benjamin Neumann <btdn@sigsoft.org>
- * Copyright (C) 2024		MDW							<mdeweerd@users.noreply.github.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -40,7 +39,7 @@ class html_generic extends ModeleDon
 	/**
 	 *  Constructor
 	 *
-	 *  @param      DoliDB      $db      Database handler
+	 *  @param      DoliDb      $db      Database handler
 	 */
 	public function __construct($db)
 	{
@@ -124,7 +123,7 @@ class html_generic extends ModeleDon
 		$donmodel = DOL_DOCUMENT_ROOT."/core/modules/dons/html_generic.html";
 		$form = implode('', file($donmodel));
 		$form = str_replace('__NOW__', dol_print_date($now, 'day', false, $outputlangs), $form);
-		$form = str_replace('__REF__', (string) $don->id, $form);
+		$form = str_replace('__REF__', $don->id, $form);
 		$form = str_replace('__DATE__', dol_print_date($don->date, 'day', false, $outputlangs), $form);
 
 		$form = str_replace('__BENEFICIARY_NAME__', $mysoc->name, $form);
@@ -167,9 +166,9 @@ class html_generic extends ModeleDon
 	/**
 	 *  Write the object to document file to disk
 	 *
-	 *  @param	string			$path	    Path for the file
+	 *  @param	string			$path	        Path for the file
 	 *  @param	string			$contents	Contents of the file
-	 *  @return	int							Return code
+	 *  @return	NULL
 	 */
 	private function saveFile($path, $contents)
 	{
@@ -178,8 +177,6 @@ class html_generic extends ModeleDon
 		fwrite($handle, $contents);
 		fclose($handle);
 		dolChmod($path);
-
-		return 1;
 	}
 
 	// phpcs:disable PEAR.NamingConventions.ValidFunctionName.ScopeNotCamelCaps
@@ -228,7 +225,7 @@ class html_generic extends ModeleDon
 			if (file_exists($dir)) {
 				$this->saveFile($file, $this->getContents($don, $outputlangs, $currency));
 
-				$this->result = array('fullpath' => $file);
+				$this->result = array('fullpath'=>$file);
 
 				return 1;
 			} else {

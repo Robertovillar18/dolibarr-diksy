@@ -50,18 +50,16 @@ if ($action == 'test' || ($action == 'send' && $trackid = 'test')) {
 $substitutionarrayfortest = array(
 	'__USER_LOGIN__' => $user->login,
 	'__USER_EMAIL__' => $user->email,
-	'__USER_FIRSTNAME__' => $user->firstname,
-	'__USER_LASTNAME__' => $user->lastname,
 	'__USER_SIGNATURE__' => (($user->signature && !getDolGlobalString('MAIN_MAIL_DO_NOT_USE_SIGN')) ? $usersignature : ''), // Done into actions_sendmails
 	'__SENDEREMAIL_SIGNATURE__' => (($user->signature && !getDolGlobalString('MAIN_MAIL_DO_NOT_USE_SIGN')) ? $usersignature : ''), // Done into actions_sendmails
-	//'__ID__' => 'RecipientID',
+	'__ID__' => 'RecipientID',
 	//'__EMAIL__' => 'RecipientEMail',				// Done into actions_sendmails
-	'__LASTNAME__' => $langs->trans("Lastname").' ('.$langs->trans("Recipient").')',
-	'__FIRSTNAME__' => $langs->trans("Firstname").' ('.$langs->trans("Recipient").')',
-	//'__ADDRESS__'=> $langs->trans("Address").' ('.$langs->trans("Recipient").')',
-	//'__ZIP__'=> $langs->trans("Zip").' ('.$langs->trans("Recipient").')',
-	//'__TOWN_'=> $langs->trans("Town").' ('.$langs->trans("Recipient").')',
-	//'__COUNTRY__'=> $langs->trans("Country").' ('.$langs->trans("Recipient").')',
+	'__LASTNAME__' => 'RecipientLastname',
+	'__FIRSTNAME__' => 'RecipientFirstname',
+	'__ADDRESS__'=> 'RecipientAddress',
+	'__ZIP__'=> 'RecipientZip',
+	'__TOWN_'=> 'RecipientTown',
+	'__COUNTRY__'=> 'RecipientCountry',
 	'__DOL_MAIN_URL_ROOT__'=>DOL_MAIN_URL_ROOT,
 	'__CHECK_READ__' => '<img src="'.DOL_MAIN_URL_ROOT.'/public/emailing/mailing-read.php?tag=undefinedtag&securitykey='.dol_hash(getDolGlobalString('MAILING_EMAIL_UNSUBSCRIBE_KEY')."-undefinedtag", 'md5').'" width="1" height="1" style="width:1px;height:1px" border="0" />',
 );
@@ -86,29 +84,29 @@ if ($action == 'update' && !$cancel) {
 	}
 
 	if (!$error) {
-		dolibarr_set_const($db, "MAIN_DISABLE_ALL_MAILS", GETPOSTINT("MAIN_DISABLE_ALL_MAILS"), 'chaine', 0, '', $conf->entity);
+		dolibarr_set_const($db, "MAIN_DISABLE_ALL_MAILS", GETPOST("MAIN_DISABLE_ALL_MAILS", 'int'), 'chaine', 0, '', $conf->entity);
 		dolibarr_set_const($db, "MAIN_MAIL_FORCE_SENDTO", GETPOST("MAIN_MAIL_FORCE_SENDTO", 'alphanohtml'), 'chaine', 0, '', $conf->entity);
-		dolibarr_set_const($db, "MAIN_MAIL_ENABLED_USER_DEST_SELECT", GETPOSTINT("MAIN_MAIL_ENABLED_USER_DEST_SELECT"), 'chaine', 0, '', $conf->entity);
-		dolibarr_set_const($db, 'MAIN_MAIL_NO_WITH_TO_SELECTED', GETPOSTINT('MAIN_MAIL_NO_WITH_TO_SELECTED'), 'chaine', 0, '', $conf->entity);
+		dolibarr_set_const($db, "MAIN_MAIL_ENABLED_USER_DEST_SELECT", GETPOST("MAIN_MAIL_ENABLED_USER_DEST_SELECT", 'int'), 'chaine', 0, '', $conf->entity);
+		dolibarr_set_const($db, 'MAIN_MAIL_NO_WITH_TO_SELECTED', GETPOST('MAIN_MAIL_NO_WITH_TO_SELECTED', 'int'), 'chaine', 0, '', $conf->entity);
 		// Send mode parameters
 		dolibarr_set_const($db, "MAIN_MAIL_SENDMODE", GETPOST("MAIN_MAIL_SENDMODE", 'aZ09'), 'chaine', 0, '', $conf->entity);
-		dolibarr_set_const($db, "MAIN_MAIL_SMTP_PORT", GETPOSTINT("MAIN_MAIL_SMTP_PORT"), 'chaine', 0, '', $conf->entity);
+		dolibarr_set_const($db, "MAIN_MAIL_SMTP_PORT", GETPOST("MAIN_MAIL_SMTP_PORT", 'int'), 'chaine', 0, '', $conf->entity);
 		dolibarr_set_const($db, "MAIN_MAIL_SMTP_SERVER", GETPOST("MAIN_MAIL_SMTP_SERVER", 'alphanohtml'), 'chaine', 0, '', $conf->entity);
 		dolibarr_set_const($db, "MAIN_MAIL_SMTPS_ID", GETPOST("MAIN_MAIL_SMTPS_ID", 'alphanohtml'), 'chaine', 0, '', $conf->entity);
 		if (GETPOSTISSET("MAIN_MAIL_SMTPS_PW")) {
 			dolibarr_set_const($db, "MAIN_MAIL_SMTPS_PW", GETPOST("MAIN_MAIL_SMTPS_PW", 'none'), 'chaine', 0, '', $conf->entity);
 		}
 		if (GETPOSTISSET("MAIN_MAIL_SMTPS_AUTH_TYPE")) {
-			dolibarr_set_const($db, "MAIN_MAIL_SMTPS_AUTH_TYPE", GETPOST("MAIN_MAIL_SMTPS_AUTH_TYPE", 'alphanohtml'), 'chaine', 0, '', $conf->entity);
+			dolibarr_set_const($db, "MAIN_MAIL_SMTPS_AUTH_TYPE", GETPOST("MAIN_MAIL_SMTPS_AUTH_TYPE", 'chaine'), 'chaine', 0, '', $conf->entity);
 		}
 		if (GETPOSTISSET("MAIN_MAIL_SMTPS_OAUTH_SERVICE")) {
-			dolibarr_set_const($db, "MAIN_MAIL_SMTPS_OAUTH_SERVICE", GETPOST("MAIN_MAIL_SMTPS_OAUTH_SERVICE", 'alphanohtml'), 'chaine', 0, '', $conf->entity);
+			dolibarr_set_const($db, "MAIN_MAIL_SMTPS_OAUTH_SERVICE", GETPOST("MAIN_MAIL_SMTPS_OAUTH_SERVICE", 'chaine'), 'chaine', 0, '', $conf->entity);
 		}
-		dolibarr_set_const($db, "MAIN_MAIL_EMAIL_TLS", GETPOSTINT("MAIN_MAIL_EMAIL_TLS"), 'chaine', 0, '', $conf->entity);
-		dolibarr_set_const($db, "MAIN_MAIL_EMAIL_STARTTLS", GETPOSTINT("MAIN_MAIL_EMAIL_STARTTLS"), 'chaine', 0, '', $conf->entity);
-		dolibarr_set_const($db, "MAIN_MAIL_EMAIL_SMTP_ALLOW_SELF_SIGNED", GETPOSTINT("MAIN_MAIL_EMAIL_SMTP_ALLOW_SELF_SIGNED"), 'chaine', 0, '', $conf->entity);
+		dolibarr_set_const($db, "MAIN_MAIL_EMAIL_TLS", GETPOST("MAIN_MAIL_EMAIL_TLS", 'int'), 'chaine', 0, '', $conf->entity);
+		dolibarr_set_const($db, "MAIN_MAIL_EMAIL_STARTTLS", GETPOST("MAIN_MAIL_EMAIL_STARTTLS", 'int'), 'chaine', 0, '', $conf->entity);
+		dolibarr_set_const($db, "MAIN_MAIL_EMAIL_SMTP_ALLOW_SELF_SIGNED", GETPOST("MAIN_MAIL_EMAIL_SMTP_ALLOW_SELF_SIGNED", 'int'), 'chaine', 0, '', $conf->entity);
 
-		dolibarr_set_const($db, "MAIN_MAIL_EMAIL_DKIM_ENABLED", GETPOSTINT("MAIN_MAIL_EMAIL_DKIM_ENABLED"), 'chaine', 0, '', $conf->entity);
+		dolibarr_set_const($db, "MAIN_MAIL_EMAIL_DKIM_ENABLED", GETPOST("MAIN_MAIL_EMAIL_DKIM_ENABLED", 'int'), 'chaine', 0, '', $conf->entity);
 		dolibarr_set_const($db, "MAIN_MAIL_EMAIL_DKIM_DOMAIN", GETPOST("MAIN_MAIL_EMAIL_DKIM_DOMAIN", 'alphanohtml'), 'chaine', 0, '', $conf->entity);
 		dolibarr_set_const($db, "MAIN_MAIL_EMAIL_DKIM_SELECTOR", GETPOST("MAIN_MAIL_EMAIL_DKIM_SELECTOR", 'alphanohtml'), 'chaine', 0, '', $conf->entity);
 		dolibarr_set_const($db, "MAIN_MAIL_EMAIL_DKIM_PRIVATE_KEY", GETPOST("MAIN_MAIL_EMAIL_DKIM_PRIVATE_KEY", 'alphanohtml'), 'chaine', 0, '', $conf->entity);
@@ -177,7 +175,7 @@ if (!$server) {
 
 
 $wikihelp = 'EN:Setup_EMails|FR:Paramétrage_EMails|ES:Configuración_EMails';
-llxHeader('', $langs->trans("Setup"), $wikihelp, '', 0, 0, '', '', '', 'mod-admin page-mails');
+llxHeader('', $langs->trans("Setup"), $wikihelp);
 
 print load_fiche_titre($langs->trans("EMailsSetup"), '', 'title_setup');
 
@@ -273,9 +271,9 @@ if ($action == 'edit') {
                             jQuery("#MAIN_MAIL_SMTP_SERVER").show();
                             jQuery("#MAIN_MAIL_SMTP_PORT").show();
                             jQuery("#smtp_server_mess").hide();
-			                jQuery("#smtp_port_mess").hide();
+			                			jQuery("#smtp_port_mess").hide();
                             jQuery(".smtp_method").show();
-							jQuery(".dkim").hide();
+														jQuery(".dkim").hide();
                             jQuery(".smtp_auth_method").show();
 						}
                         if (jQuery("#MAIN_MAIL_SENDMODE").val()==\'swiftmailer\')
@@ -302,25 +300,25 @@ if ($action == 'edit') {
                             jQuery("#MAIN_MAIL_SMTP_PORT").show();
                             jQuery("#smtp_server_mess").hide();
                             jQuery("#smtp_port_mess").hide();
-							jQuery(".smtp_method").show();
+														jQuery(".smtp_method").show();
                             jQuery(".dkim").show();
-							jQuery(".smtp_auth_method").show();
+														jQuery(".smtp_auth_method").show();
                         }
                     }
 					function change_smtp_auth_method() {
-						console.log("Call smtp auth method");
+						console.log(jQuery("#radio_pw").prop("checked"));
 						if (jQuery("#MAIN_MAIL_SENDMODE").val()==\'smtps\' && jQuery("#radio_oauth").prop("checked")) {
-							jQuery(".smtp_pw").hide();
 							jQuery(".smtp_oauth_service").show();
+							jQuery(".smtp_pw").hide();
 						} else if (jQuery("#MAIN_MAIL_SENDMODE").val()==\'swiftmailer\' && jQuery("#radio_oauth").prop("checked")) {
-							jQuery(".smtp_pw").hide();
 							jQuery(".smtp_oauth_service").show();
-						} else if(jQuery("#MAIN_MAIL_SENDMODE").val()==\'mail\'){
 							jQuery(".smtp_pw").hide();
+						} else if(jQuery("#MAIN_MAIL_SENDMODE").val()==\'mail\'){
 							jQuery(".smtp_oauth_service").hide();
+							jQuery(".smtp_pw").hide();
 						} else {
-							jQuery(".smtp_pw").show();
 							jQuery(".smtp_oauth_service").hide();
+							jQuery(".smtp_pw").show();
 						}
 					}
                     initfields();
@@ -329,7 +327,7 @@ if ($action == 'edit') {
                         initfields();
 						change_smtp_auth_method();
                     });
-					jQuery("#radio_pw, #radio_plain, #radio_oauth").change(function() {
+					jQuery("#radio_pw, #radio_oauth").change(function() {
 						change_smtp_auth_method();
 					});
                     jQuery("#MAIN_MAIL_EMAIL_TLS").change(function() {
@@ -447,24 +445,15 @@ if ($action == 'edit') {
 	// Auth mode
 	if (!empty($conf->use_javascript_ajax) || (in_array(getDolGlobalString('MAIN_MAIL_SENDMODE', 'mail'), array('smtps', 'swiftmailer')))) {
 		print '<tr class="oddeven smtp_auth_method"><td>'.$langs->trans("MAIN_MAIL_SMTPS_AUTH_TYPE").'</td><td>';
-		$vartosmtpstype = 'MAIN_MAIL_SMTPS_AUTH_TYPE';
 		if (!isModEnabled('multicompany') || ($user->admin && !$user->entity)) {
 			// Note: Default value for MAIN_MAIL_SMTPS_AUTH_TYPE if not defined is 'LOGIN' (but login/pass may be empty and they won't be provided in such a case)
-			print '<input type="radio" id="radio_pw" name="'.$vartosmtpstype.'" value="LOGIN"'.(getDolGlobalString($vartosmtpstype, 'LOGIN') == 'LOGIN' ? ' checked' : '').'> ';
-			print '<label for="radio_pw" >'.$langs->trans("UseAUTHLOGIN").'</label>';
-			print '<br>';
-			print '<input type="radio" id="radio_plain" name="'.$vartosmtpstype.'" value="PLAIN"'.(getDolGlobalString($vartosmtpstype, 'PLAIN') == 'PLAIN' ? ' checked' : '').'> ';
-			print '<label for="radio_plain" >'.$langs->trans("UseAUTHPLAIN").'</label>';
-			print '<br>';
-			print '<input type="radio" id="radio_oauth" name="'.$vartosmtpstype.'" value="XOAUTH2"'.(getDolGlobalString($vartosmtpstype) == 'XOAUTH2' ? ' checked' : '').(isModEnabled('oauth') ? '' : ' disabled').'> ';
+			print '<input type="radio" id="radio_pw" name="MAIN_MAIL_SMTPS_AUTH_TYPE" value="LOGIN"'.(getDolGlobalString('MAIN_MAIL_SMTPS_AUTH_TYPE', 'LOGIN') == 'LOGIN' ? ' checked' : '').'> ';
+			print '<label for="radio_pw" >'.$langs->trans("UsePassword").'</label>';
+			print '&nbsp; &nbsp; &nbsp;';
+			print '<input type="radio" id="radio_oauth" name="MAIN_MAIL_SMTPS_AUTH_TYPE" value="XOAUTH2"'.(getDolGlobalString('MAIN_MAIL_SMTPS_AUTH_TYPE') == 'XOAUTH2' ? ' checked' : '').'> ';
 			print '<label for="radio_oauth" >'.$form->textwithpicto($langs->trans("UseOauth"), $langs->trans("OauthNotAvailableForAllAndHadToBeCreatedBefore")).'</label>';
-			if (!isModEnabled('oauth')) {
-				print ' &nbsp; <a href="'.DOL_URL_ROOT.'/admin/modules.php?search_keyword=oauth">'.$langs->trans("EnableModuleX", "OAuth").'</a>';
-			} else {
-				print ' &nbsp; <a href="'.DOL_URL_ROOT.'/admin/oauth.php">'.$langs->trans("SetupModuleX", " OAuth").'</a>';
-			}
 		} else {
-			$value = getDolGlobalString($vartosmtpstype, 'LOGIN');
+			$value = getDolGlobalString('MAIN_MAIL_SMTPS_AUTH_TYPE', 'LOGIN');
 			$htmltext = $langs->trans("ContactSuperAdminForChange");
 			print $form->textwithpicto($langs->trans("MAIN_MAIL_SMTPS_AUTH_TYPE"), $htmltext, 1, 'superadmin');
 			print '<input type="hidden" id="MAIN_MAIL_SMTPS_AUTH_TYPE" name="MAIN_MAIL_SMTPS_AUTH_TYPE" value="'.$value.'">';
@@ -639,19 +628,19 @@ if ($action == 'edit') {
 
 	// From
 	print '<tr class="oddeven"><td>'.$langs->trans("MAIN_MAIL_ERRORS_TO").'</td>';
-	print '<td><input class="flat width300" name="MAIN_MAIL_ERRORS_TO" value="'.getDolGlobalString('MAIN_MAIL_ERRORS_TO').'">';
-	print '</td></tr>';
+	print '<td><input class="flat" name="MAIN_MAIL_ERRORS_TO" size="32" value="'.(getDolGlobalString('MAIN_MAIL_ERRORS_TO') ? $conf->global->MAIN_MAIL_ERRORS_TO : '');
+	print '"></td></tr>';
 
 	// Autocopy to
 	print '<tr class="oddeven"><td>'.$langs->trans("MAIN_MAIL_AUTOCOPY_TO").'</td>';
-	print '<td><input class="flat width300" name="MAIN_MAIL_AUTOCOPY_TO" value="'.getDolGlobalString('MAIN_MAIL_AUTOCOPY_TO').'">';
-	print '</td></tr>';
+	print '<td><input class="flat" name="MAIN_MAIL_AUTOCOPY_TO" size="32" value="'.(getDolGlobalString('MAIN_MAIL_AUTOCOPY_TO') ? $conf->global->MAIN_MAIL_AUTOCOPY_TO : '');
+	print '"></td></tr>';
 
 	// Add user to select destinaries list
 	print '<tr class="oddeven"><td>'.$langs->trans("MAIN_MAIL_ENABLED_USER_DEST_SELECT").'</td><td>';
 	print $form->selectyesno('MAIN_MAIL_ENABLED_USER_DEST_SELECT', getDolGlobalString('MAIN_MAIL_ENABLED_USER_DEST_SELECT'), 1);
 	print '</td></tr>';
-	// Disable autoselect to
+	//Disable autoselect to
 	print '<tr class="oddeven"><td>'.$langs->trans("MAIN_MAIL_NO_WITH_TO_SELECTED").'</td><td>';
 	print $form->selectyesno('MAIN_MAIL_NO_WITH_TO_SELECTED', getDolGlobalString('MAIN_MAIL_NO_WITH_TO_SELECTED'), 1);
 	print '</td></tr>';
@@ -670,7 +659,7 @@ if ($action == 'edit') {
 	print "<br><br>\n";
 
 	if (!getDolGlobalString('MAIN_DISABLE_ALL_MAILS')) {
-		print '<div class="div-table-responsive-no-min">'; // You can use div-table-responsive-no-min if you don't need reserved height for your table
+		print '<div class="div-table-responsive-no-min">'; // You can use div-table-responsive-no-min if you dont need reserved height for your table
 		print '<table class="noborder centpercent">';
 		print '<tr class="liste_titre"><td class="titlefieldmiddle">'.$langs->trans("Parameters").'</td><td></td></tr>';
 
@@ -707,14 +696,7 @@ if ($action == 'edit') {
 		// AUTH method
 		if (in_array(getDolGlobalString('MAIN_MAIL_SENDMODE', 'mail'), array('smtps', 'swiftmailer'))) {
 			$authtype = getDolGlobalString('MAIN_MAIL_SMTPS_AUTH_TYPE', 'LOGIN');
-			$text = '';
-			if ($authtype === "LOGIN") {
-				$text = $langs->trans("UseAUTHLOGIN");
-			} elseif ($authtype === "PLAIN") {
-				$text = $langs->trans("UseAUTHPLAIN");
-			} elseif ($authtype === "XOAUTH2") {
-				$text = $langs->trans("UseOauth");
-			}
+			$text = ($authtype === "LOGIN") ? $langs->trans("UsePassword") : ($authtype === "XOAUTH2" ? $langs->trans("UseOauth") : '') ;
 			print '<tr class="oddeven"><td>'.$langs->trans("MAIN_MAIL_SMTPS_AUTH_TYPE").'</td><td>'.$text.'</td></tr>';
 		}
 
@@ -744,7 +726,7 @@ if ($action == 'edit') {
 			print '<tr class="oddeven"><td>'.$langs->trans("MAIN_MAIL_EMAIL_TLS").'</td><td>';
 			if (in_array(getDolGlobalString('MAIN_MAIL_SENDMODE', 'mail'), array('smtps', 'swiftmailer'))) {
 				if (function_exists('openssl_open')) {
-					print yn(getDolGlobalString('MAIN_MAIL_EMAIL_TLS'));
+					print yn($conf->global->MAIN_MAIL_EMAIL_TLS);
 				} else {
 					print yn(0).' ('.$langs->trans("YourPHPDoesNotHaveSSLSupport").')';
 				}
@@ -761,7 +743,7 @@ if ($action == 'edit') {
 			print '<tr class="oddeven"><td>'.$langs->trans("MAIN_MAIL_EMAIL_STARTTLS").'</td><td>';
 			if (in_array(getDolGlobalString('MAIN_MAIL_SENDMODE', 'mail'), array('smtps', 'swiftmailer'))) {
 				if (function_exists('openssl_open')) {
-					print yn(getDolGlobalString('MAIN_MAIL_EMAIL_STARTTLS'));
+					print yn($conf->global->MAIN_MAIL_EMAIL_STARTTLS);
 				} else {
 					print yn(0).' ('.$langs->trans("YourPHPDoesNotHaveSSLSupport").')';
 				}
@@ -778,7 +760,7 @@ if ($action == 'edit') {
 			print '<tr class="oddeven"><td>'.$langs->trans("MAIN_MAIL_EMAIL_SMTP_ALLOW_SELF_SIGNED").'</td><td>';
 			if (in_array(getDolGlobalString('MAIN_MAIL_SENDMODE', 'mail'), array('smtps', 'swiftmailer'))) {
 				if (function_exists('openssl_open')) {
-					print yn(getDolGlobalString('MAIN_MAIL_EMAIL_SMTP_ALLOW_SELF_SIGNED'));
+					print yn($conf->global->MAIN_MAIL_EMAIL_SMTP_ALLOW_SELF_SIGNED);
 				} else {
 					print yn(0).' ('.$langs->trans("YourPHPDoesNotHaveSSLSupport").')';
 				}
@@ -828,14 +810,14 @@ if ($action == 'edit') {
 			$linktosetvar2 = '</a>';
 			$messagetoshow = str_replace('{s1}', $linktosetvar1, $messagetoshow);
 			$messagetoshow = str_replace('{s2}', $linktosetvar2, $messagetoshow);
-			//print $messagetoshow;
+
 			print info_admin($messagetoshow, 0, 0, 'warning nomargintop');
 		}
 
 		print '<br>';
 
 
-		print '<div class="div-table-responsive-no-min">'; // You can use div-table-responsive-no-min if you don't need reserved height for your table
+		print '<div class="div-table-responsive-no-min">'; // You can use div-table-responsive-no-min if you dont need reserved height for your table
 		print '<table class="noborder centpercent">';
 		print '<tr class="liste_titre"><td class="titlefieldmiddle">'.$langs->trans("ParametersForTestEnvironment").'</td><td>'.$langs->trans("Value").'</td></tr>';
 
@@ -866,7 +848,7 @@ if ($action == 'edit') {
 		print '<br>';
 
 
-		print '<div class="div-table-responsive-no-min">'; // You can use div-table-responsive-no-min if you don't need reserved height for your table
+		print '<div class="div-table-responsive-no-min">'; // You can use div-table-responsive-no-min if you dont need reserved height for your table
 		print '<table class="noborder centpercent">';
 		print '<tr class="liste_titre"><td class="titlefieldmiddle">'.$langs->trans("OtherOptions").'</td><td></td></tr>';
 
@@ -1014,23 +996,23 @@ if ($action == 'edit') {
 		if (getDolGlobalString('MAIN_MAIL_SENDMODE', 'mail') == 'mail') {
 			if (getDolGlobalString('MAIN_EXTERNAL_MAIL_SPF_STRING_TO_ADD')) {
 				// List of string to add in SPF if the setup use the mail method. Example 'include:sendgrid.net include:spf.mydomain.com'
-				$text .= ($text ? '<br><br>' : '').$langs->trans("WarningPHPMailSPF", getDolGlobalString('MAIN_EXTERNAL_MAIL_SPF_STRING_TO_ADD'));
+				$text .= ($text ? '<br><br>' : '').'<!-- MAIN_EXTERNAL_MAIL_SPF_STRING_TO_ADD -->'.$langs->trans("WarningPHPMailSPF", $conf->global->MAIN_EXTERNAL_MAIL_SPF_STRING_TO_ADD);
 			} else {
 				// MAIN_EXTERNAL_SMTP_CLIENT_IP_ADDRESS is list of IPs where email is sent from. Example: '1.2.3.4, [aaaa:bbbb:cccc:dddd]'.
 				if (getDolGlobalString('MAIN_EXTERNAL_SMTP_CLIENT_IP_ADDRESS')) {
 					// List of IP show as record to add in SPF if we use the mail method
-					$text .= ($text ? '<br><br>' : '').$langs->trans("WarningPHPMailSPF", getDolGlobalString('MAIN_EXTERNAL_SMTP_CLIENT_IP_ADDRESS'));
+					$text .= ($text ? '<br><br>' : '').'<!-- MAIN_EXTERNAL_SMTP_CLIENT_IP_ADDRESS -->'.$langs->trans("WarningPHPMailSPF", $conf->global->MAIN_EXTERNAL_SMTP_CLIENT_IP_ADDRESS);
 				}
 			}
 		} else {
 			if (getDolGlobalString('MAIN_EXTERNAL_SMTP_CLIENT_IP_ADDRESS')) {
 				// List of IP show as record to add as allowed IP if we use the smtp method. Value is '1.2.3.4, [aaaa:bbbb:cccc:dddd]'
 				// TODO Add a key to allow to show the IP/name of server detected dynamically
-				$text .= ($text ? '<br><br>' : '').$langs->trans("WarningPHPMail2", getDolGlobalString('MAIN_EXTERNAL_SMTP_CLIENT_IP_ADDRESS'));
+				$text .= ($text ? '<br><br>' : '').'<!-- MAIN_EXTERNAL_SMTP_CLIENT_IP_ADDRESS -->'.$langs->trans("WarningPHPMail2", $conf->global->MAIN_EXTERNAL_SMTP_CLIENT_IP_ADDRESS);
 			}
 			if (getDolGlobalString('MAIN_EXTERNAL_SMTP_SPF_STRING_TO_ADD')) {	// Should be required only if you have preset the Dolibarr to use your own SMTP and you want to warn users to update their domain name to match your SMTP server.
 				// List of string to add in SPF if we use the smtp method. Example 'include:spf.mydomain.com'
-				$text .= ($text ? '<br><br>' : '').$langs->trans("WarningPHPMailSPF", getDolGlobalString('MAIN_EXTERNAL_SMTP_SPF_STRING_TO_ADD'));
+				$text .= ($text ? '<br><br>' : '').'<!-- MAIN_EXTERNAL_SMTP_SPF_STRING_TO_ADD -->'.$langs->trans("WarningPHPMailSPF", $conf->global->MAIN_EXTERNAL_SMTP_SPF_STRING_TO_ADD);
 			}
 		}
 		// Test SPF email company
@@ -1109,11 +1091,11 @@ if ($action == 'edit') {
 		include_once DOL_DOCUMENT_ROOT.'/core/class/html.formmail.class.php';
 		$formmail = new FormMail($db);
 		$formmail->trackid = (($action == 'testhtml') ? "testhtml" : "test");
-		$formmail->fromname = (GETPOSTISSET('fromname') ? GETPOST('fromname') : getDolGlobalString('MAIN_MAIL_EMAIL_FROM'));
-		$formmail->frommail = (GETPOSTISSET('frommail') ? GETPOST('frommail') : getDolGlobalString('MAIN_MAIL_EMAIL_FROM'));
+		$formmail->fromname = (GETPOSTISSET('fromname') ? GETPOST('fromname') : $conf->global->MAIN_MAIL_EMAIL_FROM);
+		$formmail->frommail = (GETPOSTISSET('frommail') ? GETPOST('frommail') : $conf->global->MAIN_MAIL_EMAIL_FROM);
 		$formmail->fromid = $user->id;
 		$formmail->fromalsorobot = 1;
-		$formmail->fromtype = (GETPOSTISSET('fromtype') ? GETPOST('fromtype', 'aZ09') : getDolGlobalString('MAIN_MAIL_DEFAULT_FROMTYPE', 'user'));
+		$formmail->fromtype = (GETPOSTISSET('fromtype') ? GETPOST('fromtype', 'aZ09') : (getDolGlobalString('MAIN_MAIL_DEFAULT_FROMTYPE') ? $conf->global->MAIN_MAIL_DEFAULT_FROMTYPE : 'user'));
 		$formmail->withfromreadonly = 1;
 		$formmail->withsubstit = 1;
 		$formmail->withfrom = 1;
@@ -1124,17 +1106,15 @@ if ($action == 'edit') {
 		$formmail->withtopic = (GETPOSTISSET('subject') ? GETPOST('subject') : $langs->trans("Test"));
 		$formmail->withtopicreadonly = 0;
 		$formmail->withfile = 2;
-		$formmail->withlayout = 1;
-		$formmail->withaiprompt = ($action == 'testhtml' ? 'html' : 'text');
 		$formmail->withbody = (GETPOSTISSET('message') ? GETPOST('message', 'restricthtml') : ($action == 'testhtml' ? $langs->transnoentities("PredefinedMailTestHtml") : $langs->transnoentities("PredefinedMailTest")));
 		$formmail->withbodyreadonly = 0;
 		$formmail->withcancel = 1;
 		$formmail->withdeliveryreceipt = 1;
 		$formmail->withfckeditor = ($action == 'testhtml' ? 1 : 0);
 		$formmail->ckeditortoolbar = 'dolibarr_mailings';
-		// Array of substitutions
+		// Tableau des substitutions
 		$formmail->substit = $substitutionarrayfortest;
-		// Array of complementary POST parameters
+		// Tableau des parametres complementaires du post
 		$formmail->param["action"] = "send";
 		$formmail->param["models"] = "body";
 		$formmail->param["mailid"] = 0;
@@ -1150,12 +1130,10 @@ if ($action == 'edit') {
 		print dol_get_fiche_end();
 
 		// References
-		if (!empty($user->admin)) {
-			print '<br><br>';
-			print '<span class="opacitymedium">'.$langs->trans("EMailsWillHaveMessageID").': ';
-			print dol_escape_htmltag('<timestamp.*@'.dol_getprefix('email').'>');
-			print '</span>';
-		}
+		print '<br><br>';
+		print '<span class="opacitymedium">'.$langs->trans("EMailsWillHaveMessageID").': ';
+		print dol_escape_htmltag('<timestamp.*@'.dol_getprefix('email').'>');
+		print '</span>';
 	}
 }
 

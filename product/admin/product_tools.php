@@ -1,7 +1,6 @@
 <?php
 /* Copyright (C) 2012	   Regis Houssin       <regis.houssin@inodbox.com>
  * Copyright (C) 2013-2015 Laurent Destailleur <eldy@users.sourceforge.net>
- * Copyright (C) 2024       Frédéric France             <frederic.france@free.fr>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -66,9 +65,7 @@ if ($action == 'convert') {
 
 		$nbrecordsmodified = 0;
 
-		if (!getDolGlobalInt('VATUPDATE_NO_TRANSACTION')) {
-			$db->begin();
-		}
+		$db->begin();
 
 		// Clean vat code old
 		$vat_src_code_old = '';
@@ -97,7 +94,7 @@ if ($action == 'convert') {
 			if ($vat_src_code_old) {
 				$sql .= " AND default_vat_code = '".$db->escape($vat_src_code_old)."'";
 			} else {
-				$sql .= " AND default_vat_code = IS NULL";
+				" AND default_vat_code = IS NULL";
 			}
 
 			$resql = $db->query($sql);
@@ -199,10 +196,10 @@ if ($action == 'convert') {
 		if ($vat_src_code_old) {
 			$sql .= " AND default_vat_code = '".$db->escape($vat_src_code_old)."'";
 		} else {
-			$sql .= " AND default_vat_code = IS NULL";
+			" AND default_vat_code = IS NULL";
 		}
 		$sql .= " AND s.fk_pays = ".((int) $country_id);
-
+		//print $sql;
 		$resql = $db->query($sql);
 		if ($resql) {
 			$num = $db->num_rows($resql);
@@ -262,21 +259,10 @@ if ($action == 'convert') {
 			dol_print_error($db);
 		}
 
-
-		// add hook for external modules
-		$parameters = array('oldvatrate' => $oldvatrate, 'newvatrate' => $newvatrate);
-		$reshook = $hookmanager->executeHooks('hookAfterVatUpdate', $parameters);
-		if ($reshook < 0) {
-			setEventMessages($hookmanager->error, $hookmanager->errors, 'errors');
-			$error++;
-		}
-
-		if (!getDolGlobalInt('VATUPDATE_NO_TRANSACTION')) {
-			if (!$error) {
-				$db->commit();
-			} else {
-				$db->rollback();
-			}
+		if (!$error) {
+			$db->commit();
+		} else {
+			$db->rollback();
 		}
 
 		// Output result
@@ -300,7 +286,7 @@ $form = new Form($db);
 
 $title = $langs->trans('ProductVatMassChange');
 
-llxHeader('', $title, '', '', 0, 0, '', '', '', 'mod-product page-admin_product_tools');
+llxHeader('', $title);
 
 print load_fiche_titre($title, '', 'title_setup');
 

@@ -27,6 +27,7 @@ require '../../../main.inc.php';
 require_once DOL_DOCUMENT_ROOT.'/includes/OAuth/bootstrap.php';
 use OAuth\Common\Storage\DoliStorage;
 use OAuth\Common\Consumer\Credentials;
+use OAuth\OAuth2\Service\GitHub;
 
 // Define $urlwithroot
 $urlwithouturlroot = preg_replace('/'.preg_quote(DOL_URL_ROOT, '/').'$/i', '', trim($dolibarr_main_url_root));
@@ -133,7 +134,7 @@ if (GETPOST('code')) {     // We are coming from oauth provider page
 
 		//$token = $apiService->requestAccessToken(GETPOST('code'), $state);
 		$token = $apiService->requestAccessToken(GETPOST('code'));
-		// Stripe is a service that does not need state to be stored as second parameter of requestAccessToken
+		// Stripe is a service that does not need state to be stored as second paramater of requestAccessToken
 
 		setEventMessages($langs->trans('NewTokenStored'), null, 'mesgs'); // Stored into object managed by class DoliStorage so into table oauth_token
 

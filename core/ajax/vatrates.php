@@ -33,11 +33,11 @@ if (!defined('NOREQUIREAJAX')) {
 // Load Dolibarr environment
 require '../../main.inc.php';
 
-$id = GETPOSTINT('id');
+$id = GETPOST('id', 'int');
 $action = GETPOST('action', 'aZ09');	// 'getSellerVATRates' or 'getBuyerVATRates'
 $htmlname	= GETPOST('htmlname', 'alpha');
 $selected	= (GETPOST('selected') ? GETPOST('selected') : '-1');
-$productid = (GETPOSTINT('productid') ? GETPOSTINT('productid') : 0);
+$productid = (GETPOST('productid', 'int') ? GETPOST('productid', 'int') : 0);
 
 // Security check
 $result = restrictedArea($user, 'societe', $id, '&societe', '', 'fk_soc', 'rowid', 0);
@@ -58,10 +58,10 @@ if (!empty($id) && !empty($action) && !empty($htmlname)) {
 
 	$soc->fetch($id);
 
-	if ($action == 'getSellerVATRates') {	// action = 'getSellerVATRates'
+	if ($action == 'getSellerVATRates') {
 		$seller = $mysoc;
 		$buyer = $soc;
-	} else {								// action = 'getBuyerVATRates'
+	} else {
 		$buyer = $mysoc;
 		$seller = $soc;
 	}

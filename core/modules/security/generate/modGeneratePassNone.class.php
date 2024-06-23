@@ -1,6 +1,5 @@
 <?php
 /* Copyright (C) 2006-2011 Laurent Destailleur <eldy@users.sourceforge.net>
- * Copyright (C) 2024		Frédéric France			<frederic.france@free.fr>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,11 +31,25 @@ require_once DOL_DOCUMENT_ROOT.'/core/modules/security/generate/modules_genpassw
 class modGeneratePassNone extends ModeleGenPassword
 {
 	/**
-	 * @var string ID
+	 * @var int ID
 	 */
 	public $id;
 
 	public $picto = 'fa-keyboard';
+
+	/**
+	 * Minimum length (text visible by end user)
+	 *
+	 * @var string
+	 */
+	public $length;
+
+	/**
+	 * Minimum length in number of characters
+	 *
+	 * @var integer
+	 */
+	public $length2;
 
 	/**
 	 *	Constructor
@@ -44,12 +57,12 @@ class modGeneratePassNone extends ModeleGenPassword
 	 *  @param		DoliDB		$db			Database handler
 	 *	@param		Conf		$conf		Handler de conf
 	 *	@param		Translate	$langs		Handler de langue
-	 *	@param		User		$user		Handler du user connected
+	 *	@param		User		$user		Handler du user connecte
 	 */
 	public function __construct($db, $conf, $langs, $user)
 	{
 		$this->id = "none";
-		$this->length = '0';
+		$this->length = 0;
 		$this->length2 = 0;
 
 		$this->db = $db;

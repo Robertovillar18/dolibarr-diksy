@@ -57,8 +57,8 @@ if (!$user->hasRight('takepos', 'run')) {
  */
 
 if ($action=="split") {
-	$line = GETPOSTINT('line');
-	$split = GETPOSTINT('split');
+	$line = GETPOST('line', 'int');
+	$split = GETPOST('split', 'int');
 	if ($split==1) { // Split line
 		$invoice = new Facture($db);
 		$ret = $invoice->fetch('', '(PROV-POS'.$_SESSION["takeposterminal"].'-SPLIT)');

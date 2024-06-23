@@ -25,7 +25,7 @@
 require '../../main.inc.php';
 require_once DOL_DOCUMENT_ROOT.'/loan/class/loan.class.php';
 require_once DOL_DOCUMENT_ROOT.'/loan/class/paymentloan.class.php';
-if (isModEnabled("bank")) {
+if (isModEnabled("banque")) {
 	require_once DOL_DOCUMENT_ROOT.'/compta/bank/class/account.class.php';
 }
 
@@ -33,13 +33,13 @@ if (isModEnabled("bank")) {
 $langs->loadLangs(array("bills", "banks", "companies", "loan"));
 
 // Security check
-$id = GETPOSTINT("id");
+$id = GETPOST("id", 'int');
 $action = GETPOST('action', 'aZ09');
 $confirm = GETPOST('confirm');
 if ($user->socid) {
 	$socid = $user->socid;
 }
-// TODO ajouter regle pour restreindre access paiement
+// TODO ajouter regle pour restreindre acces paiement
 //$result = restrictedArea($user, 'facture', $id,'');
 
 $payment = new PaymentLoan($db);
@@ -67,7 +67,7 @@ if ($action == 'confirm_delete' && $confirm == 'yes' && $user->hasRight('loan', 
 	$result = $payment->delete($user);
 	if ($result > 0) {
 		$db->commit();
-		header("Location: ".DOL_URL_ROOT."/loan/card.php?id=".urlencode((string) ($fk_loan)));
+		header("Location: ".DOL_URL_ROOT."/loan/card.php?id=".urlencode($fk_loan));
 		exit;
 	} else {
 		setEventMessages($payment->error, $payment->errors, 'errors');
@@ -103,9 +103,9 @@ if ($action == 'delete') {
 
 $linkback = '';
 $morehtmlref = '';
-$morehtmlstatus = '';
+$morehtmlright = '';
 
-dol_banner_tab($payment, 'id', $linkback, 1, 'rowid', 'ref', $morehtmlref, '', 0, '', $morehtmlstatus);
+dol_banner_tab($payment, 'id', $linkback, 1, 'rowid', 'ref', $morehtmlref, '', 0, '', $morehtmlright);
 
 print '<div class="fichecenter">';
 print '<div class="underbanner clearboth"></div>';
@@ -130,7 +130,7 @@ print '<tr><td>'.$langs->trans('NotePrivate').'</td><td>'.nl2br($payment->note_p
 print '<tr><td>'.$langs->trans('NotePublic').'</td><td>'.nl2br($payment->note_public).'</td></tr>';
 
 // Bank account
-if (isModEnabled("bank")) {
+if (isModEnabled("banque")) {
 	if ($payment->bank_account) {
 		$bankline = new AccountLine($db);
 		$bankline->fetch($payment->bank_line);

@@ -7,15 +7,13 @@ NoResourceInDatabase=Pas de ressource en base
 NoResourceLinked=Aucune ressource liée
 ActionsOnResource=Événements liés à cette ressource
 ResourcePageIndex=Liste des ressources
-ResourceSingular=Ressource
+ResourceSingular=Resource
 ResourceCard=Fiche
-NewResource=Nouvelle ressource
 AddResource=Créer une ressource
 ResourceFormLabel_ref=Nom de la ressource
-ResourceFormLabel_description=Description de la ressource
 ResourceType=Type de ressource
-ResourceTypeID=Code du type de ressource
-ResourceTypeLabel=Libellé du type de ressource
+ResourceFormLabel_description=Description de la ressource
+
 ResourcesLinkedToElement=Ressource lié au document
 
 ShowResource=Montrer ressource
@@ -37,8 +35,5 @@ AssetNumber=Numéro de série
 ResourceTypeCode=Code de type de ressource
 ImportDataset_resource_1=Ressources
 
-ErrorResourcesAlreadyInUse=Certaines ressources sont utilisées
-ErrorResourceUseInEvent=%s utilisé dans l'événement %s
-
-MaxUsers=Utilisateurs maximum (places, sièges, etc.)
-MaxUsersLabel=Nombre maximum d'utilisateurs
+ErrorResourcesAlreadyInUse=Des ressources sont déjà occupées
+ErrorResourceUseInEvent=%s occupée dans l'événement %s

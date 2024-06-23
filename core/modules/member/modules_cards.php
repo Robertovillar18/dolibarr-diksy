@@ -3,7 +3,6 @@
  * Copyright (C) 2004-2009 Laurent Destailleur	<eldy@users.sourceforge.net>
  * Copyright (C) 2004	   Eric Seigne			<eric.seigne@ryxeo.com>
  * Copyright (C) 2005-2009 Regis Houssin		<regis.houssin@inodbox.com>
- * Copyright (C) 2024		MDW							<mdeweerd@users.noreply.github.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -96,7 +95,7 @@ function members_card_pdf_create($db, $arrayofmembers, $modele, $outputlangs, $o
 	// Positionne le modele sur le nom du modele a utiliser
 	if (!dol_strlen($modele)) {
 		if (getDolGlobalString('ADHERENT_CARDS_ADDON_PDF')) {
-			$code = getDolGlobalString('ADHERENT_CARDS_ADDON_PDF');
+			$code = $conf->global->ADHERENT_CARDS_ADDON_PDF;
 		} else {
 			$code = $modele;
 		}
@@ -116,6 +115,7 @@ function members_card_pdf_create($db, $arrayofmembers, $modele, $outputlangs, $o
 	// Search template files
 	$file = '';
 	$classname = '';
+	$filefound = 0;
 	$dirmodels = array('/');
 	if (is_array($conf->modules_parts['models'])) {
 		$dirmodels = array_merge($dirmodels, $conf->modules_parts['models']);
@@ -127,18 +127,19 @@ function members_card_pdf_create($db, $arrayofmembers, $modele, $outputlangs, $o
 			// We check that file of doc generaotr exists
 			$file = dol_buildpath($reldir."core/modules/member/doc/".$file, 0);
 			if (file_exists($file)) {
+				$filefound = 1;
 				$classname = $prefix.'_'.$template;
 				break;
 			}
 		}
-		if ($classname !== '') {
+		if ($filefound) {
 			break;
 		}
 	}
 
 
 	// Charge le modele
-	if ($classname !== '') {
+	if ($filefound) {
 		require_once $file;
 
 		$obj = new $classname($db);
@@ -155,7 +156,7 @@ function members_card_pdf_create($db, $arrayofmembers, $modele, $outputlangs, $o
 			return -1;
 		}
 	} else {
-		dol_print_error(null, $langs->trans("Error")." ".$langs->trans("ErrorFileDoesNotExists", $file));
+		dol_print_error('', $langs->trans("Error")." ".$langs->trans("ErrorFileDoesNotExists", $file));
 		return -1;
 	}
 }

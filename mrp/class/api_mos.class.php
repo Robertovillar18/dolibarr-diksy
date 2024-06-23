@@ -1,7 +1,6 @@
 <?php
 /* Copyright (C) 2015   Jean-François Ferry     <jfefe@aternatik.fr>
  * Copyright (C) 2019 Maxime Kohlhaas <maxime@atm-consulting.fr>
- * Copyright (C) 2024		MDW							<mdeweerd@users.noreply.github.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -54,7 +53,7 @@ class Mos extends DolibarrApi
 	/**
 	 * Get properties of a MO object
 	 *
-	 * Return an array with MO information
+	 * Return an array with MO informations
 	 *
 	 * @param	int		$id				ID of MO
 	 * @return  Object					Object with cleaned properties
@@ -64,8 +63,8 @@ class Mos extends DolibarrApi
 	 */
 	public function get($id)
 	{
-		if (!DolibarrApiAccess::$user->hasRight('mrp', 'read')) {
-			throw new RestException(403);
+		if (!DolibarrApiAccess::$user->rights->mrp->read) {
+			throw new RestException(401);
 		}
 
 		$result = $this->mo->fetch($id);
@@ -74,7 +73,7 @@ class Mos extends DolibarrApi
 		}
 
 		if (!DolibarrApi::_checkAccessToResource('mrp', $this->mo->id, 'mrp_mo')) {
-			throw new RestException(403, 'Access not allowed for login '.DolibarrApiAccess::$user->login);
+			throw new RestException(401, 'Access not allowed for login '.DolibarrApiAccess::$user->login);
 		}
 
 		return $this->_cleanObjectDatas($this->mo);
@@ -91,47 +90,62 @@ class Mos extends DolibarrApi
 	 * @param int			   $limit				Limit for list
 	 * @param int			   $page				Page number
 	 * @param string           $sqlfilters          Other criteria to filter answers separated by a comma. Syntax example "(t.ref:like:'SO-%') and (t.date_creation:<:'20160101')"
-	 * @param string		   $properties			Restrict the data returned to these properties. Ignored if empty. Comma separated list of properties names
+	 * @param string		   $properties			Restrict the data returned to theses properties. Ignored if empty. Comma separated list of properties names
 	 * @return  array                               Array of order objects
 	 *
 	 * @throws RestException
 	 */
 	public function index($sortfield = "t.rowid", $sortorder = 'ASC', $limit = 100, $page = 0, $sqlfilters = '', $properties = '')
 	{
-		if (!DolibarrApiAccess::$user->hasRight('mrp', 'read')) {
-			throw new RestException(403);
+		global $db, $conf;
+
+		if (!DolibarrApiAccess::$user->rights->mrp->read) {
+			throw new RestException(401);
 		}
 
 		$obj_ret = array();
 		$tmpobject = new Mo($this->db);
 
-		$socid = DolibarrApiAccess::$user->socid ? DolibarrApiAccess::$user->socid : 0;
+		$socid = DolibarrApiAccess::$user->socid ? DolibarrApiAccess::$user->socid : '';
 
 		$restrictonsocid = 0; // Set to 1 if there is a field socid in table of object
 
 		// If the internal user must only see his customers, force searching by him
 		$search_sale = 0;
-		if ($restrictonsocid && !DolibarrApiAccess::$user->hasRight('societe', 'client', 'voir') && !$socid) {
+		if ($restrictonsocid && !DolibarrApiAccess::$user->rights->societe->client->voir && !$socid) {
 			$search_sale = DolibarrApiAccess::$user->id;
 		}
 
 		$sql = "SELECT t.rowid";
-		$sql .= " FROM ".MAIN_DB_PREFIX.$tmpobject->table_element." AS t";
-		$sql .= " LEFT JOIN ".MAIN_DB_PREFIX.$tmpobject->table_element."_extrafields AS ef ON (ef.fk_object = t.rowid)"; // Modification VMR Global Solutions to include extrafields as search parameters in the API GET call, so we will be able to filter on extrafields
+		if ($restrictonsocid && (!DolibarrApiAccess::$user->rights->societe->client->voir && !$socid) || $search_sale > 0) {
+			$sql .= ", sc.fk_soc, sc.fk_user"; // We need these fields in order to filter by sale (including the case where the user can only see his prospects)
+		}
+		$sql .= " FROM ".MAIN_DB_PREFIX.$tmpobject->table_element." AS t LEFT JOIN ".MAIN_DB_PREFIX.$tmpobject->table_element."_extrafields AS ef ON (ef.fk_object = t.rowid)"; // Modification VMR Global Solutions to include extrafields as search parameters in the API GET call, so we will be able to filter on extrafields
+
+		if ($restrictonsocid && (!DolibarrApiAccess::$user->rights->societe->client->voir && !$socid) || $search_sale > 0) {
+			$sql .= ", ".MAIN_DB_PREFIX."societe_commerciaux as sc"; // We need this table joined to the select in order to filter by sale
+		}
 		$sql .= " WHERE 1 = 1";
+
+		// Example of use $mode
+		//if ($mode == 1) $sql.= " AND s.client IN (1, 3)";
+		//if ($mode == 2) $sql.= " AND s.client IN (2, 3)";
+
 		if ($tmpobject->ismultientitymanaged) {
 			$sql .= ' AND t.entity IN ('.getEntity($tmpobject->element).')';
+		}
+		if ($restrictonsocid && (!DolibarrApiAccess::$user->rights->societe->client->voir && !$socid) || $search_sale > 0) {
+			$sql .= " AND t.fk_soc = sc.fk_soc";
 		}
 		if ($restrictonsocid && $socid) {
 			$sql .= " AND t.fk_soc = ".((int) $socid);
 		}
-		// Search on sale representative
-		if ($search_sale && $search_sale != '-1') {
-			if ($search_sale == -2) {
-				$sql .= " AND NOT EXISTS (SELECT sc.fk_soc FROM ".MAIN_DB_PREFIX."societe_commerciaux as sc WHERE sc.fk_soc = t.fk_soc)";
-			} elseif ($search_sale > 0) {
-				$sql .= " AND EXISTS (SELECT sc.fk_soc FROM ".MAIN_DB_PREFIX."societe_commerciaux as sc WHERE sc.fk_soc = t.fk_soc AND sc.fk_user = ".((int) $search_sale).")";
-			}
+		if ($restrictonsocid && $search_sale > 0) {
+			$sql .= " AND t.rowid = sc.fk_soc"; // Join for the needed table to filter by sale
+		}
+		// Insert sale filter
+		if ($restrictonsocid && $search_sale > 0) {
+			$sql .= " AND sc.fk_user = ".((int) $search_sale);
 		}
 		if ($sqlfilters) {
 			$errormessage = '';
@@ -178,20 +192,20 @@ class Mos extends DolibarrApi
 	 */
 	public function post($request_data = null)
 	{
-		if (!DolibarrApiAccess::$user->hasRight('mrp', 'write')) {
-			throw new RestException(403);
+		if (!DolibarrApiAccess::$user->rights->mrp->write) {
+			throw new RestException(401);
 		}
 		// Check mandatory fields
 		$result = $this->_validate($request_data);
 
 		foreach ($request_data as $field => $value) {
 			if ($field === 'caller') {
-				// Add a mention of caller so on trigger called after action, we can filter to avoid a loop if we try to sync back again with the caller
-				$this->mo->context['caller'] = sanitizeVal($request_data['caller'], 'aZ09');
+				// Add a mention of caller so on trigger called after action, we can filter to avoid a loop if we try to sync back again whith the caller
+				$this->mo->context['caller'] = $request_data['caller'];
 				continue;
 			}
 
-			$this->mo->$field = $this->_checkValForAPI($field, $value, $this->mo);
+			$this->mo->$field = $value;
 		}
 
 		$this->checkRefNumbering();
@@ -205,14 +219,15 @@ class Mos extends DolibarrApi
 	/**
 	 * Update MO
 	 *
-	 * @param 	int   	$id             	Id of MO to update
-	 * @param 	array 	$request_data   	Datas
-	 * @return 	Object						Updated object
+	 * @param int   $id             Id of MO to update
+	 * @param array $request_data   Datas
+	 *
+	 * @return int
 	 */
 	public function put($id, $request_data = null)
 	{
-		if (!DolibarrApiAccess::$user->hasRight('mrp', 'write')) {
-			throw new RestException(403);
+		if (!DolibarrApiAccess::$user->rights->mrp->write) {
+			throw new RestException(401);
 		}
 
 		$result = $this->mo->fetch($id);
@@ -221,7 +236,7 @@ class Mos extends DolibarrApi
 		}
 
 		if (!DolibarrApi::_checkAccessToResource('mrp', $this->mo->id, 'mrp_mo')) {
-			throw new RestException(403, 'Access not allowed for login '.DolibarrApiAccess::$user->login);
+			throw new RestException(401, 'Access not allowed for login '.DolibarrApiAccess::$user->login);
 		}
 
 		foreach ($request_data as $field => $value) {
@@ -229,12 +244,12 @@ class Mos extends DolibarrApi
 				continue;
 			}
 			if ($field === 'caller') {
-				// Add a mention of caller so on trigger called after action, we can filter to avoid a loop if we try to sync back again with the caller
-				$this->mo->context['caller'] = sanitizeVal($request_data['caller'], 'aZ09');
+				// Add a mention of caller so on trigger called after action, we can filter to avoid a loop if we try to sync back again whith the caller
+				$this->mo->context['caller'] = $request_data['caller'];
 				continue;
 			}
 
-			$this->mo->$field = $this->_checkValForAPI($field, $value, $this->mo);
+			$this->mo->$field = $value;
 		}
 
 		$this->checkRefNumbering();
@@ -254,8 +269,8 @@ class Mos extends DolibarrApi
 	 */
 	public function delete($id)
 	{
-		if (!DolibarrApiAccess::$user->hasRight('mrp', 'delete')) {
-			throw new RestException(403);
+		if (!DolibarrApiAccess::$user->rights->mrp->delete) {
+			throw new RestException(401);
 		}
 		$result = $this->mo->fetch($id);
 		if (!$result) {
@@ -263,7 +278,7 @@ class Mos extends DolibarrApi
 		}
 
 		if (!DolibarrApi::_checkAccessToResource('mrp', $this->mo->id, 'mrp_mo')) {
-			throw new RestException(403, 'Access not allowed for login '.DolibarrApiAccess::$user->login);
+			throw new RestException(401, 'Access not allowed for login '.DolibarrApiAccess::$user->login);
 		}
 
 		if (!$this->mo->delete(DolibarrApiAccess::$user)) {
@@ -315,7 +330,7 @@ class Mos extends DolibarrApi
 
 		$error = 0;
 
-		if (!DolibarrApiAccess::$user->hasRight('mrp', 'write')) {
+		if (!DolibarrApiAccess::$user->hasRight("mrp", "write")) {
 			throw new RestException(403, 'Not enough permission');
 		}
 		$result = $this->mo->fetch($id);
@@ -357,8 +372,8 @@ class Mos extends DolibarrApi
 				$arraytoproduce = $value;
 			}
 			if ($field === 'caller') {
-				// Add a mention of caller so on trigger called after action, we can filter to avoid a loop if we try to sync back again with the caller
-				$stockmove->context['caller'] = sanitizeVal($request_data['caller'], 'aZ09');
+				// Add a mention of caller so on trigger called after action, we can filter to avoid a loop if we try to sync back again whith the caller
+				$stockmove->context['caller'] = $request_data['caller'];
 				continue;
 			}
 		}
@@ -640,7 +655,8 @@ class Mos extends DolibarrApi
 		}
 
 		// Update status of MO
-		dol_syslog("consumptioncomplete = ".json_encode($consumptioncomplete)." productioncomplete = ".json_encode($productioncomplete));
+		dol_syslog("consumptioncomplete = ".$consumptioncomplete." productioncomplete = ".$productioncomplete);
+		//var_dump("consumptioncomplete = ".$consumptioncomplete." productioncomplete = ".$productioncomplete);
 		if ($consumptioncomplete && $productioncomplete) {
 			$result = $this->mo->setStatut(Mo::STATUS_PRODUCED, 0, '', 'MRP_MO_PRODUCED');
 		} else {
@@ -729,7 +745,7 @@ class Mos extends DolibarrApi
 				$arraytoproduce = $value;
 			}
 			if ($field === 'caller') {
-				// Add a mention of caller so on trigger called after action, we can filter to avoid a loop if we try to sync back again with the caller
+				// Add a mention of caller so on trigger called after action, we can filter to avoid a loop if we try to sync back again whith the caller
 				$stockmove->context['caller'] = $request_data['caller'];
 				continue;
 			}
@@ -783,6 +799,7 @@ class Mos extends DolibarrApi
 					}
 				}
 
+				$pos = 0;
 				$idstockmove = 0;
 
 				// Record stock movement
@@ -828,8 +845,6 @@ class Mos extends DolibarrApi
 				if ($resultmoline <= 0) {
 					throw new RestException(500, $moline->error);
 				}
-
-				$pos++;
 			}
 		}
 
@@ -870,7 +885,7 @@ class Mos extends DolibarrApi
 		}
 
 		// Update status of MO
-		dol_syslog("consumptioncomplete = " . (string) $consumptioncomplete . " productioncomplete = " . (string) $productioncomplete);
+		dol_syslog("consumptioncomplete = " . $consumptioncomplete . " productioncomplete = " . $productioncomplete);
 		//var_dump("consumptioncomplete = ".$consumptioncomplete." productioncomplete = ".$productioncomplete);
 		if ($consumptioncomplete && $productioncomplete) {
 			$result = $this->mo->setStatut(Mo::STATUS_PRODUCED, 0, '', 'MRP_MO_PRODUCED');
@@ -976,7 +991,7 @@ class Mos extends DolibarrApi
 	 *
 	 * @return void
 	 */
-	private function checkRefNumbering()
+	private function checkRefNumbering(): void
 	{
 		$ref = substr($this->mo->ref, 1, 4);
 		if ($this->mo->status > 0 && $ref == 'PROV') {

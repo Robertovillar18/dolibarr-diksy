@@ -6,7 +6,6 @@
  * Copyright (C) 2013		Florian Henry		<florian.henry@open-concept.pro>
  * Copyright (C) 2015       Raphaël Doursenaud  <rdoursenaud@gpcsolutions.fr>
  * Copyright (C) 2020       Frédéric France     <frederic.france@netlogic.fr>
- * Copyright (C) 2024		MDW							<mdeweerd@users.noreply.github.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,7 +37,7 @@ require_once DOL_DOCUMENT_ROOT.'/core/class/html.formother.class.php';
 $langs->load("categories");
 
 // Security check
-$socid = GETPOSTINT('socid');
+$socid = (int) GETPOST('socid', 'int');
 if (!$user->hasRight('categorie', 'lire')) {
 	accessforbidden();
 }
@@ -46,7 +45,7 @@ if (!$user->hasRight('categorie', 'lire')) {
 $action = GETPOST('action', 'alpha');
 $cancel		= GETPOST('cancel', 'alpha');
 $origin		= GETPOST('origin', 'alpha');
-$catorigin  = GETPOSTINT('catorigin');
+$catorigin  = (int) GETPOST('catorigin', 'int');
 $type = GETPOST('type', 'aZ09');
 $urlfrom = GETPOST('urlfrom', 'alpha');
 $backtopage = GETPOST('backtopage', 'alpha');
@@ -54,9 +53,8 @@ $backtopage = GETPOST('backtopage', 'alpha');
 $label = (string) GETPOST('label', 'alphanohtml');
 $description = (string) GETPOST('description', 'restricthtml');
 $color = preg_replace('/[^0-9a-f#]/i', '', (string) GETPOST('color', 'alphanohtml'));
-$position = GETPOSTINT('position');
-$visible = GETPOSTINT('visible');
-$parent = GETPOSTINT('parent');
+$visible = (int) GETPOST('visible', 'int');
+$parent = (int) GETPOST('parent', 'int');
 
 if ($origin) {
 	if ($type == Categorie::TYPE_PRODUCT) {
@@ -82,9 +80,6 @@ if ($origin) {
 if ($catorigin && $type == Categorie::TYPE_PRODUCT) {
 	$idCatOrigin = $catorigin;
 }
-if (!GETPOSTISSET('parent') && $catorigin) {
-	$parent = $catorigin;
-}
 
 $object = new Categorie($db);
 
@@ -100,7 +95,7 @@ $error = 0;
 /*
  *	Actions
  */
-$parameters = array('socid' => $socid, 'origin' => $origin, 'catorigin' => $catorigin, 'type' => $type, 'urlfrom' => $urlfrom, 'backtopage' => $backtopage, 'label' => $label, 'description' => $description, 'color' => $color, 'position' => $position, 'visible' => $visible, 'parent' => $parent);
+$parameters = array('socid' => $socid, 'origin' => $origin, 'catorigin' => $catorigin, 'type' => $type, 'urlfrom' => $urlfrom, 'backtopage' => $backtopage, 'label' => $label, 'description' => $description, 'color' => $color, 'visible' => $visible, 'parent' => $parent);
 // Note that $action and $object may be modified by some hooks
 $reshook = $hookmanager->executeHooks('doActions', $parameters, $object, $action);
 if ($reshook < 0) {
@@ -143,7 +138,6 @@ if (empty($reshook)) {
 		}
 		$object->label			= $label;
 		$object->color			= $color;
-		$object->position		= $position;
 		$object->description = dol_htmlcleanlastbr($description);
 		$object->socid			= ($socid > 0 ? $socid : 0);
 		$object->visible = $visible;
@@ -169,6 +163,7 @@ if (empty($reshook)) {
 			$result = $object->create($user);
 			if ($result > 0) {
 				$action = 'confirmed';
+				$_POST["addcat"] = '';
 			} else {
 				setEventMessages($object->error, $object->errors, 'errors');
 			}
@@ -223,13 +218,14 @@ llxHeader("", $langs->trans("Categories"), $help_url);
 
 if ($user->hasRight('categorie', 'creer')) {
 	// Create or add
-	if ($action == 'create' || $action == 'add') {
+	if ($action == 'create' || GETPOST("addcat") == 'addcat') {
 		dol_set_focus('#label');
 
 		print '<form action="'.$_SERVER['PHP_SELF'].'?type='.$type.'" method="POST">';
 		print '<input type="hidden" name="token" value="'.newToken().'">';
 		print '<input type="hidden" name="urlfrom" value="'.$urlfrom.'">';
 		print '<input type="hidden" name="action" value="add">';
+		print '<input type="hidden" name="addcat" value="addcat">';
 		print '<input type="hidden" name="id" value="'.GETPOST('origin', 'alpha').'">';
 		print '<input type="hidden" name="type" value="'.$type.'">';
 		print '<input type="hidden" name="backtopage" value="'.$backtopage.'">';
@@ -242,9 +238,9 @@ if ($user->hasRight('categorie', 'creer')) {
 
 		print load_fiche_titre($langs->trans("CreateCat"));
 
-		print dol_get_fiche_head();
+		print dol_get_fiche_head('');
 
-		print '<table class="border centpercent">';
+		print '<table width="100%" class="border">';
 
 		// Ref
 		print '<tr>';
@@ -254,7 +250,7 @@ if ($user->hasRight('categorie', 'creer')) {
 		// Description
 		print '<tr><td class="tdtop">'.$langs->trans("Description").'</td><td>';
 		require_once DOL_DOCUMENT_ROOT.'/core/class/doleditor.class.php';
-		$doleditor = new DolEditor('description', $description, '', 160, 'dolibarr_notes', '', false, true, isModEnabled('fckeditor') && getDolGlobalInt('FCKEDITOR_ENABLE_SOCIETE'), ROWS_5, '90%');
+		$doleditor = new DolEditor('description', $description, '', 160, 'dolibarr_notes', '', false, true, getDolGlobalInt('FCKEDITOR_ENABLE_SOCIETE'), ROWS_5, '90%');
 		$doleditor->Create();
 		print '</td></tr>';
 
@@ -263,15 +259,10 @@ if ($user->hasRight('categorie', 'creer')) {
 		print $formother->selectColor($color, 'color');
 		print '</td></tr>';
 
-		// Position
-		print '<tr>';
-		print '<td class="titlefieldcreate">'.$langs->trans("Position").'</td><td><input id="position" type="number" class="minwidth50 maxwidth50" name="position" value="'.$position.'">';
-		print'</td></tr>';
-
 		// Parent category
 		print '<tr><td>'.$langs->trans("AddIn").'</td><td>';
 		print img_picto($langs->trans("ParentCategory"), 'category', 'class="pictofixedwidth"');
-		print $form->select_all_categories($type, $parent, 'parent');
+		print $form->select_all_categories($type, $catorigin, 'parent');
 		print ajax_combobox('parent');
 		print '</td></tr>';
 
@@ -284,7 +275,7 @@ if ($user->hasRight('categorie', 'creer')) {
 
 		print '</table>';
 
-		print dol_get_fiche_end();
+		print dol_get_fiche_end('');
 
 		print '<div class="center">';
 		print '<input type="submit" class="button b" value="'.$langs->trans("CreateThisCat").'" name="creation" />';

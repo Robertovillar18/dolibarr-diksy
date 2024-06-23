@@ -60,7 +60,7 @@ function establishment_prepare_head($object)
 }
 
 /**
- *  Return array head with list of tabs to view object information
+ *  Return array head with list of tabs to view object informations
  *
  *  @return	array		head
  */

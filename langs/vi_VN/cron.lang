@@ -1,5 +1,6 @@
 # Dolibarr language file - Source file is en_US - cron
-# Permissions
+# About page
+# Right
 Permission23101 = Xem công việc theo lịch trình
 Permission23102 = Tạo/cập nhật công việc theo lịch trình
 Permission23103 = Xóa công việc theo lịch trình

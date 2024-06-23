@@ -3,7 +3,6 @@
  * Copyright (C) 2005-2013 Regis Houssin        <regis.houssin@inodbox.com>
  * Copyright (C) 2007-2011 Laurent Destailleur  <eldy@users.sourceforge.net>
  * Copyright (C) 2020      Josep Lluís Amador   <joseplluis@lliuretic.cat>
- * Copyright (C) 2024       Frédéric France             <frederic.france@free.fr>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,7 +35,7 @@ if (!defined('NOREQUIREHTML')) {
 if (!defined('NOREQUIREAJAX')) {
 	define('NOREQUIREAJAX', '1');
 }
-if (empty($_GET['keysearch']) && !defined('NOREQUIREHTML')) {	// Keep $_GET here, GETPOST is not yet defined
+if (empty($_GET['keysearch']) && !defined('NOREQUIREHTML')) {
 	define('NOREQUIREHTML', '1');
 }
 
@@ -44,21 +43,20 @@ if (empty($_GET['keysearch']) && !defined('NOREQUIREHTML')) {	// Keep $_GET here
 require '../../main.inc.php';
 
 $htmlname = GETPOST('htmlname', 'aZ09');
-$socid = GETPOSTINT('socid');
-// type can be empty string or 0 or 1
+$socid = GETPOST('socid', 'int');
 $type = GETPOST('type', 'int');
-$mode = GETPOSTINT('mode');
-$status = ((GETPOSTINT('status') >= 0) ? GETPOSTINT('status') : - 1);	// status buy when mode = customer , status purchase when mode = supplier
-$status_purchase = ((GETPOSTINT('status_purchase') >= 0) ? GETPOSTINT('status_purchase') : - 1);	// status purchase when mode = customer
-$outjson = (GETPOSTINT('outjson') ? GETPOSTINT('outjson') : 0);
-$price_level = GETPOSTINT('price_level');
+$mode = GETPOST('mode', 'int');
+$status = ((GETPOST('status', 'int') >= 0) ? GETPOST('status', 'int') : - 1);	// status buy when mode = customer , status purchase when mode = supplier
+$status_purchase = ((GETPOST('status_purchase', 'int') >= 0) ? GETPOST('status_purchase', 'int') : - 1);	// status purchase when mode = customer
+$outjson = (GETPOST('outjson', 'int') ? GETPOST('outjson', 'int') : 0);
+$price_level = GETPOST('price_level', 'int');
 $action = GETPOST('action', 'aZ09');
-$id = GETPOSTINT('id');
-$price_by_qty_rowid = GETPOSTINT('pbq');
-$finished = GETPOSTINT('finished');
-$alsoproductwithnosupplierprice = GETPOSTINT('alsoproductwithnosupplierprice');
+$id = GETPOST('id', 'int');
+$price_by_qty_rowid = GETPOST('pbq', 'int');
+$finished = GETPOST('finished', 'int');
+$alsoproductwithnosupplierprice = GETPOST('alsoproductwithnosupplierprice', 'int');
 $warehouseStatus = GETPOST('warehousestatus', 'alpha');
-$hidepriceinlabel = GETPOSTINT('hidepriceinlabel');
+$hidepriceinlabel = GETPOST('hidepriceinlabel', 'int');
 
 // Security check
 restrictedArea($user, 'produit|service|commande|propal|facture', 0, 'product&product');
@@ -69,6 +67,7 @@ restrictedArea($user, 'produit|service|commande|propal|facture', 0, 'product&pro
  */
 
 // print '<!-- Ajax page called with url '.dol_escape_htmltag($_SERVER["PHP_SELF"]).'?'.dol_escape_htmltag($_SERVER["QUERY_STRING"]).' -->'."\n";
+// print_r($_GET);
 
 if ($action == 'fetch' && !empty($id)) {
 	// action='fetch' is used to get product information on a product. So when action='fetch', id must be the product id.
@@ -175,11 +174,11 @@ if ($action == 'fetch' && !empty($id)) {
 				$objp = $db->fetch_object($result);
 				if ($objp) {
 					$found = true;
-					$outprice_ht = price($objp->price);			// formatted for language user because is inserted into input field
-					$outprice_ttc = price($objp->price_ttc);	// formatted for language user because is inserted into input field
+					$outprice_ht = price($objp->price);			// formated for langage user because is inserted into input field
+					$outprice_ttc = price($objp->price_ttc);	// formated for langage user because is inserted into input field
 					$outpricebasetype = $objp->price_base_type;
 					if (getDolGlobalString('PRODUIT_MULTIPRICES_USE_VAT_PER_LEVEL')) {
-						$outtva_tx_formated = price($objp->tva_tx);	// formatted for language user because is inserted into input field
+						$outtva_tx_formated = price($objp->tva_tx);	// formated for langage user because is inserted into input field
 						$outtva_tx = price2num($objp->tva_tx);		// international numeric
 						$outdefault_vat_code = $objp->default_vat_code;
 					} else {
@@ -229,7 +228,7 @@ if ($action == 'fetch' && !empty($id)) {
 		$product_outdefault_vat_code = $outdefault_vat_code;
 
 		// If we ask the price according to buyer, we change it.
-		if (GETPOSTINT('addalsovatforthirdpartyid')) {
+		if (GETPOST('addalsovatforthirdpartyid', 'int')) {
 			$thirdparty_buyer = new Societe($db);
 			$thirdparty_buyer->fetch($socid);
 

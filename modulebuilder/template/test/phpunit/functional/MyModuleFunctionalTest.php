@@ -180,7 +180,7 @@ class MyModuleFunctionalTest extends \PHPUnit_Extensions_Selenium2TestCase
 		} else {
 			// Disable the module
 			$this->byHref('modMyModule')->click();
-			// Re-enable the module
+			// Reenable the module
 			$this->byHref('modMyModule')->click();
 		}
 		// Page reloaded, we need a new Xpath

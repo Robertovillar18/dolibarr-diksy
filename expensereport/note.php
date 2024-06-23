@@ -33,9 +33,9 @@ require_once DOL_DOCUMENT_ROOT.'/expensereport/class/expensereport.class.php';
 // Load translation files required by the page
 $langs->loadLangs(array('trips', 'companies', 'bills', 'orders'));
 
-$id = GETPOSTINT('id');
+$id = GETPOST('id', 'int');
 $ref = GETPOST('ref', 'alpha');
-$socid = GETPOSTINT('socid');
+$socid = GETPOST('socid', 'int');
 $action = GETPOST('action', 'aZ09');
 
 $childids = $user->getAllChildIds(1);
@@ -55,7 +55,7 @@ if (!$object->fetch($id, $ref) > 0) {
 	dol_print_error($db);
 }
 
-$permissionnote = $user->hasRight('expensereport', 'creer'); // Used by the include of actions_setnotes.inc.php
+$permissionnote = $user->rights->expensereport->creer; // Used by the include of actions_setnotes.inc.php
 
 if ($object->id > 0) {
 	// Check current user can read this expense report

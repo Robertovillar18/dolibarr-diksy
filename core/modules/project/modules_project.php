@@ -33,7 +33,7 @@ require_once DOL_DOCUMENT_ROOT.'/core/class/commonnumrefgenerator.class.php';
 abstract class ModelePDFProjects extends CommonDocGenerator
 {
 	/**
-	 * @var DoliDB Database handler
+	 * @var DoliDb Database handler
 	 */
 	public $db;
 
@@ -67,7 +67,7 @@ abstract class ModelePDFProjects extends CommonDocGenerator
 
 
 /**
- *  Class mere des modeles de numerotation des references de projects
+ *  Classe mere des modeles de numerotation des references de projets
  */
 abstract class ModeleNumRefProjects extends CommonNumRefGenerator
 {

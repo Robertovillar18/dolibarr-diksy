@@ -304,7 +304,7 @@ class Odf
 							}
 							if (strlen($odtStyles) > 0) {
 								// Generate a unique id for the style (using microtime and random because some CPUs are really fast...)
-								$key = str_replace('.', '', (string) microtime(true)) . uniqid(mt_rand());
+								$key = floatval(str_replace('.', '', microtime(true))) + rand(0, 10);
 								$customStyles[$key] = $odtStyles;
 								$odtResult .= '<text:span text:style-name="customStyle' . $key . '">' . ($tag['children'] != null ? $this->_replaceHtmlWithOdtTag($tag['children'], $customStyles, $fontDeclarations, $encode) : $this->encode_chars($tag['innerText'], $encode, $charset)) . '</text:span>';
 							}
@@ -556,15 +556,10 @@ IMG;
 	 */
 	private function _parse($type = 'content')
 	{
-		if ($type == 'content') $xml = &$this->contentXml;
-		elseif ($type == 'styles') $xml = &$this->stylesXml;
-		elseif ($type == 'meta') $xml = &$this->metaXml;
-		else return;
-
 		// Search all tags found into condition to complete $this->vars, so we will proceed all tests even if not defined
 		$reg='@\[!--\sIF\s([{}a-zA-Z0-9\.\,_]+)\s--\]@smU';
 		$matches = array();
-		preg_match_all($reg, $xml, $matches, PREG_SET_ORDER);
+		preg_match_all($reg, $this->contentXml, $matches, PREG_SET_ORDER);
 
 		//var_dump($this->vars);exit;
 		foreach ($matches as $match) {   // For each match, if there is no entry into this->vars, we add it
@@ -580,13 +575,13 @@ IMG;
 			// If value is true (not 0 nor false nor null nor empty string)
 			if ($value) {
 				//dol_syslog("Var ".$key." is defined, we remove the IF, ELSE and ENDIF ");
-				//$sav=$xml;
+				//$sav=$this->contentXml;
 				// Remove the IF tag
-				$xml = str_replace('[!-- IF '.$key.' --]', '', $xml);
+				$this->contentXml = str_replace('[!-- IF '.$key.' --]', '', $this->contentXml);
 				// Remove everything between the ELSE tag (if it exists) and the ENDIF tag
 				$reg = '@(\[!--\sELSE\s' . $key . '\s--\](.*))?\[!--\sENDIF\s' . $key . '\s--\]@smU'; // U modifier = all quantifiers are non-greedy
-				$xml = preg_replace($reg, '', $xml);
-				/*if ($sav != $xml)
+				$this->contentXml = preg_replace($reg, '', $this->contentXml);
+				/*if ($sav != $this->contentXml)
 				 {
 				 dol_syslog("We found a IF and it was processed");
 				 //var_dump($sav);exit;
@@ -595,16 +590,16 @@ IMG;
 				// Else the value is false, then two cases: no ELSE and we're done, or there is at least one place where there is an ELSE clause, then we replace it
 
 				//dol_syslog("Var ".$key." is not defined, we remove the IF, ELSE and ENDIF ");
-				//$sav=$xml;
+				//$sav=$this->contentXml;
 				// Find all conditional blocks for this variable: from IF to ELSE and to ENDIF
 				$reg = '@\[!--\sIF\s' . $key . '\s--\](.*)(\[!--\sELSE\s' . $key . '\s--\](.*))?\[!--\sENDIF\s' . $key . '\s--\]@smU'; // U modifier = all quantifiers are non-greedy
-				preg_match_all($reg, $xml, $matches, PREG_SET_ORDER);
+				preg_match_all($reg, $this->contentXml, $matches, PREG_SET_ORDER);
 				foreach ($matches as $match) { // For each match, if there is an ELSE clause, we replace the whole block by the value in the ELSE clause
-					if (!empty($match[3])) $xml = str_replace($match[0], $match[3], $xml);
+					if (!empty($match[3])) $this->contentXml = str_replace($match[0], $match[3], $this->contentXml);
 				}
 				// Cleanup the other conditional blocks (all the others where there were no ELSE clause, we can just remove them altogether)
-				$xml = preg_replace($reg, '', $xml);
-				/*if ($sav != $xml)
+				$this->contentXml = preg_replace($reg, '', $this->contentXml);
+				/*if ($sav != $this->contentXml)
 				 {
 				 dol_syslog("We found a IF and it was processed");
 				 //var_dump($sav);exit;
@@ -613,7 +608,9 @@ IMG;
 		}
 
 		// Static substitution
-		$xml = str_replace(array_keys($this->vars), array_values($this->vars), $xml);
+		if ($type == 'content')	$this->contentXml = str_replace(array_keys($this->vars), array_values($this->vars), $this->contentXml);
+		if ($type == 'styles')	$this->stylesXml = str_replace(array_keys($this->vars), array_values($this->vars), $this->stylesXml);
+		if ($type == 'meta')	$this->metaXml = str_replace(array_keys($this->vars), array_values($this->vars), $this->metaXml);
 	}
 
 	/**

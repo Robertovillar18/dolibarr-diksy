@@ -41,7 +41,7 @@ $conf->dol_hide_leftmenu = 1; // Force hide of left menu.
 $error = 0;
 $website = GETPOST('website', 'alpha');
 $page = GETPOST('page', 'alpha');
-$pageid = GETPOSTINT('pageid');
+$pageid = GETPOST('pageid', 'int');
 $action = GETPOST('action', 'aZ09');
 
 if (GETPOST('delete')) {

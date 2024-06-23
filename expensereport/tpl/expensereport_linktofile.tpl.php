@@ -1,6 +1,4 @@
 <?php
-/* Copyright (C) 2024		MDW							<mdeweerd@users.noreply.github.com>
- */
 
 // Add line to select existing file
 if (!getDolGlobalString('EXPENSEREPORT_DISABLE_ATTACHMENT_ON_LINES')) {
@@ -41,7 +39,7 @@ if (!getDolGlobalString('EXPENSEREPORT_DISABLE_ATTACHMENT_ON_LINES')) {
 				//print $file['path'].'/'.$minifile.'<br>';
 				$urlforhref = getAdvancedPreviewUrl($modulepart, $relativepath.$fileinfo['filename'].'.'.strtolower($fileinfo['extension']), 1, '&entity='.(empty($object->entity) ? $conf->entity : $object->entity));
 				if (empty($urlforhref)) {
-					$urlforhref = DOL_URL_ROOT.'/viewimage.php?modulepart='.$modulepart.'&entity='.(empty($object->entity) ? $conf->entity : $object->entity).'&file='.urlencode($file['relativename'].'.'.strtolower($fileinfo['extension']));
+					$urlforhref = DOL_URL_ROOT.'/viewimage.php?modulepart='.$modulepart.'&entity='.(empty($object->entity) ? $conf->entity : $object->entity).'&file='.urlencode($fileinfo['relativename'].'.'.strtolower($fileinfo['extension']));
 					print '<a href="'.$urlforhref.'" class="aphoto" target="_blank" rel="noopener noreferrer">';
 				} else {
 					print '<a href="'.$urlforhref['url'].'" class="'.$urlforhref['css'].'" target="'.$urlforhref['target'].'" mime="'.$urlforhref['mime'].'">';
@@ -64,7 +62,7 @@ if (!getDolGlobalString('EXPENSEREPORT_DISABLE_ATTACHMENT_ON_LINES')) {
 					$pdfexists = file_exists($filepdf);
 
 					if ($pdfexists) {
-						// Conversion du PDF en image png si fichier png non existent
+						// Conversion du PDF en image png si fichier png non existant
 						if (!file_exists($fileimage) || (filemtime($fileimage) < filemtime($filepdf))) {
 							if (!getDolGlobalString('MAIN_DISABLE_PDF_THUMBS')) {		// If you experience trouble with pdf thumb generation and imagick, you can disable here.
 								include_once DOL_DOCUMENT_ROOT.'/core/lib/files.lib.php';
@@ -152,7 +150,7 @@ if (!getDolGlobalString('EXPENSEREPORT_DISABLE_ATTACHMENT_ON_LINES')) {
 			print '<td></td>';
 		}
 		print '<td colspan="'.($newcolspan).'">';
-		print '<span class="opacitymedium">'.$langs->trans("NoFilesUploadedYet").'...</span>';
+		print '<span class="opacitymedium">'.$langs->trans("NoFilesUploadedYet").'</span>';
 		print '</td></tr>';
 	}
 }

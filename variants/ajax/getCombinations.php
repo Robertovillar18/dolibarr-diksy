@@ -53,7 +53,7 @@ $result = restrictedArea($user, 'variants');
 
 top_httphead('application/json');
 
-$id = GETPOSTINT('id');
+$id = GETPOST('id', 'int');
 
 if (!$id) {
 	print json_encode(array(

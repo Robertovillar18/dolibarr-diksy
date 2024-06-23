@@ -40,19 +40,19 @@ if (isModEnabled('project')) {
 $langs->loadLangs(array('companies', 'other', 'ticket'));
 
 // Get parameters
-$id       = GETPOSTINT('id');
+$id       = GETPOST('id', 'int');
 $ref      = GETPOST('ref', 'alpha');
 $track_id = GETPOST('track_id', 'alpha', 3);
-$socid    = GETPOSTINT('socid');
+$socid    = GETPOST('socid', 'int');
 $action   = GETPOST('action', 'aZ09');
 
 // Store current page url
 $url_page_current = DOL_URL_ROOT.'/ticket/agenda.php';
 
-$limit = GETPOSTINT('limit') ? GETPOSTINT('limit') : $conf->liste_limit;
+$limit = GETPOST('limit', 'int') ? GETPOST('limit', 'int') : $conf->liste_limit;
 $sortfield = GETPOST('sortfield', 'aZ09comma');
 $sortorder = GETPOST('sortorder', 'aZ09comma');
-$page = GETPOSTISSET('pageplusone') ? (GETPOSTINT('pageplusone') - 1) : GETPOSTINT("page");
+$page = GETPOSTISSET('pageplusone') ? (GETPOST('pageplusone') - 1) : GETPOST("page", 'int');
 $page = is_numeric($page) ? $page : 0;
 $page = $page == -1 ? 0 : $page;
 if (!$sortfield) {
@@ -90,7 +90,7 @@ if (!$action) {
 
 
 // Security check
-$id = GETPOSTINT("id");
+$id = GETPOST("id", 'int');
 if ($user->socid > 0) {
 	$socid = $user->socid;
 }
@@ -105,7 +105,7 @@ if (!$user->socid && (getDolGlobalString('TICKET_LIMIT_VIEW_ASSIGNED_ONLY') && $
 	accessforbidden();
 }
 
-$permissiontoadd = $user->hasRight('ticket', 'write');
+$permissiontoadd = $user->rights->ticket->write;
 
 
 /*
@@ -131,8 +131,8 @@ if (GETPOST('button_removefilter_x', 'alpha') || GETPOST('button_removefilter.x'
 
 // Set parent company
 if ($action == 'set_thirdparty' && $user->hasRight('ticket', 'write')) {
-	if ($object->fetch(GETPOSTINT('id'), '', GETPOST('track_id', 'alpha')) >= 0) {
-		$result = $object->setCustomer(GETPOSTINT('editcustomer'));
+	if ($object->fetch(GETPOST('id', 'int'), '', GETPOST('track_id', 'alpha')) >= 0) {
+		$result = $object->setCustomer(GETPOST('editcustomer', 'int'));
 		$url = $_SERVER["PHP_SELF"].'?track_id='.GETPOST('track_id', 'alpha');
 		header("Location: ".$url);
 		exit();
@@ -154,7 +154,7 @@ if (getDolGlobalString('MAIN_HTML_TITLE') && preg_match('/ticketnameonly/', getD
 }
 $help_url = 'EN:Module_Agenda_En|FR:Module_Agenda|DE:Modul_Terminplanung';
 
-llxHeader('', $title, $help_url, '', 0, 0, '', '', '', 'mod-ticket page-card_agenda');
+llxHeader('', $title, $help_url);
 
 if ($socid > 0) {
 	$object->fetch_thirdparty();

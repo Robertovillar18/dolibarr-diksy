@@ -34,7 +34,7 @@ require_once DOL_DOCUMENT_ROOT.'/core/class/html.formother.class.php';
 // Load translation files required by the page
 $langs->loadLangs(array('mrp', 'products', 'companies'));
 
-$id = GETPOSTINT('id');
+$id = GETPOST('id', 'int');
 $ref = GETPOST('ref', 'alpha');
 
 // Security check
@@ -48,10 +48,10 @@ if ($user->socid) {
 $hookmanager->initHooks(array('productstatsmo'));
 
 // Load variable for pagination
-$limit = GETPOSTINT('limit') ? GETPOSTINT('limit') : $conf->liste_limit;
+$limit = GETPOST('limit', 'int') ? GETPOST('limit', 'int') : $conf->liste_limit;
 $sortfield = GETPOST('sortfield', 'aZ09comma');
 $sortorder = GETPOST('sortorder', 'aZ09comma');
-$page = GETPOSTISSET('pageplusone') ? (GETPOSTINT('pageplusone') - 1) : GETPOSTINT("page");
+$page = GETPOSTISSET('pageplusone') ? (GETPOST('pageplusone') - 1) : GETPOST("page", 'int');
 if (empty($page) || $page == -1) {
 	$page = 0;
 }     // If $page is not defined, or '' or -1
@@ -65,15 +65,13 @@ if (!$sortfield) {
 	$sortfield = "c.date_valid";
 }
 
-$search_month = GETPOSTINT('search_month');
-$search_year = GETPOSTINT('search_year');
+$search_month = GETPOST('search_month', 'int');
+$search_year = GETPOST('search_year', 'int');
 
 if (GETPOST('button_removefilter_x', 'alpha') || GETPOST('button_removefilter', 'alpha')) {
 	$search_month = '';
 	$search_year = '';
 }
-
-$socid = 0;
 
 $result = restrictedArea($user, 'produit|service', $fieldvalue, 'product&product', '', '', $fieldtype);
 
@@ -94,13 +92,13 @@ if ($id > 0 || !empty($ref)) {
 
 	$object = $product;
 
-	$parameters = array('id' => $id);
+	$parameters = array('id'=>$id);
 	$reshook = $hookmanager->executeHooks('doActions', $parameters, $product, $action); // Note that $action and $object may have been modified by some hooks
 	if ($reshook < 0) {
 		setEventMessages($hookmanager->error, $hookmanager->errors, 'errors');
 	}
 
-	llxHeader("", "", $langs->trans("CardProduct".$product->type), '', '', 0, 0, '', '', 'mod-product page-stats_mo');
+	llxHeader("", "", $langs->trans("CardProduct".$product->type));
 
 	if ($result > 0) {
 		$head = product_prepare_head($product);
@@ -126,7 +124,7 @@ if ($id > 0 || !empty($ref)) {
 		print '<div class="fichecenter">';
 
 		print '<div class="underbanner clearboth"></div>';
-		print '<table class="border tableforfield centpercent">';
+		print '<table class="border tableforfield" width="100%">';
 
 		$nboflines = show_stats_for_company($product, $socid);
 
@@ -188,10 +186,10 @@ if ($id > 0 || !empty($ref)) {
 				$option .= '&limit='.((int) $limit);
 			}
 			if (!empty($search_month)) {
-				$option .= '&search_month='.urlencode((string) ($search_month));
+				$option .= '&search_month='.urlencode($search_month);
 			}
 			if (!empty($search_year)) {
-				$option .= '&search_year='.urlencode((string) ($search_year));
+				$option .= '&search_year='.urlencode($search_year);
 			}
 
 			print '<form method="post" action="'.$_SERVER['PHP_SELF'].'?id='.$product->id.'" name="search_form">'."\n";
@@ -203,17 +201,16 @@ if ($id > 0 || !empty($ref)) {
 				print '<input type="hidden" name="sortorder" value="'.$sortorder.'"/>';
 			}
 
-			// @phan-suppress-next-line PhanPluginSuspiciousParamOrder
 			print_barre_liste($langs->trans("MOs"), $page, $_SERVER["PHP_SELF"], $option, $sortfield, $sortorder, '', $num, $totalofrecords, '', 0, '', '', $limit, 0, 0, 1);
 
 			if (!empty($page)) {
-				$option .= '&page='.urlencode((string) ($page));
+				$option .= '&page='.urlencode($page);
 			}
 
 			print '<div class="liste_titre liste_titre_bydiv centpercent">';
 			print '<div class="divsearchfield">';
 			print $langs->trans('Period').' ('.$langs->trans("DateCreation").') - ';
-			print $langs->trans('Month').':<input class="flat" type="text" size="4" name="search_month" value="'.($search_month > 0 ? $search_month : '').'"> ';
+			print $langs->trans('Month').':<input class="flat" type="text" size="4" name="search_month" value="'.$search_month.'"> ';
 			print $langs->trans('Year').':'.$formother->selectyear($search_year ? $search_year : - 1, 'search_year', 1, 20, 5);
 			print '<div style="vertical-align: middle; display: inline-block">';
 			print '<input type="image" class="liste_titre" name="button_search" src="'.img_picto($langs->trans("Search"), 'search.png', '', '', 1).'" value="'.dol_escape_htmltag($langs->trans("Search")).'" title="'.dol_escape_htmltag($langs->trans("Search")).'">';

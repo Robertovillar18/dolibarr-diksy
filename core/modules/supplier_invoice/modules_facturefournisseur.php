@@ -21,7 +21,7 @@
 
 /**
  *		\file       htdocs/core/modules/supplier_invoice/modules_facturefournisseur.php
- *      \ingroup    invoice fournisseur
+ *      \ingroup    facture fournisseur
  *      \brief      File that contains parent class for supplier invoices models
  *					and parent class for supplier invoices numbering models
  */

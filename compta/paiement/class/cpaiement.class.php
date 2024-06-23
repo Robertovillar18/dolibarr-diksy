@@ -3,7 +3,7 @@
  * Copyright (C) 2014       Juanjo Menent       <jmenent@2byte.es>
  * Copyright (C) 2015       Florian Henry       <florian.henry@open-concept.pro>
  * Copyright (C) 2015       Raphaël Doursenaud  <rdoursenaud@gpcsolutions.fr>
- * Copyright (C) 2023-2024  Frédéric France         <frederic.france@free.fr>
+ * Copyright (C) 2023       Frédéric France         <frederic.france@netlogic.fr>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -60,7 +60,7 @@ class Cpaiement extends CommonDict
 	/**
 	 * Constructor
 	 *
-	 * @param DoliDB $db Database handler
+	 * @param DoliDb $db Database handler
 	 */
 	public function __construct(DoliDB $db)
 	{
@@ -70,11 +70,12 @@ class Cpaiement extends CommonDict
 	/**
 	 * Create object into database
 	 *
-	 * @param  User $user      	User that creates
-	 * @param  int 	$notrigger 	0=launch triggers after, 1=disable triggers
-	 * @return int 				Return integer <0 if KO, Id of created object if OK
+	 * @param  User $user      User that creates
+	 * @param  bool $notrigger false=launch triggers after, true=disable triggers
+	 *
+	 * @return int Return integer <0 if KO, Id of created object if OK
 	 */
-	public function create(User $user, $notrigger = 0)
+	public function create(User $user, $notrigger = false)
 	{
 		dol_syslog(__METHOD__, LOG_DEBUG);
 
@@ -95,7 +96,7 @@ class Cpaiement extends CommonDict
 			$this->type = trim($this->type);
 		}
 		if (isset($this->active)) {
-			$this->active = (int) $this->active;
+			$this->active = trim($this->active);
 		}
 		if (isset($this->accountancy_code)) {
 			$this->accountancy_code = trim($this->accountancy_code);
@@ -134,7 +135,7 @@ class Cpaiement extends CommonDict
 		if (!$resql) {
 			$error++;
 			$this->errors[] = 'Error '.$this->db->lasterror();
-			dol_syslog(__METHOD__.' '.implode(',', $this->errors), LOG_ERR);
+			dol_syslog(__METHOD__.' '.join(',', $this->errors), LOG_ERR);
 		}
 
 		if (!$error) {
@@ -216,7 +217,7 @@ class Cpaiement extends CommonDict
 			}
 		} else {
 			$this->errors[] = 'Error '.$this->db->lasterror();
-			dol_syslog(__METHOD__.' '.implode(',', $this->errors), LOG_ERR);
+			dol_syslog(__METHOD__.' '.join(',', $this->errors), LOG_ERR);
 
 			return -1;
 		}
@@ -225,11 +226,12 @@ class Cpaiement extends CommonDict
 	/**
 	 * Update object into database
 	 *
-	 * @param  User $user      	User that modifies
-	 * @param  int $notrigger 	0=launch triggers after, 1=disable triggers
-	 * @return int 				Return integer <0 if KO, >0 if OK
+	 * @param  User $user      User that modifies
+	 * @param  bool $notrigger false=launch triggers after, true=disable triggers
+	 *
+	 * @return int Return integer <0 if KO, >0 if OK
 	 */
-	public function update(User $user, $notrigger = 0)
+	public function update(User $user, $notrigger = false)
 	{
 		$error = 0;
 
@@ -250,7 +252,7 @@ class Cpaiement extends CommonDict
 			$this->type = trim($this->type);
 		}
 		if (isset($this->active)) {
-			$this->active = (int) $this->active;
+			$this->active = trim($this->active);
 		}
 		if (isset($this->accountancy_code)) {
 			$this->accountancy_code = trim($this->accountancy_code);
@@ -281,7 +283,7 @@ class Cpaiement extends CommonDict
 		if (!$resql) {
 			$error++;
 			$this->errors[] = 'Error '.$this->db->lasterror();
-			dol_syslog(__METHOD__.' '.implode(',', $this->errors), LOG_ERR);
+			dol_syslog(__METHOD__.' '.join(',', $this->errors), LOG_ERR);
 		}
 
 		// Uncomment this and change MYOBJECT to your own tag if you
@@ -309,11 +311,12 @@ class Cpaiement extends CommonDict
 	/**
 	 * Delete object in database
 	 *
-	 * @param User 	$user      	User that deletes
-	 * @param int 	$notrigger 	0=launch triggers after, 1=disable triggers
-	 * @return int 				Return integer <0 if KO, >0 if OK
+	 * @param User $user      User that deletes
+	 * @param bool $notrigger false=launch triggers after, true=disable triggers
+	 *
+	 * @return int Return integer <0 if KO, >0 if OK
 	 */
-	public function delete(User $user, $notrigger = 0)
+	public function delete(User $user, $notrigger = false)
 	{
 		dol_syslog(__METHOD__, LOG_DEBUG);
 
@@ -339,7 +342,7 @@ class Cpaiement extends CommonDict
 			if (!$resql) {
 				$error++;
 				$this->errors[] = 'Error '.$this->db->lasterror();
-				dol_syslog(__METHOD__.' '.implode(',', $this->errors), LOG_ERR);
+				dol_syslog(__METHOD__.' '.join(',', $this->errors), LOG_ERR);
 			}
 		}
 
@@ -360,19 +363,18 @@ class Cpaiement extends CommonDict
 	 * Initialise object with example values
 	 * Id must be 0 if object instance is a specimen
 	 *
-	 * @return int
+	 * @return void
 	 */
 	public function initAsSpecimen()
 	{
 		$this->id = 0;
+
 		$this->code = '';
 		$this->libelle = '';
 		$this->label = '';
 		$this->type = '';
-		$this->active = 1;
+		$this->active = '';
 		$this->accountancy_code = '';
 		$this->module = '';
-
-		return 1;
 	}
 }

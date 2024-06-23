@@ -37,11 +37,9 @@ CREATE TABLE llx_website
     date_creation datetime,
     position      integer DEFAULT 0,
     lastaccess    datetime NULL,						-- updated at each page access
-    lastpageid    integer DEFAULT 0,
     pageviews_previous_month BIGINT UNSIGNED DEFAULT 0,		
     pageviews_month BIGINT UNSIGNED DEFAULT 0,			-- increased by 1 at each page access, saved into pageviews_previous_month when on different month than lastaccess 
     pageviews_total BIGINT UNSIGNED DEFAULT 0,			-- increased by 1 at each page access, no reset
 	tms           timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    import_key    varchar(14),      -- import key	
-	name_template varchar(255) NULL   --name of template imported
+    import_key    varchar(14)      -- import key	
 ) ENGINE=innodb;

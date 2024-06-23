@@ -32,7 +32,7 @@ require_once DOL_DOCUMENT_ROOT.'/fourn/class/fournisseur.facture.class.php';
 $langs->loadLangs(array('bills', 'companies'));
 
 // Security check
-$socid = GETPOSTINT("socid");
+$socid = GETPOST("socid", 'int');
 if ($user->socid > 0) {
 	$action = '';
 	$socid = $user->socid;

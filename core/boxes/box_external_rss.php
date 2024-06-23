@@ -39,7 +39,16 @@ class box_external_rss extends ModeleBoxes
 	public $boxlabel = "BoxLastRssInfos";
 	public $depends = array("externalrss");
 
+	/**
+	 * @var DoliDB Database handler.
+	 */
+	public $db;
+
 	public $paramdef; // Params of box definition (not user params)
+
+	public $info_box_head = array();
+	public $info_box_contents = array();
+
 
 	/**
 	 *  Constructor
@@ -145,12 +154,6 @@ class box_external_rss extends ModeleBoxes
 				//$item['modified']
 				//$item['atom_content']
 			}
-			if (!is_numeric($date)) {
-				$timestamp = strtotime($date);
-				if ($timestamp > 0) {
-					$date = $timestamp;
-				}
-			}
 			if (is_numeric($date)) {
 				$date = dol_print_date($date, "dayhour", 'tzuserrel');
 			}
@@ -162,8 +165,8 @@ class box_external_rss extends ModeleBoxes
 				$title = mb_convert_encoding($title, 'ISO-8859-1');
 			}
 
-			$title = preg_replace("/([[:alnum:]])\?([[:alnum:]])/", "\\1'\\2", $title); // Manage issue of quotes improperly (de)coded in utf-8
-			$title = preg_replace("/^\s+/", "", $title); // Remove leading whitespace
+			$title = preg_replace("/([[:alnum:]])\?([[:alnum:]])/", "\\1'\\2", $title); // Gere probleme des apostrophes mal codee/decodee par utf8
+			$title = preg_replace("/^\s+/", "", $title); // Supprime espaces de debut
 
 			$tooltip = $title;
 			$description = !empty($item['description']) ? $item['description'] : '';

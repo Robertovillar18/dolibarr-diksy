@@ -21,10 +21,9 @@
  */
 
 /**
- *     \file       	htdocs/societe/societecontact.php
- *     \ingroup    	societe
- *     \brief      	Tab to manage differently contact.
- *     				Used when the unstable option MAIN_SUPPORT_SHARED_CONTACT_BETWEEN_THIRDPARTIES is on.
+ *     \file       htdocs/societe/societecontact.php
+ *     \ingroup    societe
+ *     \brief      Tab to manage differently contact. Used when unstable feature MAIN_SUPPORT_SHARED_CONTACT_BETWEEN_THIRDPARTIES is on.
  */
 
 
@@ -39,15 +38,15 @@ require_once DOL_DOCUMENT_ROOT.'/core/class/html.formcompany.class.php';
 $langs->loadLangs(array('companies', 'orders'));
 
 // Get parameters
-$id = GETPOSTINT('id') ? GETPOSTINT('id') : GETPOSTINT('socid');
+$id = GETPOST('id', 'int') ? GETPOST('id', 'int') : GETPOST('socid', 'int');
 $ref = GETPOST('ref', 'alpha');
 $action = GETPOST('action', 'aZ09');
 $massaction = GETPOST('massaction', 'alpha');
 
-$limit = GETPOSTINT('limit') ? GETPOSTINT('limit') : $conf->liste_limit;
+$limit = GETPOST('limit', 'int') ? GETPOST('limit', 'int') : $conf->liste_limit;
 $sortfield = GETPOST('sortfield', 'aZ09comma');
 $sortorder = GETPOST('sortorder', 'aZ09comma');
-$page = GETPOSTISSET('pageplusone') ? (GETPOSTINT('pageplusone') - 1) : GETPOSTINT("page");
+$page = GETPOSTISSET('pageplusone') ? (GETPOST('pageplusone') - 1) : GETPOST("page", 'int');
 if (!$sortorder) {
 	$sortorder = "ASC";
 }
@@ -83,7 +82,7 @@ if ($action == 'addcontact' && $user->hasRight('societe', 'creer')) {
 	$result = $object->fetch($id);
 
 	if ($result > 0 && $id > 0) {
-		$contactid = (GETPOSTINT('userid') ? GETPOSTINT('userid') : GETPOSTINT('contactid'));
+		$contactid = (GETPOST('userid', 'int') ? GETPOST('userid', 'int') : GETPOST('contactid', 'int'));
 		$typeid = (GETPOST('typecontact') ? GETPOST('typecontact') : GETPOST('type'));
 		$result = $object->add_contact($contactid, $typeid, GETPOST("source", 'aZ09'));
 	}
@@ -102,14 +101,14 @@ if ($action == 'addcontact' && $user->hasRight('societe', 'creer')) {
 } elseif ($action == 'swapstatut' && $user->hasRight('societe', 'creer')) {
 	// bascule du statut d'un contact
 	if ($object->fetch($id)) {
-		$result = $object->swapContactStatus(GETPOSTINT('ligne'));
+		$result = $object->swapContactStatus(GETPOST('ligne', 'int'));
 	} else {
 		dol_print_error($db);
 	}
 } elseif ($action == 'deletecontact' && $user->hasRight('societe', 'creer')) {
 	// Efface un contact
 	$object->fetch($id);
-	$result = $object->delete_contact(GETPOSTINT("lineid"));
+	$result = $object->delete_contact(GETPOST("lineid", 'int'));
 
 	if ($result >= 0) {
 		header("Location: ".$_SERVER['PHP_SELF']."?id=".$object->id);
@@ -140,7 +139,7 @@ $userstatic = new User($db);
 if ($id > 0 || !empty($ref)) {
 	if ($object->fetch($id, $ref) > 0) {
 		$head = societe_prepare_head($object);
-		print dol_get_fiche_head($head, 'contactext', $langs->trans("ThirdParty"), -1, 'company');
+		print dol_get_fiche_head($head, 'contact', $langs->trans("ThirdParty"), -1, 'company');
 
 		print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
 		print '<input type="hidden" name="token" value="'.newToken().'">';
@@ -205,8 +204,8 @@ if ($id > 0 || !empty($ref)) {
 			}
 		}
 
-		// additional list with adherents of company
-		if (isModEnabled('member') && $user->hasRight('adherent', 'lire')) {
+		// additionnal list with adherents of company
+		if (isModEnabled('adherent') && $user->hasRight('adherent', 'lire')) {
 			require_once DOL_DOCUMENT_ROOT.'/adherents/class/adherent.class.php';
 			require_once DOL_DOCUMENT_ROOT.'/adherents/class/adherent_type.class.php';
 

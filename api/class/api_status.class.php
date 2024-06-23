@@ -1,7 +1,5 @@
 <?php
-/*
- * Copyright (C) 2015      Jean-François Ferry     <jfefe@aternatik.fr>
- * Copyright (C) 2023      Christian Foellmann     <christian@foellmann.de>
+/* Copyright (C) 2015   Jean-François Ferry     <jfefe@aternatik.fr>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -45,23 +43,14 @@ class Status extends DolibarrApi
 	 */
 	public function index()
 	{
-		global $dolibarr_main_prod;
+		global $conf;
 
-		$response = array(
+		return array(
 			'success' => array(
 				'code' => 200,
 				'dolibarr_version' => DOL_VERSION,
-				'access_locked' => getDolGlobalString('MAIN_ONLY_LOGIN_ALLOWED', '0'),
+				'access_locked' => (!getDolGlobalString('MAIN_ONLY_LOGIN_ALLOWED') ? '0' : $conf->global->MAIN_ONLY_LOGIN_ALLOWED),
 			),
 		);
-
-		if (empty($dolibarr_main_prod)) {
-			$response['success']['environment']       = 'non-production';
-			$response['success']['timestamp_now_utc'] = dol_now();
-			$response['success']['timestamp_php_tz']  = date_default_timezone_get();
-			$response['success']['date_tz']           = dol_print_date(dol_now('gmt'), 'standard');
-		}
-
-		return $response;
 	}
 }

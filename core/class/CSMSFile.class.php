@@ -3,7 +3,6 @@
  * Copyright (C) 2003      Jean-Louis Bergamo   <jlb@j1b.org>
  * Copyright (C) 2004-2012 Laurent Destailleur  <eldy@users.sourceforge.net>
  * Copyright (C) 2005-2009 Regis Houssin        <regis.houssin@inodbox.com>
- * Copyright (C) 2024		MDW							<mdeweerd@users.noreply.github.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -56,22 +55,12 @@ class CSMSFile
 	 */
 	public $eol;
 
-	/**
-	 * @var string address from
-	 */
 	public $addr_from;
-
-	/**
-	 * @var string address to
-	 */
 	public $addr_to;
 	public $deferred;
 	public $priority;
 	public $class;
 	public $message;
-	/**
-	 * @var bool
-	 */
 	public $nostop;
 
 	public $socid;
@@ -98,7 +87,7 @@ class CSMSFile
 	{
 		global $conf;
 
-		// Define the line ending (TODO: Why not use PHP_EOL?)
+		// On definit fin de ligne
 		$this->eol = "\n";
 		if (preg_match('/^win/i', PHP_OS)) {
 			$this->eol = "\r\n";
@@ -107,7 +96,7 @@ class CSMSFile
 			$this->eol = "\r";
 		}
 
-		// If SMS sending method not defined
+		// If ending method not defined
 		if (!getDolGlobalString('MAIN_SMS_SENDMODE')) {
 			$this->error = 'No SMS Engine defined';
 			throw new Exception('No SMS Engine defined');
@@ -116,7 +105,7 @@ class CSMSFile
 		dol_syslog("CSMSFile::CSMSFile: MAIN_SMS_SENDMODE=".getDolGlobalString('MAIN_SMS_SENDMODE')." charset=".$conf->file->character_set_client." from=".$from.", to=".$to.", msg length=".strlen($msg), LOG_DEBUG);
 		dol_syslog("CSMSFile::CSMSFile: deferred=".$deferred." priority=".$priority." class=".$class, LOG_DEBUG);
 
-		// Action according to chosen sending method
+		// Action according to choosed sending method
 		$this->addr_from = $from;
 		$this->addr_to = $to;
 		$this->deferred = $deferred;
@@ -129,14 +118,16 @@ class CSMSFile
 
 
 	/**
-	 * Send SMS that was prepared by constructor
+	 * Send sms that was prepared by constructor
 	 *
-	 * @return    boolean     True if SMS sent, false otherwise
+	 * @return    boolean     True if sms sent, false otherwise
 	 */
 	public function sendfile()
 	{
+		global $conf;
+
 		$errorlevel = error_reporting();
-		error_reporting($errorlevel ^ E_WARNING); // Disable warnings
+		error_reporting($errorlevel ^ E_WARNING); // Desactive warnings
 
 		$res = false;
 
@@ -150,7 +141,7 @@ class CSMSFile
 		}
 
 		if (!getDolGlobalString('MAIN_DISABLE_ALL_SMS')) {
-			// Action according to the chose sending method
+			// Action according to the choosed sending method
 			if (getDolGlobalString('MAIN_SMS_SENDMODE')) {
 				$sendmode = getDolGlobalString('MAIN_SMS_SENDMODE');	// $conf->global->MAIN_SMS_SENDMODE looks like a value 'module'
 				$classmoduleofsender = getDolGlobalString('MAIN_MODULE_'.strtoupper($sendmode).'_SMS', $sendmode);	// $conf->global->MAIN_MODULE_XXX_SMS looks like a value 'class@module'
@@ -164,12 +155,8 @@ class CSMSFile
 				dol_include_once('/'.$module.'/class/'.strtolower($classfile).'.class.php');
 				try {
 					$classname = ucfirst($classfile);
-
-					dol_syslog("CSMSFile::sendfile: try to include class ".$classname);
-
 					if (class_exists($classname)) {
 						$sms = new $classname($this->db);
-
 						$sms->expe = $this->addr_from;
 						$sms->dest = $this->addr_to;
 						$sms->deferred = $this->deferred;
@@ -190,10 +177,6 @@ class CSMSFile
 						$this->errors = $sms->errors;
 						if ($res <= 0) {
 							dol_syslog("CSMSFile::sendfile: sms send error=".$this->error, LOG_ERR);
-							if (getDolGlobalString('MAIN_SMS_DEBUG')) {
-								$this->dump_sms_result($res);
-							}
-							$res = false;
 						} else {
 							dol_syslog("CSMSFile::sendfile: sms send success with id=".$res, LOG_DEBUG);
 							//var_dump($res);        // 1973128
@@ -202,16 +185,17 @@ class CSMSFile
 							}
 						}
 					} else {
-						$this->error = 'The SMS manager "'.$classfile.'" defined into SMS setup MAIN_MODULE_'.strtoupper($sendmode).'_SMS is not found';
+						$sms = new stdClass();
+						$sms->error = 'The SMS manager "'.$classfile.'" defined into SMS setup MAIN_MODULE_'.strtoupper($sendmode).'_SMS is not found';
 					}
 				} catch (Exception $e) {
-					dol_print_error(null, 'Error to get list of senders: '.$e->getMessage());
+					dol_print_error('', 'Error to get list of senders: '.$e->getMessage());
 				}
 			} else {
 				// Send sms method not correctly defined
 				// --------------------------------------
-				$this->error = 'Bad value for MAIN_SMS_SENDMODE constant';
-				$res = false;
+
+				return 'Bad value for MAIN_SMS_SENDMODE constant';
 			}
 		} else {
 			$this->error = 'No sms sent. Feature is disabled by option MAIN_DISABLE_ALL_SMS';
@@ -236,18 +220,18 @@ class CSMSFile
 		// phpcs:enable
 		global $conf, $dolibarr_main_data_root;
 
-		if (@is_writable($dolibarr_main_data_root)) {	// Avoid fatal error on fopen with open_basedir
+		if (@is_writeable($dolibarr_main_data_root)) {	// Avoid fatal error on fopen with open_basedir
 			$outputfile = $dolibarr_main_data_root."/dolibarr_sms.log";
 			$fp = fopen($outputfile, "w");
 
-			fwrite($fp, "From: ".$this->addr_from."\n");
-			fwrite($fp, "To: ".$this->addr_to."\n");
-			fwrite($fp, "Priority: ".$this->priority."\n");
-			fwrite($fp, "Class: ".$this->class."\n");
-			fwrite($fp, "Deferred: ".$this->deferred."\n");
-			fwrite($fp, "DisableStop: ".((string) (int) $this->nostop)."\n");
-			fwrite($fp, "DeliveryReceipt: ".$this->deliveryreceipt."\n");
-			fwrite($fp, "Message:\n".$this->message);
+			fputs($fp, "From: ".$this->addr_from."\n");
+			fputs($fp, "To: ".$this->addr_to."\n");
+			fputs($fp, "Priority: ".$this->priority."\n");
+			fputs($fp, "Class: ".$this->class."\n");
+			fputs($fp, "Deferred: ".$this->deferred."\n");
+			fputs($fp, "DisableStop: ".$this->nostop."\n");
+			fputs($fp, "DeliveryReceipt: ".$this->deliveryreceipt."\n");
+			fputs($fp, "Message:\n".$this->message);
 
 			fclose($fp);
 			dolChmod($outputfile);
@@ -265,13 +249,13 @@ class CSMSFile
 	public function dump_sms_result($result)
 	{
 		// phpcs:enable
-		global $dolibarr_main_data_root;
+		global $conf, $dolibarr_main_data_root;
 
-		if (@is_writable($dolibarr_main_data_root)) {    // Avoid fatal error on fopen with open_basedir
+		if (@is_writeable($dolibarr_main_data_root)) {    // Avoid fatal error on fopen with open_basedir
 			$outputfile = $dolibarr_main_data_root."/dolibarr_sms.log";
 			$fp = fopen($outputfile, "a+");
 
-			fwrite($fp, "\nResult of SmsSend = ".$result);
+			fputs($fp, "\nResult id=".$result);
 
 			fclose($fp);
 			dolChmod($outputfile);

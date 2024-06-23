@@ -1,2 +1,4 @@
 # Dolibarr language file - Source file is en_US - errors
-EmptyMessageNotAllowedError=Empty Message Not Allowed Error
+ErrorRefAlreadyExists=Reference <b>%s</b> used for creation already exists.
+ThisIdNotDefined=Id not defined
+OperNotDefined=Payment method not defined

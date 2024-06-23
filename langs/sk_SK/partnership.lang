@@ -91,7 +91,8 @@ CountLastUrlCheckError=Počet chýb pri poslednej kontrole webovej adresy
 LastCheckBacklink=Dátum poslednej kontroly webovej adresy
 
 NewPartnershipRequest=Nová žiadosť o partnerstvo
-NewPartnershipRequestDesc=This form allows you to request to be part of one of our partnership program. If you need help to fill this form, please contact by email <b>%s</b>.
+NewPartnershipRequestDesc=Tento formulár vám umožňuje požiadať o účasť v jednom z našich partnerských programov. Ak potrebujete pomoc s vyplnením tohto formulára, kontaktujte nás e-mailom <b>%s</b>%s<span class='notranslate'></b> rozpätie>.
 ThisUrlMustContainsAtLeastOneLinkToWebsite=Táto stránka musí obsahovať aspoň jeden odkaz na jednu z nasledujúcich domén: %s
 
 IPOfApplicant=IP žiadateľa
+

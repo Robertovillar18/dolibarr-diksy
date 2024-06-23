@@ -18,7 +18,7 @@
 // Protection to avoid direct call of template
 if (empty($conf) || !is_object($conf)) {
 	print "Error, template page can't be called as URL";
-	exit(1);
+	exit;
 }
 
 require_once DOL_DOCUMENT_ROOT.'/core/lib/payments.lib.php';
@@ -30,7 +30,7 @@ print '<u>'.$langs->trans("FollowingUrlAreAvailableToMakePayments").':</u><br><b
 print img_picto('', 'globe').' <span class="opacitymedium">'.$langs->trans("ToOfferALinkForOnlinePaymentOnFreeAmount", $servicename).':</span><br>';
 print '<strong class="wordbreak">'.getOnlinePaymentUrl(1, 'free')."</strong><br><br>\n";
 
-if (isModEnabled('order')) {
+if (isModEnabled('commande')) {
 	print '<div id="order"></div>';
 	print img_picto('', 'globe').' <span class="opacitymedium">'.$langs->trans("ToOfferALinkForOnlinePaymentOnOrder", $servicename).':</span><br>';
 	print '<strong class="wordbreak">'.getOnlinePaymentUrl(1, 'order')."</strong><br>\n";
@@ -52,7 +52,7 @@ if (isModEnabled('order')) {
 	}
 	print '<br>';
 }
-if (isModEnabled('invoice')) {
+if (isModEnabled('facture')) {
 	print '<div id="invoice"></div>';
 	print img_picto('', 'globe').' <span class="opacitymedium">'.$langs->trans("ToOfferALinkForOnlinePaymentOnInvoice", $servicename).':</span><br>';
 	print '<strong class="wordbreak">'.getOnlinePaymentUrl(1, 'invoice')."</strong><br>\n";
@@ -74,7 +74,7 @@ if (isModEnabled('invoice')) {
 	}
 	print '<br>';
 }
-if (isModEnabled('contract')) {
+if (isModEnabled('contrat')) {
 	print '<div id="contractline"></div>';
 	print img_picto('', 'globe').' <span class="opacitymedium">'.$langs->trans("ToOfferALinkForOnlinePaymentOnContractLine", $servicename).':</span><br>';
 	print '<strong class="wordbreak">'.getOnlinePaymentUrl(1, 'contractline')."</strong><br>\n";
@@ -96,7 +96,7 @@ if (isModEnabled('contract')) {
 	}
 	print '<br>';
 }
-if (isModEnabled('member')) {
+if (isModEnabled('adherent')) {
 	print '<div id="membersubscription"></div>';
 	print img_picto('', 'globe').' <span class="opacitymedium">'.$langs->trans("ToOfferALinkForOnlinePaymentOnMemberSubscription", $servicename).':</span><br>';
 	print '<strong class="wordbreak">'.getOnlinePaymentUrl(1, 'membersubscription')."</strong><br>\n";
@@ -148,9 +148,5 @@ include_once DOL_DOCUMENT_ROOT.'/core/lib/security2.lib.php';
 print dolJSToSetRandomPassword($constname);
 
 print info_admin($langs->trans("YouCanAddTagOnUrl"));
-
-if (isModEnabled('website')) {
-	print info_admin($langs->trans("YouCanEmbedOnWebsite"));
-}
 
 print '<!-- END PHP TEMPLATE ONLINEPAYMENTLINKS -->';

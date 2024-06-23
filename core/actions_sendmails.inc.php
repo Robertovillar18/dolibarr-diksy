@@ -1,6 +1,5 @@
 <?php
 /* Copyright (C) 2013 Laurent Destailleur  <eldy@users.sourceforge.net>
- * Copyright (C) 2024		MDW							<mdeweerd@users.noreply.github.com>
 *  Copyright (C) 2013 Juanjo Menent		   <jmenent@2byte.es>
 *
 * This program is free software; you can redistribute it and/or modify
@@ -30,10 +29,6 @@
 // $triggersendname must be set (can be '')
 // $actiontypecode can be set
 // $object and $uobject may be defined
-'
-@phan-var-force Societe      $mysoc
-@phan-var-force CommonObject $object
-';
 
 /*
  * Add file in email form
@@ -96,7 +91,7 @@ if (GETPOST('removAll', 'alpha')) {
 	foreach ($listofpaths as $key => $value) {
 		$pathtodelete = $value;
 		$filetodelete = $listofnames[$key];
-		$result = dol_delete_file($pathtodelete, 1); // Delete uploaded Files
+		$result = dol_delete_file($pathtodelete, 1); // Delete uploded Files
 
 		$langs->load("other");
 		setEventMessages($langs->trans("FileWasRemoved", $filetodelete), null, 'mesgs');
@@ -160,7 +155,7 @@ if (($action == 'send' || $action == 'relance') && !GETPOST('addfile') && !GETPO
 				}
 			}
 		} else {
-			dol_print_error(null, "Use actions_sendmails.in.php for an element/object '".$object->element."' that is not supported");
+			dol_print_error('', "Use actions_sendmails.in.php for an element/object '".$object->element."' that is not supported");
 		}
 
 		if (is_object($hookmanager)) {
@@ -190,12 +185,12 @@ if (($action == 'send' || $action == 'relance') && !GETPOST('addfile') && !GETPO
 		}
 
 		$tmparray = array();
-		if (trim(GETPOST('sendto', 'alphawithlgt'))) {
+		if (trim($_POST['sendto'])) {
 			// Recipients are provided into free text field
 			$tmparray[] = trim(GETPOST('sendto', 'alphawithlgt'));
 		}
 
-		if (trim(GETPOST('tomail', 'alphawithlgt'))) {
+		if (isset($_POST['tomail']) && trim($_POST['tomail'])) {
 			// Recipients are provided into free hidden text field
 			$tmparray[] = trim(GETPOST('tomail', 'alphawithlgt'));
 		}
@@ -238,7 +233,7 @@ if (($action == 'send' || $action == 'relance') && !GETPOST('addfile') && !GETPO
 			}
 		}
 		$tmparray = array();
-		if (trim(GETPOST('sendtocc', 'alphawithlgt'))) {
+		if (trim($_POST['sendtocc'])) {
 			$tmparray[] = trim(GETPOST('sendtocc', 'alphawithlgt'));
 		}
 		if (count($receivercc) > 0) {
@@ -314,7 +309,6 @@ if (($action == 'send' || $action == 'relance') && !GETPOST('addfile') && !GETPO
 			}
 
 			$replyto = dol_string_nospecial(GETPOST('replytoname'), ' ', array(",")).' <'.GETPOST('replytomail').'>';
-
 			$message = GETPOST('message', 'restricthtml');
 			$subject = GETPOST('subject', 'restricthtml');
 
@@ -328,7 +322,7 @@ if (($action == 'send' || $action == 'relance') && !GETPOST('addfile') && !GETPO
 			// Autocomplete the $sendtobcc
 			// $autocopy can be MAIN_MAIL_AUTOCOPY_PROPOSAL_TO, MAIN_MAIL_AUTOCOPY_ORDER_TO, MAIN_MAIL_AUTOCOPY_INVOICE_TO, MAIN_MAIL_AUTOCOPY_SUPPLIER_PROPOSAL_TO...
 			if (!empty($autocopy)) {
-				$sendtobcc .= (getDolGlobalString($autocopy) ? (($sendtobcc ? ", " : "") . getDolGlobalString($autocopy)) : '');
+				$sendtobcc .= (empty($conf->global->$autocopy) ? '' : (($sendtobcc ? ", " : "") . getDolGlobalString($autocopy)));
 			}
 
 			$deliveryreceipt = GETPOST('deliveryreceipt');
@@ -362,7 +356,7 @@ if (($action == 'send' || $action == 'relance') && !GETPOST('addfile') && !GETPO
 			$substitutionarray['__EMAIL__'] = $sendto;
 			$substitutionarray['__CHECK_READ__'] = (is_object($object) && is_object($object->thirdparty)) ? '<img src="'.DOL_MAIN_URL_ROOT.'/public/emailing/mailing-read.php?tag=undefined&securitykey='.dol_hash(getDolGlobalString('MAILING_EMAIL_UNSUBSCRIBE_KEY')."-undefined", 'md5').'" width="1" height="1" style="width:1px;height:1px" border="0"/>' : '';
 
-			$parameters = array('mode' => 'formemail');
+			$parameters = array('mode'=>'formemail');
 			complete_substitutions_array($substitutionarray, $langs, $object, $parameters);
 
 			$subject = make_substitutions($subject, $substitutionarray);
@@ -388,14 +382,14 @@ if (($action == 'send' || $action == 'relance') && !GETPOST('addfile') && !GETPO
 					// Initialisation of datas of object to call trigger
 					if (is_object($object)) {
 						if (empty($actiontypecode)) {
-							$actiontypecode = 'AC_OTH_AUTO'; // Event inserted into agenda automatically
+							$actiontypecode = 'AC_OTH_AUTO'; // Event insert into agenda automatically
 						}
 
 						$object->socid = $sendtosocid; // To link to a company
 						$object->sendtoid = $sendtoid; // To link to contact-addresses. This is an array.
 						$object->actiontypecode = $actiontypecode; // Type of event ('AC_OTH', 'AC_OTH_AUTO', 'AC_XXX'...)
 						$object->actionmsg = $message; // Long text
-						$object->actionmsg2 = $actionmsg2; // Short text ($langs->transnoentities('MailSentByTo')...);
+						$object->actionmsg2 = $actionmsg2; // Short text ($langs->transnoentities('MailSentBy')...);
 						if (getDolGlobalString('MAIN_MAIL_REPLACE_EVENT_TITLE_BY_EMAIL_SUBJECT')) {
 							$object->actionmsg2		= $subject; // Short text
 						}
@@ -439,10 +433,10 @@ if (($action == 'send' || $action == 'relance') && !GETPOST('addfile') && !GETPO
 					setEventMessages($mesg, null, 'mesgs');
 
 					$moreparam = '';
-					if (isset($paramval2)) {
+					if (isset($paramname2) || isset($paramval2)) {
 						$moreparam .= '&'.($paramname2 ? $paramname2 : 'mid').'='.$paramval2;
 					}
-					header('Location: '.$_SERVER["PHP_SELF"].'?'.($paramname ?? 'id').'='.(is_object($object) ? $object->id : '').$moreparam);
+					header('Location: '.$_SERVER["PHP_SELF"].'?'.($paramname ? $paramname : 'id').'='.(is_object($object) ? $object->id : '').$moreparam);
 					exit;
 				} else {
 					$langs->load("other");
@@ -460,7 +454,7 @@ if (($action == 'send' || $action == 'relance') && !GETPOST('addfile') && !GETPO
 						if (getDolGlobalString('MAIN_DISABLE_ALL_MAILS')) {
 							$mesg .= '<br>Feature is disabled by option MAIN_DISABLE_ALL_MAILS';
 						} else {
-							$mesg .= '<br>Unknown Error, please refer to your administrator';
+							$mesg .= '<br>Unkown Error, please refers to your administrator';
 						}
 					}
 					$mesg .= '</div>';

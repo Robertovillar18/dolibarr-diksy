@@ -17,26 +17,8 @@
  */
 
 /**
- *	\file       htdocs/variants/class/ProductCombination2ValuePair.class.php
- *	\ingroup    variants
- *	\brief      File of the ProductCombination2ValuePair class
- */
-
-
-/**
  * Class ProductCombination2ValuePair
- * Used to represent the relation between a variant and its attributes.
- *
- * Example: a product "shirt" has a variant "shirt XL white" linked to the attributes "size: XL" and "color: white".
- * This is represented with two ProductCombination2ValuePair objects:
- * - One for "size: XL":
- *     * $object->fk_prod_combination    ID of the ProductCombination object between product "shirt" and its variant "shirt XL white"
- *     * $object->fk_prod_attr           ID of the ProductAttribute object "size"
- *     * $object->fk_prod_attr_val       ID of the ProductAttributeValue object "XL"
- * - Another for "color: white":
- *     * $object->fk_prod_combination    ID of the ProductCombination object between product "shirt" and its variant "shirt XL white"
- *     * $object->fk_prod_attr           ID of the ProductAttribute object "color"
- *     * $object->fk_prod_attr_val       ID of the ProductAttributeValue object "white"
+ * Used to represent the relation between a product combination, a product attribute and a product attribute value
  */
 class ProductCombination2ValuePair
 {
@@ -47,41 +29,36 @@ class ProductCombination2ValuePair
 	private $db;
 
 	/**
-	 * ID of this ProductCombination2ValuePair
+	 * Combination 2 value pair id
 	 * @var int
 	 */
 	public $id;
 
 	/**
-	 * ID of the ProductCombination linked to this object
-	 * (ex: ID of the ProductCombination between product "shirt" and its variant "shirt XL white")
+	 * Product combination id
 	 * @var int
 	 */
 	public $fk_prod_combination;
 
 	/**
-	 * ID of the ProductAttribute linked to this object
-	 * (ex: ID of the ProductAttribute "color")
+	 * Product attribute id
 	 * @var int
 	 */
 	public $fk_prod_attr;
 
 	/**
-	 * ID of the ProductAttributeValue linked to this object
-	 * (ex: ID of the ProductAttributeValue "white")
+	 * Product attribute value id
 	 * @var int
 	 */
 	public $fk_prod_attr_val;
 
 	/**
-	 * Error message
-	 * @var string
+	 * @var string error
 	 */
 	public $error;
 
 	/**
-	 * Array of error messages
-	 * @var string[]
+	 * @var string[] array of errors
 	 */
 	public $errors = array();
 
@@ -115,10 +92,10 @@ class ProductCombination2ValuePair
 	}
 
 	/**
-	 * Create a ProductCombination2ValuePair
+	 * Creates a product combination 2 value pair
 	 *
-	 * @param	User	$user		User that creates		//not used
-	 * @return 	-1|1				1 if OK, -1 if KO
+	 * @param	User	$user		User that create
+	 * @return 	int 				Return integer <0 KO, >0 OK
 	 */
 	public function create($user)
 	{
@@ -138,10 +115,10 @@ class ProductCombination2ValuePair
 	}
 
 	/**
-	 * Retrieve all ProductCombination2ValuePair linked to a given ProductCombination ID.
+	 * Retrieves a product combination 2 value pair from its rowid
 	 *
-	 * @param   int          $fk_combination           ID of the ProductCombination
-	 * @return  -1|ProductCombination2ValuePair[]      -1 if KO, array of ProductCombination2ValuePair if OK
+	 * @param int $fk_combination Fk combination to search
+	 * @return int|ProductCombination2ValuePair[] -1 if KO
 	 */
 	public function fetchByFkCombination($fk_combination)
 	{
@@ -177,10 +154,10 @@ class ProductCombination2ValuePair
 	}
 
 	/**
-	 * Delete all ProductCombination2ValuePair linked to a given ProductCombination ID.
+	 * Deletes a product combination 2 value pair
 	 *
-	 * @param       int     $fk_combination         ID of the ProductCombination
-	 * @return      -1|1                            -1 if KO, 1 if OK
+	 * @param int $fk_combination Rowid of the combination
+	 * @return int >0 OK <0 KO
 	 */
 	public function deleteByFkCombination($fk_combination)
 	{

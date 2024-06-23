@@ -1,8 +1,6 @@
 <?php
 /* Copyright (C) 2017  Laurent Destailleur <eldy@users.sourceforge.net>
  * Copyright (C) ---Put here your own copyright and developer email---
- * Copyright (C) 2024       Frédéric France             <frederic.france@free.fr>
- * Copyright (C) 2024		MDW							<mdeweerd@users.noreply.github.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,6 +48,17 @@ class CTicketCategory extends CommonObject
 	public $table_element = 'c_ticket_category';
 
 	/**
+	 * @var int  Does this object support multicompany module ?
+	 * 0=No test on entity, 1=Test with field entity, 'field@table'=Test with link by field@table
+	 */
+	public $ismultientitymanaged = 0;
+
+	/**
+	 * @var int  Does object support extrafields ? 0=No, 1=Yes
+	 */
+	public $isextrafieldmanaged = 0;
+
+	/**
 	 * @var string String with name of icon for myobject. Must be the part after the 'object_' into object_myobject.png
 	 */
 	public $picto = 'ticket';
@@ -71,7 +80,7 @@ class CTicketCategory extends CommonObject
 	 *  'noteditable' says if field is not editable (1 or 0)
 	 *  'default' is a default value for creation (can still be overwrote by the Setup of Default Values if field is editable in creation form). Note: If default is set to '(PROV)' and field is 'ref', the default value will be set to '(PROVid)' where id is rowid when a new record is created.
 	 *  'index' if we want an index in database.
-	 *  'foreignkey'=>'tablename.field' if the field is a foreign key (it is recommended to name the field fk_...).
+	 *  'foreignkey'=>'tablename.field' if the field is a foreign key (it is recommanded to name the field fk_...).
 	 *  'searchall' is 1 if we want to search in this field when making a search from the quick search button.
 	 *  'isameasure' must be set to 1 if you want to have a total on list for this field. Field type must be summable like integer or double(24,8).
 	 *  'css' and 'cssview' and 'csslist' is the CSS style to use on field. 'css' is used in creation and update. 'cssview' is used in view mode. 'csslist' is used for columns in lists. For example: 'maxwidth200', 'wordbreak', 'tdoverflowmax200'
@@ -87,20 +96,20 @@ class CTicketCategory extends CommonObject
 
 	// BEGIN MODULEBUILDER PROPERTIES
 	/**
-	 * @var array<string,array{type:string,label:string,enabled:int<0,2>|string,position:int,notnull?:int,visible:int,noteditable?:int,default?:string,index?:int,foreignkey?:string,searchall?:int,isameasure?:int,css?:string,csslist?:string,help?:string,showoncombobox?:int,disabled?:int,arrayofkeyval?:array<int,string>,comment?:string}>  Array with all fields and their property. Do not use it as a static var. It may be modified by constructor.
+	 * @var array  Array with all fields and their property. Do not use it as a static var. It may be modified by constructor.
 	 */
-	public $fields = array(
-		'rowid' => array('type' => 'integer', 'label' => 'TechnicalID', 'enabled' => 1, 'visible' => -1, 'notnull' => 1, 'position' => 10),
-		'entity' => array('type' => 'integer', 'label' => 'Entity', 'default' => '1', 'enabled' => 1, 'visible' => -2, 'position' => 15, 'index' => 1),
-		'code' => array('type' => 'varchar(32)', 'label' => 'Code', 'enabled' => 1, 'visible' => -1, 'notnull' => 1, 'position' => 20),
-		'pos' => array('type' => 'integer', 'label' => 'Pos', 'enabled' => 1, 'visible' => -1, 'notnull' => 1, 'position' => 25),
-		'label' => array('type' => 'varchar(128)', 'label' => 'Label', 'enabled' => 1, 'visible' => -1, 'notnull' => 1, 'position' => 30, 'showoncombobox' => 1),
-		'active' => array('type' => 'integer', 'label' => 'Active', 'enabled' => 1, 'visible' => -1, 'position' => 35),
-		'use_default' => array('type' => 'integer', 'label' => 'Usedefault', 'enabled' => 1, 'visible' => -1, 'position' => 40),
-		'description' => array('type' => 'varchar(255)', 'label' => 'Description', 'enabled' => 1, 'visible' => -1, 'position' => 45),
-		'fk_parent' => array('type' => 'integer', 'label' => 'Fkparent', 'enabled' => 1, 'visible' => -1, 'notnull' => 1, 'position' => 50),
-		'force_severity' => array('type' => 'varchar(32)', 'label' => 'Forceseverity', 'enabled' => 1, 'visible' => -1, 'position' => 55),
-		'public' => array('type' => 'integer', 'label' => 'Public', 'enabled' => 1, 'visible' => -1, 'position' => 60),
+	public $fields=array(
+		'rowid' =>array('type'=>'integer', 'label'=>'TechnicalID', 'enabled'=>1, 'visible'=>-1, 'notnull'=>1, 'position'=>10),
+		'entity' =>array('type'=>'integer', 'label'=>'Entity', 'default'=>1, 'enabled'=>1, 'visible'=>-2, 'position'=>15, 'index'=>1),
+		'code' =>array('type'=>'varchar(32)', 'label'=>'Code', 'enabled'=>1, 'visible'=>-1, 'notnull'=>1, 'position'=>20),
+		'pos' =>array('type'=>'integer', 'label'=>'Pos', 'enabled'=>1, 'visible'=>-1, 'notnull'=>1, 'position'=>25),
+		'label' =>array('type'=>'varchar(128)', 'label'=>'Label', 'enabled'=>1, 'visible'=>-1, 'notnull'=>1, 'position'=>30, 'showoncombobox'=>1),
+		'active' =>array('type'=>'integer', 'label'=>'Active', 'enabled'=>1, 'visible'=>-1, 'position'=>35),
+		'use_default' =>array('type'=>'integer', 'label'=>'Usedefault', 'enabled'=>1, 'visible'=>-1, 'position'=>40),
+		'description' =>array('type'=>'varchar(255)', 'label'=>'Description', 'enabled'=>1, 'visible'=>-1, 'position'=>45),
+		'fk_parent' =>array('type'=>'integer', 'label'=>'Fkparent', 'enabled'=>1, 'visible'=>-1, 'notnull'=>1, 'position'=>50),
+		'force_severity' =>array('type'=>'varchar(32)', 'label'=>'Forceseverity', 'enabled'=>1, 'visible'=>-1, 'position'=>55),
+		'public' =>array('type'=>'integer', 'label'=>'Public', 'enabled'=>1, 'visible'=>-1, 'position'=>60),
 	);
 
 	/**
@@ -139,6 +148,11 @@ class CTicketCategory extends CommonObject
 	public $date_creation;
 
 	/**
+	 * @var integer tms
+	 */
+	public $tms;
+
+	/**
 	 * @var int ID
 	 */
 	public $fk_user_creat;
@@ -164,7 +178,7 @@ class CTicketCategory extends CommonObject
 	/**
 	 * Constructor
 	 *
-	 * @param DoliDB $db Database handler
+	 * @param DoliDb $db Database handler
 	 */
 	public function __construct(DoliDB $db)
 	{
@@ -172,15 +186,18 @@ class CTicketCategory extends CommonObject
 
 		$this->db = $db;
 
-		$this->ismultientitymanaged = 0;
-		$this->isextrafieldmanaged = 0;
-
 		if (!getDolGlobalString('MAIN_SHOW_TECHNICAL_ID') && isset($this->fields['rowid'])) {
 			$this->fields['rowid']['visible'] = 0;
 		}
 		if (!isModEnabled('multicompany') && isset($this->fields['entity'])) {
 			$this->fields['entity']['enabled'] = 0;
 		}
+
+		// Example to show how to set values of fields definition dynamically
+		/*if ($user->hasRight('mymodule', 'myobject', 'read')) {
+			$this->fields['myfield']['visible'] = 1;
+			$this->fields['myfield']['noteditable'] = 0;
+		}*/
 
 		// Unset fields that are disabled
 		foreach ($this->fields as $key => $val) {
@@ -205,10 +222,10 @@ class CTicketCategory extends CommonObject
 	 * Create object into database
 	 *
 	 * @param  User $user      User that creates
-	 * @param  int 	$notrigger 0=launch triggers after, 1=disable triggers
+	 * @param  bool $notrigger false=launch triggers after, true=disable triggers
 	 * @return int             Return integer <0 if KO, Id of created object if OK
 	 */
-	public function create(User $user, $notrigger = 0)
+	public function create(User $user, $notrigger = false)
 	{
 		$resultcreate = $this->createCommon($user, $notrigger);
 
@@ -347,16 +364,15 @@ class CTicketCategory extends CommonObject
 	/**
 	 * Load list of objects in memory from the database.
 	 *
-	 * @param  string      	$sortorder    	Sort Order
-	 * @param  string      	$sortfield    	Sort field
-	 * @param  int         	$limit        	limit
-	 * @param  int         	$offset       	Offset
-	 * @param  string		$filter       	Filter as an Universal Search string.
-	 * 										Example: '((client:=:1) OR ((client:>=:2) AND (client:<=:3))) AND (client:!=:8) AND (nom:like:'a%')'
-	 * @param  string      	$filtermode   	No more used
-	 * @return array|int                 	int <0 if KO, array of pages if OK
+	 * @param  string      $sortorder    Sort Order
+	 * @param  string      $sortfield    Sort field
+	 * @param  int         $limit        limit
+	 * @param  int         $offset       Offset
+	 * @param  array       $filter       Filter array. Example array('field'=>'valueforlike', 'customurl'=>...)
+	 * @param  string      $filtermode   Filter mode (AND or OR)
+	 * @return array|int                 int <0 if KO, array of pages if OK
 	 */
-	public function fetchAll($sortorder = '', $sortfield = '', $limit = 0, $offset = 0, $filter = '', $filtermode = 'AND')
+	public function fetchAll($sortorder = '', $sortfield = '', $limit = 0, $offset = 0, array $filter = array(), $filtermode = 'AND')
 	{
 		dol_syslog(__METHOD__, LOG_DEBUG);
 
@@ -370,14 +386,25 @@ class CTicketCategory extends CommonObject
 		} else {
 			$sql .= ' WHERE 1 = 1';
 		}
-
 		// Manage filter
-		$errormessage = '';
-		$sql .= forgeSQLFromUniversalSearchCriteria($filter, $errormessage);
-		if ($errormessage) {
-			$this->errors[] = $errormessage;
-			dol_syslog(__METHOD__.' '.implode(',', $this->errors), LOG_ERR);
-			return -1;
+		$sqlwhere = array();
+		if (count($filter) > 0) {
+			foreach ($filter as $key => $value) {
+				if ($key == 't.rowid') {
+					$sqlwhere[] = $key." = ".((int) $value);
+				} elseif (array_key_exists($key, $this->fields) && in_array($this->fields[$key]['type'], array('date', 'datetime', 'timestamp'))) {
+					$sqlwhere[] = $key." = '".$this->db->idate($value)."'";
+				} elseif ($key == 'customsql') {
+					$sqlwhere[] = $value;
+				} elseif (strpos($value, '%') === false) {
+					$sqlwhere[] = $key." IN (".$this->db->sanitize($this->db->escape($value)).")";
+				} else {
+					$sqlwhere[] = $key." LIKE '%".$this->db->escape($value)."%'";
+				}
+			}
+		}
+		if (count($sqlwhere) > 0) {
+			$sql .= ' AND ('.implode(' '.$this->db->escape($filtermode).' ', $sqlwhere).')';
 		}
 
 		if (!empty($sortfield)) {
@@ -406,7 +433,7 @@ class CTicketCategory extends CommonObject
 			return $records;
 		} else {
 			$this->errors[] = 'Error '.$this->db->lasterror();
-			dol_syslog(__METHOD__.' '.implode(',', $this->errors), LOG_ERR);
+			dol_syslog(__METHOD__.' '.join(',', $this->errors), LOG_ERR);
 
 			return -1;
 		}
@@ -416,10 +443,10 @@ class CTicketCategory extends CommonObject
 	 * Update object into database
 	 *
 	 * @param  User $user      User that modifies
-	 * @param  int 	$notrigger 0=launch triggers after, 1=disable triggers
+	 * @param  bool $notrigger false=launch triggers after, true=disable triggers
 	 * @return int             Return integer <0 if KO, >0 if OK
 	 */
-	public function update(User $user, $notrigger = 0)
+	public function update(User $user, $notrigger = false)
 	{
 		return $this->updateCommon($user, $notrigger);
 	}
@@ -428,10 +455,10 @@ class CTicketCategory extends CommonObject
 	 * Delete object in database
 	 *
 	 * @param User $user       User that deletes
-	 * @param int 	$notrigger  0=launch triggers after, 1=disable triggers
+	 * @param bool $notrigger  false=launch triggers after, true=disable triggers
 	 * @return int             Return integer <0 if KO, >0 if OK
 	 */
-	public function delete(User $user, $notrigger = 0)
+	public function delete(User $user, $notrigger = false)
 	{
 		return $this->deleteCommon($user, $notrigger);
 		//return $this->deleteCommon($user, $notrigger, 1);
@@ -442,10 +469,10 @@ class CTicketCategory extends CommonObject
 	 *
 	 *	@param  User	$user       User that delete
 	 *  @param	int		$idline		Id of line to delete
-	 *  @param 	int 	$notrigger  false=launch triggers after, true=disable triggers
+	 *  @param 	bool 	$notrigger  false=launch triggers after, true=disable triggers
 	 *  @return int         		>0 if OK, <0 if KO
 	 */
-	public function deleteLine(User $user, $idline, $notrigger = 0)
+	public function deleteLine(User $user, $idline, $notrigger = false)
 	{
 		if ($this->status < 0) {
 			$this->error = 'ErrorDeleteLineNotAllowedByObjectStatus';
@@ -457,7 +484,7 @@ class CTicketCategory extends CommonObject
 
 
 	/**
-	 *  Return a link to the object card (with optionally the picto)
+	 *  Return a link to the object card (with optionaly the picto)
 	 *
 	 *  @param  int     $withpicto                  Include picto in link (0=No picto, 1=Include picto into link, 2=Only picto)
 	 *  @param  string  $option                     On what the link point to ('nolink', ...)
@@ -529,7 +556,7 @@ class CTicketCategory extends CommonObject
 
 		global $action, $hookmanager;
 		$hookmanager->initHooks(array('cticketcategorydao'));
-		$parameters = array('id' => $this->id, 'getnomurl' => &$result);
+		$parameters = array('id'=>$this->id, 'getnomurl' => &$result);
 		$reshook = $hookmanager->executeHooks('getNomUrl', $parameters, $this, $action); // Note that $action and $object may have been modified by some hooks
 		if ($reshook > 0) {
 			$result = $hookmanager->resPrint;
@@ -615,10 +642,10 @@ class CTicketCategory extends CommonObject
 	 * Initialise object with example values
 	 * Id must be 0 if object instance is a specimen
 	 *
-	 * @return int
+	 * @return void
 	 */
 	public function initAsSpecimen()
 	{
-		return $this->initAsSpecimenCommon();
+		$this->initAsSpecimenCommon();
 	}
 }

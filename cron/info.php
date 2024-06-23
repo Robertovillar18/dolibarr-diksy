@@ -35,7 +35,7 @@ if (!$user->hasRight('cron', 'read')) {
 	accessforbidden();
 }
 
-$id = GETPOSTINT('id');
+$id = GETPOST('id', 'int');
 
 $object = new Cronjob($db);
 

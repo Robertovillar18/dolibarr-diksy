@@ -21,7 +21,7 @@
 /**
  * 	\file       htdocs/compta/bank/document.php
  * 	\ingroup    banque
- * 	\brief      Page to manage documents attached to a bank account
+ * 	\brief      Page de gestion des documents attaches a un compte bancaire
  */
 require '../../main.inc.php';
 require_once DOL_DOCUMENT_ROOT."/core/lib/bank.lib.php";
@@ -33,7 +33,7 @@ require_once DOL_DOCUMENT_ROOT.'/compta/bank/class/account.class.php';
 // Load translation files required by the page
 $langs->loadLangs(array('banks', 'companies', 'other'));
 
-$id = (GETPOSTINT('id') ? GETPOSTINT('id') : GETPOSTINT('account'));
+$id = (GETPOST('id', 'int') ? GETPOST('id', 'int') : GETPOST('account', 'int'));
 $ref = GETPOST('ref', 'alpha');
 $action = GETPOST('action', 'aZ09');
 $confirm = GETPOST('confirm', 'alpha');
@@ -51,10 +51,10 @@ if ($user->socid) {
 }
 
 // Get parameters
-$limit = GETPOSTINT('limit') ? GETPOSTINT('limit') : $conf->liste_limit;
+$limit = GETPOST('limit', 'int') ? GETPOST('limit', 'int') : $conf->liste_limit;
 $sortfield = GETPOST('sortfield', 'aZ09comma');
 $sortorder = GETPOST('sortorder', 'aZ09comma');
-$page = GETPOSTISSET('pageplusone') ? (GETPOSTINT('pageplusone') - 1) : GETPOSTINT("page");
+$page = GETPOSTISSET('pageplusone') ? (GETPOST('pageplusone') - 1) : GETPOST("page", 'int');
 if (empty($page) || $page == -1) {
 	$page = 0;
 }
@@ -76,7 +76,7 @@ if ($id > 0 || !empty($ref)) {
 
 $result = restrictedArea($user, 'banque', $object->id, 'bank_account', '', '');
 
-$permissiontoadd = $user->hasRight('banque', 'modifier');	// Used by the include of actions_dellink.inc.php
+$permissiontoadd = $user->rights->banque->modifier;	// Used by the include of actions_dellink.inc.php
 
 
 /*
@@ -139,15 +139,15 @@ if ($id > 0 || !empty($ref)) {
 
 
 		$modulepart = 'bank';
-		$permissiontoadd = $user->hasRight('banque', 'modifier');
-		$permtoedit = $user->hasRight('banque', 'modifier');
+		$permissiontoadd = $user->rights->banque->modifier;
+		$permtoedit = $user->rights->banque->modifier;
 		$param = '&id='.$object->id;
 		include DOL_DOCUMENT_ROOT.'/core/tpl/document_actions_post_headers.tpl.php';
 	} else {
 		dol_print_error($db);
 	}
 } else {
-	header('Location: index.php');
+	Header('Location: index.php');
 	exit;
 }
 

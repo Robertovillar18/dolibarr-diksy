@@ -16,7 +16,7 @@ use Sabre\Uri;
  * @author Evert Pot (http://evertpot.com/)
  * @license http://sabre.io/license/ Modified BSD License
  */
-class Tree implements INodeByPath
+class Tree
 {
     /**
      * The root node.
@@ -62,26 +62,20 @@ class Tree implements INodeByPath
             return $this->rootNode;
         }
 
-        $parts = explode('/', $path);
-        $node = $this->rootNode;
+        // Attempting to fetch its parent
+        list($parentName, $baseName) = Uri\split($path);
 
-        while (count($parts)) {
-            if (!($node instanceof ICollection)) {
+        // If there was no parent, we must simply ask it from the root node.
+        if ('' === $parentName) {
+            $node = $this->rootNode->getChild($baseName);
+        } else {
+            // Otherwise, we recursively grab the parent and ask him/her.
+            $parent = $this->getNodeForPath($parentName);
+
+            if (!($parent instanceof ICollection)) {
                 throw new Exception\NotFound('Could not find node at path: '.$path);
             }
-
-            if ($node instanceof INodeByPath) {
-                $targetNode = $node->getNodeForPath(implode('/', $parts));
-                if ($targetNode instanceof Node) {
-                    $node = $targetNode;
-                    break;
-                }
-            }
-
-            $part = array_shift($parts);
-            if ('' !== $part) {
-                $node = $node->getChild($part);
-            }
+            $node = $parent->getChild($baseName);
         }
 
         $this->cache[$path] = $node;

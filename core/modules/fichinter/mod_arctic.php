@@ -4,7 +4,6 @@
  * Copyright (C) 2005-2009 Regis Houssin                <regis.houssin@inodbox.com>
  * Copyright (C) 2008      Raphael Bertrand (Resultic)  <raphael.bertrand@resultic.fr>
  * Copyright (C) 2013      Juanjo Menent				<jmenent@2byte.es>
- * Copyright (C) 2024       Frédéric France             <frederic.france@free.fr>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,13 +22,13 @@
 
 /**
  *	\file       htdocs/core/modules/fichinter/mod_arctic.php
- *	\ingroup    Intervention card
+ *	\ingroup    fiche intervention
  *	\brief      File with Arctic numbering module for interventions
  */
 require_once DOL_DOCUMENT_ROOT.'/core/modules/fichinter/modules_fichinter.php';
 
 /**
- *	Class to manage numbering of intervention cards with rule Arctic.
+ *	Class to manage numbering of intervention cards with rule Artic.
  */
 class mod_arctic extends ModeleNumRefFicheinter
 {
@@ -121,11 +120,11 @@ class mod_arctic extends ModeleNumRefFicheinter
 	/**
 	 * 	Return next free value
 	 *
-	 *  @param	Societe|string		$objsoc     Object thirdparty
-	 *  @param  Fichinter|string	$object		Object we need next value for
-	 *  @return string|0      					Value if OK, 0 if KO
+	 *  @param	Societe		$objsoc     Object thirdparty
+	 *  @param  Object		$object		Object we need next value for
+	 *  @return string      			Value if KO, <0 if KO
 	 */
-	public function getNextValue($objsoc = '', $object = '')
+	public function getNextValue($objsoc = 0, $object = '')
 	{
 		global $db, $conf;
 
@@ -138,11 +137,8 @@ class mod_arctic extends ModeleNumRefFicheinter
 			$this->error = 'NotConfigured';
 			return 0;
 		}
-		$datec = '';
-		if (!empty($object->datec)) {
-			$datec = $object->datec;
-		}
-		$numFinal = get_next_value($db, $mask, 'fichinter', 'ref', '', $objsoc, $datec);
+
+		$numFinal = get_next_value($db, $mask, 'fichinter', 'ref', '', $objsoc, $object->datec);
 
 		return  $numFinal;
 	}
@@ -152,9 +148,8 @@ class mod_arctic extends ModeleNumRefFicheinter
 	 *  Return next free value
 	 *
 	 *  @param	Societe		$objsoc     Object third party
-	 *  @param	Fichinter	$objforref	Object for number to search
-	 *  @return string|0      			Next free value, 0 if KO
-	 *  @deprecated see getNextValue
+	 *  @param	Object		$objforref	Object for number to search
+	 *  @return string      			Next free value
 	 */
 	public function getNumRef($objsoc, $objforref)
 	{

@@ -40,10 +40,10 @@ $langs->loadLangs(array('banks', 'categories', 'withdrawals', 'companies'));
 $type = GETPOST('type', 'aZ09');
 
 // Get supervariables
-$limit = GETPOSTINT('limit') ? GETPOSTINT('limit') : $conf->liste_limit;
+$limit = GETPOST('limit', 'int') ? GETPOST('limit', 'int') : $conf->liste_limit;
 $sortorder = GETPOST('sortorder', 'aZ09comma');
 $sortfield = GETPOST('sortfield', 'aZ09comma');
-$page = GETPOSTISSET('pageplusone') ? (GETPOSTINT('pageplusone') - 1) : GETPOSTINT("page");
+$page = GETPOSTISSET('pageplusone') ? (GETPOST('pageplusone') - 1) : GETPOST("page", 'int');
 if (empty($page) || $page == -1) {
 	$page = 0;
 }     // If $page is not defined, or '' or -1
@@ -52,7 +52,7 @@ $pageprev = $page - 1;
 $pagenext = $page + 1;
 
 // Security check
-$socid = GETPOSTINT('socid');
+$socid = GETPOST('socid', 'int');
 if ($user->socid) {
 	$socid = $user->socid;
 }

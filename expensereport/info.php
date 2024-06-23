@@ -32,7 +32,7 @@ require_once DOL_DOCUMENT_ROOT.'/expensereport/class/expensereport.class.php';
 // Load translation files required by the page
 $langs->load("trips");
 
-$id = GETPOSTINT('id');
+$id = GETPOST('id', 'int');
 $ref = GETPOST('ref', 'alpha');
 
 $childids = $user->getAllChildIds(1);

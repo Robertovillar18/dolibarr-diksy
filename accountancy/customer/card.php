@@ -34,8 +34,8 @@ $action = GETPOST('action', 'aZ09');
 $cancel = GETPOST('cancel', 'alpha');
 $backtopage = GETPOST('backtopage', 'alpha');
 
-$codeventil = GETPOSTINT('codeventil');
-$id = GETPOSTINT('id');
+$codeventil = GETPOST('codeventil', 'int');
+$id = GETPOST('id', 'int');
 
 // Security check
 if (!isModEnabled('accounting')) {
@@ -44,7 +44,7 @@ if (!isModEnabled('accounting')) {
 if ($user->socid > 0) {
 	accessforbidden();
 }
-if (!$user->hasRight('accounting', 'bind', 'write')) {
+if (!$user->hasRight('accounting', 'mouvements', 'lire')) {
 	accessforbidden();
 }
 
@@ -86,7 +86,7 @@ if ($action == 'ventil' && $user->hasRight('accounting', 'bind', 'write')) {
  */
 $help_url ='EN:Module_Double_Entry_Accounting|FR:Module_Comptabilit&eacute;_en_Partie_Double#Liaisons_comptables';
 
-llxHeader("", $langs->trans('FicheVentilation'), $help_url, '', 0, 0, '', '', '', 'mod-accountancy accountancy-customer page-card');
+llxHeader("", $langs->trans('FicheVentilation'), $help_url);
 
 if ($cancel == $langs->trans("Cancel")) {
 	$action = '';

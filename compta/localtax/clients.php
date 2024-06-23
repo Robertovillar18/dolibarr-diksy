@@ -34,10 +34,10 @@ require_once DOL_DOCUMENT_ROOT.'/compta/localtax/class/localtax.class.php';
 // Load translation files required by the page
 $langs->loadLangs(array("other", "compta", "banks", "bills", "companies", "product", "trips", "admin"));
 
-$local = GETPOSTINT('localTaxType');
+$local = GETPOST('localTaxType', 'int');
 
 // Date range
-$year = GETPOSTINT("year");
+$year = GETPOST("year", "int");
 if (empty($year)) {
 	$year_current = dol_print_date(dol_now('gmt'), "%Y", 'gmt');
 	$year_start = $year_current;
@@ -93,14 +93,14 @@ if (empty($min)) {
 // 0=normal, 1=option vat for services is on debit, 2=option on payments for products
 $modetax = getDolGlobalString('TAX_MODE');
 if (GETPOSTISSET("modetax")) {
-	$modetax = GETPOSTINT("modetax");
+	$modetax = GETPOST("modetax", 'int');
 }
 if (empty($modetax)) {
 	$modetax = 0;
 }
 
 // Security check
-$socid = GETPOSTINT('socid');
+$socid = GETPOST('socid', 'int');
 if ($user->socid) {
 	$socid = $user->socid;
 }

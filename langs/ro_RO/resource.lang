@@ -1,41 +1,39 @@
 # Dolibarr language file - Source file is en_US - resource
 MenuResourceIndex=Resurse
 MenuResourceAdd=Resursă nouă
-DeleteResource=Şterge resursă
+DeleteResource=Şterge resursa
 ConfirmDeleteResourceElement=Confirmaţi ştergerea resursei pentru acest element
 NoResourceInDatabase=Nicio resursă în baza de date.
-NoResourceLinked=Nicio resursă asociată
+NoResourceLinked=Nicio resursă legată
 ActionsOnResource=Evenimente despre această resursă
-ResourcePageIndex=Listă resurse
+ResourcePageIndex=Lista resurse
 ResourceSingular=Resursă
 ResourceCard=Fişă resursă
-AddResource=Creare resursă
+AddResource=Crează resursă
 ResourceFormLabel_ref=Nume resursă
 ResourceType=Tip resursă
 ResourceFormLabel_description=Descriere resursă
 
 ResourcesLinkedToElement=Resurse legate de elementul
 
-ShowResource=Arată resursă
+ShowResource=Arata Resursă
 
-ResourceElementPage=Resurse element
-ResourceCreatedWithSuccess=Resursa a fost creată cu succes
+ResourceElementPage=Element resurse
+ResourceCreatedWithSuccess=Resursă creată
 RessourceLineSuccessfullyDeleted=Linie resursă ștearsă
-RessourceLineSuccessfullyUpdated=Linie resursă actualizată
-ResourceLinkedWithSuccess=Resursă asociată cu succes
+RessourceLineSuccessfullyUpdated=Linie  resursă actualizată
+ResourceLinkedWithSuccess=Resursă legată cu succes
 
 ConfirmDeleteResource=Confirmaţi ştergerea acestei resurse
 RessourceSuccessfullyDeleted=Resursă ştearsă
 DictionaryResourceType=Tipuri resurse
 
-SelectResource=Selectare resursă
+SelectResource=Selectează resursa
 
 IdResource=Id resursă
 AssetNumber=Număr serial
-ResourceTypeCode=Cod tip resursă
+ResourceTypeCode=Codul tipului de resursă
 ImportDataset_resource_1=Resurse
 
 ErrorResourcesAlreadyInUse=O parte din resurse sunt deja în uz
-ErrorResourceUseInEvent= %sutilizată în %seveniment
-
-MaxUsers=Număr maxim de utilizatori (locuri, scaune etc.)
+ErrorResourceUseInEvent= %sutilizat în %seveniment

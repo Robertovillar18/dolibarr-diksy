@@ -2,7 +2,6 @@
 
 /* Copyright (C) 2007-2017 Laurent Destailleur  <eldy@users.sourceforge.net>
  * Copyright (C) 2020 Gauthier VERDOL <gauthier.verdol@atm-consulting.fr>
- * Copyright (C) 2024       Frédéric France             <frederic.france@free.fr>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,14 +40,14 @@ $langs->loadLangs(array('companies', 'mails', 'other', 'mrp'));
 
 $action = GETPOST('action', 'aZ09');
 $confirm = GETPOST('confirm');
-$id = (GETPOSTINT('socid') ? GETPOSTINT('socid') : GETPOSTINT('id'));
+$id = (GETPOST('socid', 'int') ? GETPOST('socid', 'int') : GETPOST('id', 'int'));
 $ref = GETPOST('ref', 'alpha');
 
 // Get parameters
-$limit = GETPOSTINT('limit') ? GETPOSTINT('limit') : $conf->liste_limit;
+$limit = GETPOST('limit', 'int') ? GETPOST('limit', 'int') : $conf->liste_limit;
 $sortfield = GETPOST('sortfield', 'aZ09comma');
 $sortorder = GETPOST('sortorder', 'aZ09comma');
-$page = GETPOSTISSET('pageplusone') ? (GETPOSTINT('pageplusone') - 1) : GETPOSTINT("page");
+$page = GETPOSTISSET('pageplusone') ? (GETPOST('pageplusone') - 1) : GETPOST("page", 'int');
 if (empty($page) || $page == -1) {
 	$page = 0;
 }     // If $page is not defined, or '' or -1
@@ -76,7 +75,7 @@ $extrafields->fetch_name_optionals_label($object->table_element);
 include DOL_DOCUMENT_ROOT.'/core/actions_fetchobject.inc.php'; // Must be include, not include_once  // Must be include, not include_once. Include fetch and fetch_thirdparty but not fetch_optionals
 
 if ($id > 0 || !empty($ref)) {
-	$upload_dir = rtrim(getMultidirOutput($object, '', 1), '/');
+	$upload_dir = $conf->workstation->multidir_output[$object->entity ? $object->entity : $conf->entity]."/workstation/".get_exdir(0, 0, 0, 1, $object);
 }
 
 // Security check
@@ -103,7 +102,7 @@ $title = $langs->trans("Workstation").' - '.$langs->trans("Files");
 
 $help_url = 'EN:Module_Workstation';
 
-llxHeader('', $title, $help_url, '', 0, 0, '', '', '', 'mod-workstation page-card_workstation_document');
+llxHeader('', $title, $help_url);
 
 if ($object->id) {
 	/*
@@ -185,9 +184,14 @@ if ($object->id) {
 	print dol_get_fiche_end();
 
 	$modulepart = 'workstation';
+	//$permission = $user->rights->workstation->workstation->write;
+	$permission = 1;
+	//$permtoedit = $user->rights->workstation->workstation->write;
+	$permtoedit = 1;
 	$param = '&id='.$object->id;
+
 	//$relativepathwithnofile='workstation/' . dol_sanitizeFileName($object->id).'/';
-	//$relativepathwithnofile = 'workstation/'.dol_sanitizeFileName($object->ref).'/';
+	$relativepathwithnofile = 'workstation/'.dol_sanitizeFileName($object->ref).'/';
 
 	include_once DOL_DOCUMENT_ROOT.'/core/tpl/document_actions_post_headers.tpl.php';
 } else {

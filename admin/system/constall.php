@@ -38,7 +38,7 @@ if (!$user->admin) {
  * View
  */
 
-llxHeader('', '', '', '', 0, 0, '', '', '', 'mod-admin page-system_constall');
+llxHeader();
 
 print load_fiche_titre($langs->trans("SummaryConst"), '', 'title_setup');
 
@@ -158,7 +158,7 @@ foreach ($configfileparameters as $key) {
 
 		if (preg_match('/^\?/', $key) && empty(${$newkey})) {
 			$i++;
-			continue; // We discard parameters starting with ?
+			continue; // We discard parametes starting with ?
 		}
 
 		if ($newkey == 'separator' && $lastkeyshown == 'separator') {

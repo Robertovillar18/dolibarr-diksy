@@ -4,8 +4,6 @@
  * Copyright (C) 2005-2009 Regis Houssin        <regis.houssin@inodbox.com>
  * Copyright (C) 2011-2016 Juanjo Menent        <jmenent@2byte.es>
  * Copyright (C) 2015      Marcos García        <marcosgdf@gmail.com>
- * Copyright (C) 2024       Frédéric France             <frederic.france@free.fr>
- * Copyright (C) 2024		MDW							<mdeweerd@users.noreply.github.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -293,7 +291,7 @@ class RemiseCheque extends CommonObject
 	 *	@param  User	$user 		User that delete
 	 *	@return	int
 	 */
-	public function delete($user)
+	public function delete($user = null)
 	{
 		global $conf;
 
@@ -414,7 +412,7 @@ class RemiseCheque extends CommonObject
 			$mybool = false;
 
 			$file = getDolGlobalString('CHEQUERECEIPTS_ADDON') . ".php";
-			$classname = getDolGlobalString('CHEQUERECEIPTS_ADDON');
+			$classname = $conf->global->CHEQUERECEIPTS_ADDON;
 
 			// Include file with class
 			$dirmodels = array_merge(array('/'), (array) $conf->modules_parts['models']);
@@ -424,7 +422,7 @@ class RemiseCheque extends CommonObject
 
 				// Load file with numbering class (if found)
 				if (is_file($dir.$file) && is_readable($dir.$file)) {
-					$mybool = (include_once $dir.$file) || $mybool;
+					$mybool |= include_once $dir.$file;
 				}
 			}
 
@@ -439,18 +437,17 @@ class RemiseCheque extends CommonObject
 
 					// Load file with numbering class (if found)
 					if (is_file($dir.$file) && is_readable($dir.$file)) {
-						$mybool = (include_once $dir.$file) || $mybool;
+						$mybool |= include_once $dir.$file;
 					}
 				}
 			}
 
 			if (!$mybool) {
-				dol_print_error(null, "Failed to include file ".$file);
+				dol_print_error('', "Failed to include file ".$file);
 				return '';
 			}
 
 			$obj = new $classname();
-			'@phan-var-force CommonNumRefGenerator $obj';
 			$numref = "";
 			$numref = $obj->getNextValue($mysoc, $this);
 
@@ -476,7 +473,7 @@ class RemiseCheque extends CommonObject
 	/**
 	 *      Load indicators for dashboard (this->nbtodo and this->nbtodolate)
 	 *
-	 *      @param  User	$user       Object user
+	 *      @param  User	$user       Objet user
 	 *      @param	string	$type		Type of payment mode deposit ('CHQ', 'TRA', ...)
 	 *      @return WorkboardResponse|int Return integer <0 if KO, WorkboardResponse if OK
 	 */
@@ -527,14 +524,16 @@ class RemiseCheque extends CommonObject
 	}
 
 
+	// phpcs:disable PEAR.NamingConventions.ValidFunctionName.ScopeNotCamelCaps
 	/**
-	 *      Load indicators this->nb for the state board
+	 *      Charge indicateurs this->nb de tableau de bord
 	 *
 	 *      @param	string	$type		Type of payment mode deposit ('CHQ', 'TRA', ...)
 	 *      @return int         		Return integer <0 if ko, >0 if ok
 	 */
-	public function loadStateBoard($type = 'CHQ')
+	public function load_state_board($type = 'CHQ')
 	{
+		// phpcs:enable
 		global $user;
 
 		if ($user->socid) {
@@ -591,7 +590,6 @@ class RemiseCheque extends CommonObject
 
 			$classname = 'BordereauCheque'.ucfirst($model);
 			$docmodel = new $classname($this->db);
-			'@phan-var-force CommonDocGenerator $module';
 
 			$sql = "SELECT b.banque, b.emetteur, b.amount, b.num_chq";
 			$sql .= " FROM ".MAIN_DB_PREFIX."bank as b";
@@ -649,7 +647,7 @@ class RemiseCheque extends CommonObject
 	/**
 	 *	Mets a jour le montant total
 	 *
-	 *	@return 	int		0 en cas de success
+	 *	@return 	int		0 en cas de succes
 	 */
 	public function updateAmount()
 	{
@@ -876,7 +874,7 @@ class RemiseCheque extends CommonObject
 	 *	id must be 0 if object instance is a specimen.
 	 *
 	 *	@param	string		$option		''=Create a specimen invoice with lines, 'nolines'=No lines
-	 *  @return	int
+	 *  @return	void
 	 */
 	public function initAsSpecimen($option = '')
 	{
@@ -891,8 +889,6 @@ class RemiseCheque extends CommonObject
 		$this->ref = 'SPECIMEN';
 		$this->specimen = 1;
 		$this->date_bordereau = $nownotime;
-
-		return 1;
 	}
 
 	/**

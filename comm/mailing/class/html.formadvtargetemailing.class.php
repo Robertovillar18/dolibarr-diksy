@@ -1,7 +1,6 @@
 <?php
 /* Copyright (C) 2014       Florian Henry           <florian.henry@open-concept.pro>
  * Copyright (C) 2019       Frédéric France         <frederic.france@netlogic.fr>
- * Copyright (C) 2024		MDW							<mdeweerd@users.noreply.github.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +19,7 @@
 /**
  * \file    comm/mailing/class/html.formadvtargetemailing.class.php
  * \ingroup mailing
- * \brief   File for the class with functions for the building of HTML components for advtargetemailing
+ * \brief   Fichier de la classe des fonctions predefinies de composant html advtargetemailing
  */
 
 /**
@@ -85,67 +84,6 @@ class FormAdvTargetEmailing extends Form
 		} else {
 			dol_print_error($this->db);
 		}
-		return $this->advMultiselectarray($htmlname, $options_array, $selected_array);
-	}
-
-	/**
-	 * Return combo list of activated countries, into language of user
-	 *
-	 * @param string    $htmlname of html select object
-	 * @param array     $selected_array or Code or Label of preselected country
-	 * @return string   HTML string with select
-	 */
-	public function multiselectState($htmlname = 'state_id', $selected_array = array())
-	{
-		global $conf, $langs;
-
-		$langs->load("dict");
-		$maxlength = 0;
-
-		$out = '';
-		$stateArray = array();
-		$label = array();
-
-		$options_array = array();
-
-		$sql = "SELECT d.rowid as rowid, d.code_departement as code, d.nom as department, r.nom as region";
-		$sql .= " FROM ".MAIN_DB_PREFIX."c_departements d";
-		$sql .= " LEFT JOIN ".MAIN_DB_PREFIX."c_regions r on d.fk_region=r.code_region";
-		$sql .= " WHERE d.active = 1 AND d.code_departement<>'' AND r.code_region<>''";
-		//$sql .= " ORDER BY r.nom ASC, d.nom ASC";
-
-		$resql = $this->db->query($sql);
-		if ($resql) {
-			$num = $this->db->num_rows($resql);
-			$i = 0;
-			if ($num) {
-				$foundselected = false;
-
-				while ($i < $num) {
-					$obj = $this->db->fetch_object($resql);
-					$stateArray [$i] ['rowid'] = $obj->rowid;
-					$stateArray [$i] ['code'] = $obj->code;
-					$stateArray [$i] ['label'] = $obj->region.'/'.$obj->department;
-					$label[$i] = $stateArray[$i]['label'];
-					$i++;
-				}
-
-				$array1_sort_order = SORT_ASC;
-				array_multisort($label, $array1_sort_order, $stateArray);
-
-				foreach ($stateArray as $row) {
-					$label = dol_trunc($row['label'], $maxlength, 'middle');
-					if ($row['code']) {
-						$label .= ' ('.$row['code'].')';
-					}
-
-					$options_array[$row['rowid']] = $label;
-				}
-			}
-		} else {
-			dol_print_error($this->db);
-		}
-
 		return $this->advMultiselectarray($htmlname, $options_array, $selected_array);
 	}
 
@@ -227,15 +165,10 @@ class FormAdvTargetEmailing extends Form
 		$sql_usr .= "SELECT DISTINCT u2.rowid, u2.lastname as name, u2.firstname, u2.login";
 		$sql_usr .= " FROM ".MAIN_DB_PREFIX."user as u2, ".MAIN_DB_PREFIX."societe_commerciaux as sc";
 		$sql_usr .= " WHERE u2.entity IN (0,".$conf->entity.")";
-		$sql_usr .= " AND u2.rowid = sc.fk_user";
+		$sql_usr .= " AND u2.rowid = sc.fk_user ";
+
 		if (getDolGlobalString('USER_HIDE_INACTIVE_IN_COMBOBOX')) {
-			$sql_usr .= " AND u2.statut <> 0";
-		}
-		if (getDolGlobalString('USER_HIDE_NONEMPLOYEE_IN_COMBOBOX')) {
-			$sql_usr .= " AND u2.employee<>0 ";
-		}
-		if (getDolGlobalString('USER_HIDE_EXTERNAL_IN_COMBOBOX')) {
-			$sql_usr .= " AND u2.fk_soc IS NULL ";
+			$sql_usr .= " AND u2.statut<>0 ";
 		}
 		$sql_usr .= " ORDER BY name ASC";
 		// print $sql_usr;exit;
@@ -279,11 +212,11 @@ class FormAdvTargetEmailing extends Form
 	}
 
 	/**
-	 * Return multiselect list of entities for extrafield type sellist
+	 * Return multiselect list of entities for extrafeild type sellist
 	 *
 	 * @param string $htmlname control name
-	 * @param array<string,string> $sqlqueryparam array
-	 * @param string[] $selected_array array
+	 * @param array $sqlqueryparam array
+	 * @param array $selected_array array
 	 *
 	 *  @return	string HTML combo
 	 */
@@ -293,14 +226,15 @@ class FormAdvTargetEmailing extends Form
 
 		if (is_array($sqlqueryparam)) {
 			$param_list = array_keys($sqlqueryparam);
-			$InfoFieldList = explode(":", $param_list[0], 4);
+			$InfoFieldList = explode(":", $param_list [0]);
 
-			// 0 1 : Table name
-			// 1 2 : Name of field that contains the label
-			// 2 3 : Key fields name (if differ of rowid)
-			// 3 4 : Where clause filter on column or table extrafield, syntax field='value' or extra.field=value
+			// 0 1 : tableName
+			// 1 2 : label field name 	Name of field that contains the label
+			// 2 3 : key fields name (if differ of rowid)
+			// 3 4 : where clause filter on column or table extrafield, syntax field='value' or extra.field=value
 
 			$keyList = 'rowid';
+
 			if (count($InfoFieldList) >= 3) {
 				if (strpos($InfoFieldList[3], 'extra.') !== false) {
 					$keyList = 'main.'.$InfoFieldList[2].' as rowid';
@@ -309,17 +243,15 @@ class FormAdvTargetEmailing extends Form
 				}
 			}
 
-			$sql = "SELECT ".$this->db->sanitize($keyList).", ".$this->db->sanitize($InfoFieldList[1]);
-			$sql .= " FROM ".$this->db->sanitize(MAIN_DB_PREFIX.$InfoFieldList[0]);
+			$sql = "SELECT ".$keyList.", ".$InfoFieldList[1];
+			$sql .= " FROM ".MAIN_DB_PREFIX.$InfoFieldList[0];
 			if (!empty($InfoFieldList[3])) {
-				$errorstr = '';
 				// We have to join on extrafield table
 				if (strpos($InfoFieldList[3], 'extra') !== false) {
-					$sql .= ' as main, '.$this->db->sanitize(MAIN_DB_PREFIX.$InfoFieldList[0]).'_extrafields as extra';
-					$sql .= " WHERE extra.fk_object=main.".$this->db->sanitize(empty($InfoFieldList[2]) ? 'rowid' : $InfoFieldList[2]);
-					$sql .= " AND ".forgeSQLFromUniversalSearchCriteria($InfoFieldList[3], $errorstr, 1);
+					$sql .= ' as main, '.MAIN_DB_PREFIX.$InfoFieldList[0].'_extrafields as extra';
+					$sql .= " WHERE extra.fk_object=main.".$InfoFieldList[2]." AND ".$InfoFieldList[3];
 				} else {
-					$sql .= " WHERE ".forgeSQLFromUniversalSearchCriteria($InfoFieldList[3], $errorstr, 1);
+					$sql .= " WHERE ".$InfoFieldList[3];
 				}
 			}
 			if (!empty($InfoFieldList[1])) {
@@ -334,8 +266,7 @@ class FormAdvTargetEmailing extends Form
 				if ($num) {
 					while ($i < $num) {
 						$obj = $this->db->fetch_object($resql);
-						$fieldtoread = $InfoFieldList[1];
-						$labeltoshow = dol_trunc($obj->$fieldtoread, 90);
+						$labeltoshow = dol_trunc($obj->$InfoFieldList[1], 90);
 						$options_array[$obj->rowid] = $labeltoshow;
 						$i++;
 					}
@@ -409,7 +340,7 @@ class FormAdvTargetEmailing extends Form
 	 * Return a combo list to select emailing target selector
 	 *
 	 * @param	string 		$htmlname 		control name
-	 * @param	integer 	$selected  		default selected
+	 * @param	integer 	$selected  		defaut selected
 	 * @param	integer 	$showempty 		empty lines
 	 * @param	string		$type_element	Type element. Example: 'mailing'
 	 * @param	string		$morecss		More CSS

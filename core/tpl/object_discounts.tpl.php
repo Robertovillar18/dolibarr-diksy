@@ -39,11 +39,10 @@ if (!isset($absolute_creditnote)) {
 	$absolute_creditnote = 0;
 }
 
-
 // Relative and absolute discounts
-$addrelativediscount = '<a class="editfielda" href="'.DOL_URL_ROOT.'/comm/remise.php?id='.((int) $thirdparty->id).'&backtopage='.urlencode($backtopage).'&action=create&token='.newToken().(!empty($discount_type) ? '&discount_type=1' : '').'">'.img_edit($langs->trans("EditRelativeDiscount")).'</a>';
-$addabsolutediscount = '<a class="editfielda" href="'.DOL_URL_ROOT.'/comm/remx.php?id='.((int) $thirdparty->id).'&backtopage='.urlencode($backtopage).'&action=create&token='.newToken().'">'.img_edit($langs->trans("EditGlobalDiscounts")).'</a>';
-$viewabsolutediscount = '<a class="editfielda" href="'.DOL_URL_ROOT.'/comm/remx.php?id='.((int) $thirdparty->id).'&backtopage='.urlencode($backtopage).'">'.$langs->trans("ViewAvailableGlobalDiscounts").'</a>';
+$addrelativediscount = '<a href="'.DOL_URL_ROOT.'/comm/remise.php?id='.((int) $thirdparty->id).'&backtopage='.urlencode($backtopage).'&action=create&token='.newToken().'">'.$langs->trans("EditRelativeDiscount").'</a>';
+$addabsolutediscount = '<a href="'.DOL_URL_ROOT.'/comm/remx.php?id='.((int) $thirdparty->id).'&backtopage='.urlencode($backtopage).'&action=create&token='.newToken().'">'.$langs->trans("EditGlobalDiscounts").'</a>';
+$viewabsolutediscount = '<a href="'.DOL_URL_ROOT.'/comm/remx.php?id='.((int) $thirdparty->id).'&backtopage='.urlencode($backtopage).'">'.$langs->trans("ViewAvailableGlobalDiscounts").'</a>';
 
 $fixedDiscount = $thirdparty->remise_percent;
 if (!empty($discount_type)) {
@@ -51,29 +50,28 @@ if (!empty($discount_type)) {
 }
 
 if ($fixedDiscount > 0) {
-	$translationKey = (empty($discount_type)) ? 'CompanyHasRelativeDiscount' : 'HasRelativeDiscountFromSupplier';
+	$translationKey = (!empty($discount_type)) ? 'HasRelativeDiscountFromSupplier' : 'CompanyHasRelativeDiscount';
 	print $langs->trans($translationKey, $fixedDiscount).'.';
 } else {
-	$translationKey = (empty($discount_type)) ? 'CompanyHasNoRelativeDiscount' : 'HasNoRelativeDiscountFromSupplier';
+	$translationKey = (!empty($discount_type)) ? 'HasNoRelativeDiscountFromSupplier' : 'CompanyHasNoRelativeDiscount';
 	print '<span class="opacitymedium hideonsmartphone">'.$langs->trans($translationKey).'.</span>';
 }
 if ($isNewObject) {
-	print ' '.$addrelativediscount;
+	print ' ('.$addrelativediscount.')';
 }
-
 
 // Is there is commercial discount or down payment available ?
 if ($absolute_discount > 0) {
 	if (!empty($cannotApplyDiscount) || !$isInvoice || $isNewObject || $object->statut > $objclassname::STATUS_DRAFT || $object->type == $objclassname::TYPE_CREDIT_NOTE || $object->type == $objclassname::TYPE_DEPOSIT) {
-		$translationKey = empty($discount_type) ? 'CompanyHasDownPaymentOrCommercialDiscount' : 'HasDownPaymentOrCommercialDiscountFromSupplier';
-		$text = $langs->trans($translationKey, price($absolute_discount, 1, $outlangs, 1, -1, -1, $conf->currency)).'.';
+		$translationKey = !empty($discount_type) ? 'HasAbsoluteDiscountFromSupplier' : 'CompanyHasAbsoluteDiscount';
+		$text = $langs->trans($translationKey, price($absolute_discount), $langs->transnoentities("Currency".$conf->currency)).'.';
 
 		if ($isInvoice && !$isNewObject && $object->statut > $objclassname::STATUS_DRAFT && $object->type != $objclassname::TYPE_CREDIT_NOTE && $object->type != $objclassname::TYPE_DEPOSIT) {
 			$text = $form->textwithpicto($text, $langs->trans('AbsoluteDiscountUse'));
 		}
 
 		if ($isNewObject) {
-			$text .= $addabsolutediscount;
+			$text .= ' ('.$addabsolutediscount.')';
 		}
 
 		if ($isNewObject) {
@@ -83,25 +81,24 @@ if ($absolute_discount > 0) {
 		}
 	} else {
 		// Discount available of type fixed amount (not credit note)
-		$more = $addabsolutediscount;
+		$more = '('.$addabsolutediscount.')';
 		$form->form_remise_dispo($_SERVER["PHP_SELF"].'?facid='.$object->id, GETPOST('discountid'), 'remise_id', $thirdparty->id, $absolute_discount, $filterabsolutediscount, $resteapayer, $more, 0, $discount_type);
 	}
 }
-
 
 // Is there credit notes availables ?
 if ($absolute_creditnote > 0) {
 	// If validated, we show link "add credit note to payment"
 	if (!empty($cannotApplyDiscount) || !$isInvoice || $isNewObject || $object->statut != $objclassname::STATUS_VALIDATED || $object->type == $objclassname::TYPE_CREDIT_NOTE) {
-		$translationKey = empty($discount_type) ? 'CompanyHasCreditNote' : 'HasCreditNoteFromSupplier';
-		$text = $langs->trans($translationKey, price($absolute_creditnote, 1, $langs, 1, -1, -1, $conf->currency)).'.';
+		$translationKey = !empty($discount_type) ? 'HasCreditNoteFromSupplier' : 'CompanyHasCreditNote';
+		$text = $langs->trans($translationKey, price($absolute_creditnote), $langs->transnoentities("Currency".$conf->currency)).'.';
 
 		if ($isInvoice && !$isNewObject && $object->statut == $objclassname::STATUS_DRAFT && $object->type != $objclassname::TYPE_DEPOSIT) {
 			$text = $form->textwithpicto($text, $langs->trans('CreditNoteDepositUse'));
 		}
 
 		if ($absolute_discount <= 0 || $isNewObject) {
-			$text .= ' '.$addabsolutediscount;
+			$text .= ' ('.$addabsolutediscount.')';
 		}
 
 		if ($isNewObject) {
@@ -121,7 +118,7 @@ if ($absolute_discount <= 0 && $absolute_creditnote <= 0) {
 	print '<br class="hideonsmartphone"><span class="opacitymedium hideonsmartphone">'.$langs->trans($translationKey).'.</span>';
 
 	if ($isInvoice && $object->statut == $objclassname::STATUS_DRAFT && $object->type != $objclassname::TYPE_CREDIT_NOTE && $object->type != $objclassname::TYPE_DEPOSIT) {
-		print ' '.$addabsolutediscount;
+		print ' ('.$addabsolutediscount.')';
 	}
 }
 

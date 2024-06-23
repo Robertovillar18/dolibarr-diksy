@@ -83,7 +83,7 @@ dol_include_once('/mymodule/lib/mymodule_myobject.lib.php');
 $langs->loadLangs(array("mymodule@mymodule", "other"));
 
 // Get parameters
-$id = GETPOSTINT('id');
+$id = GETPOST('id', 'int');
 $ref = GETPOST('ref', 'alpha');
 $action = GETPOST('action', 'aZ09');
 $cancel = GETPOST('cancel', 'aZ09');

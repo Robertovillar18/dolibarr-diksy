@@ -3,7 +3,6 @@
  * Copyright (C) 2015-2016	Alexandre Spangaro	<aspangaro@open-dsi.fr>
  * Copyright (C) 2015		Raphaël Doursenaud	<rdoursenaud@gpcsolutions.fr>
  * Copyright (C) 2017		Regis Houssin		<regis.houssin@inodbox.com>
- * Copyright (C) 2024		MDW							<mdeweerd@users.noreply.github.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,10 +25,10 @@
  */
 
 /**
- *  Return array head with list of tabs to view object information
+ *  Return array head with list of tabs to view object informations
  *
- *  @param	Adherent	$object				Member
- *  @return array<int,array<int,string>>	head links
+ *  @param	Adherent	$object		Member
+ *  @return array					head
  */
 function member_prepare_head(Adherent $object)
 {
@@ -129,7 +128,7 @@ function member_prepare_head(Adherent $object)
 	// Show agenda tab
 	$head[$h][0] = DOL_URL_ROOT.'/adherents/agenda.php?id='.$object->id;
 	$head[$h][1] = $langs->trans("Events");
-	if (isModEnabled('agenda') && ($user->hasRight('agenda', 'myactions', 'read') || $user->hasRight('agenda', 'allactions', 'read'))) {
+	if (isModEnabled('agenda')&& ($user->hasRight('agenda', 'myactions', 'read') || $user->hasRight('agenda', 'allactions', 'read'))) {
 		$nbEvent = 0;
 		// Enable caching of thirdparty count actioncomm
 		require_once DOL_DOCUMENT_ROOT.'/core/lib/memory.lib.php';
@@ -168,10 +167,10 @@ function member_prepare_head(Adherent $object)
 }
 
 /**
- *  Return array head with list of tabs to view object information
+ *  Return array head with list of tabs to view object informations
  *
  *  @param	AdherentType	$object         Member
- *  @return array<int,array<int,string>>	head links
+ *  @return array           		head
  */
 function member_type_prepare_head(AdherentType $object)
 {
@@ -215,9 +214,9 @@ function member_type_prepare_head(AdherentType $object)
 }
 
 /**
- *  Return array head with list of tabs to view object information
+ *  Return array head with list of tabs to view object informations
  *
- *  @return array<int,array<int,string>>	head links
+ *  @return	array		head
  */
 function member_admin_prepare_head()
 {
@@ -276,10 +275,10 @@ function member_admin_prepare_head()
 
 
 /**
- *  Return array head with list of tabs to view object stats information
+ *  Return array head with list of tabs to view object stats informations
  *
  *  @param	Adherent	$object         Member or null
- *  @return array<int,array<int,string>>	head links
+ *  @return	array           		head
  */
 function member_stats_prepare_head($object)
 {
@@ -330,10 +329,10 @@ function member_stats_prepare_head($object)
 }
 
 /**
- *  Return array head with list of tabs to view object information
+ *  Return array head with list of tabs to view object informations
  *
  *  @param	Subscription	$object		Subscription
- *  @return array<int,array<int,string>>	head links
+ *  @return array						head
  */
 function subscription_prepare_head(Subscription $object)
 {

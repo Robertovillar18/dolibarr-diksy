@@ -37,5 +37,3 @@ ImportDataset_resource_1=Rasilimali
 
 ErrorResourcesAlreadyInUse=Baadhi ya rasilimali zinatumika
 ErrorResourceUseInEvent=%s imetumika katika %s tukio
-
-MaxUsers=Maximum users (places, seats, etc.)

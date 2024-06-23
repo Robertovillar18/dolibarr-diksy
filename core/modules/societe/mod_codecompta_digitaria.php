@@ -2,8 +2,7 @@
 /* Copyright (C) 2004       Rodolphe Quiedeville    <rodolphe@quiedeville.org>
  * Copyright (C) 2010       Laurent Destailleur     <eldy@users.sourceforge.net>
  * Copyright (C) 2019       Alexandre Spangaro      <aspangaro@open-dsi.fr>
- * Copyright (C) 2019-2024  Frédéric France         <frederic.france@free.fr>
- * Copyright (C) 2024		MDW							<mdeweerd@users.noreply.github.com>
+ * Copyright (C) 2019       Frédéric France         <frederic.france@netlogic.fr>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -78,8 +77,8 @@ class mod_codecompta_digitaria extends ModeleAccountancyCode
 		if (!isset($conf->global->COMPANY_DIGITARIA_MASK_SUPPLIER) || trim($conf->global->COMPANY_DIGITARIA_MASK_SUPPLIER) == '') {
 			$conf->global->COMPANY_DIGITARIA_MASK_SUPPLIER = '401';
 		}
-		$this->prefixcustomeraccountancycode = getDolGlobalString('COMPANY_DIGITARIA_MASK_CUSTOMER');
-		$this->prefixsupplieraccountancycode = getDolGlobalString('COMPANY_DIGITARIA_MASK_SUPPLIER');
+		$this->prefixcustomeraccountancycode = $conf->global->COMPANY_DIGITARIA_MASK_CUSTOMER;
+		$this->prefixsupplieraccountancycode = $conf->global->COMPANY_DIGITARIA_MASK_SUPPLIER;
 
 		if (!isset($conf->global->COMPANY_DIGITARIA_MASK_NBCHARACTER_CUSTOMER) || trim($conf->global->COMPANY_DIGITARIA_MASK_NBCHARACTER_CUSTOMER) == '') {
 			$conf->global->COMPANY_DIGITARIA_MASK_NBCHARACTER_CUSTOMER = '5';
@@ -87,8 +86,8 @@ class mod_codecompta_digitaria extends ModeleAccountancyCode
 		if (!isset($conf->global->COMPANY_DIGITARIA_MASK_NBCHARACTER_SUPPLIER) || trim($conf->global->COMPANY_DIGITARIA_MASK_NBCHARACTER_SUPPLIER) == '') {
 			$conf->global->COMPANY_DIGITARIA_MASK_NBCHARACTER_SUPPLIER = '5';
 		}
-		$this->customeraccountancycodecharacternumber = getDolGlobalString('COMPANY_DIGITARIA_MASK_NBCHARACTER_CUSTOMER');
-		$this->supplieraccountancycodecharacternumber = getDolGlobalString('COMPANY_DIGITARIA_MASK_NBCHARACTER_SUPPLIER');
+		$this->customeraccountancycodecharacternumber = $conf->global->COMPANY_DIGITARIA_MASK_NBCHARACTER_CUSTOMER;
+		$this->supplieraccountancycodecharacternumber = $conf->global->COMPANY_DIGITARIA_MASK_NBCHARACTER_SUPPLIER;
 	}
 
 	/**
@@ -123,16 +122,16 @@ class mod_codecompta_digitaria extends ModeleAccountancyCode
 		$texte = str_replace(array('{s1}', '{s2}', '{s3}', '{s4}'), array($s1, $s2, $s3, $s4), $texte);
 		$texte .= "<br>\n";
 		// Remove special char if COMPANY_DIGITARIA_REMOVE_SPECIAL is set to 1 or not set (default)
-		if (!isset($conf->global->COMPANY_DIGITARIA_REMOVE_SPECIAL) || !empty($conf->global->COMPANY_DIGITARIA_REMOVE_SPECIAL)) {
+		if (!isset($conf->global->COMPANY_DIGITARIA_REMOVE_SPECIAL) || !empty($conf->global->$conf->global->COMPANY_DIGITARIA_REMOVE_SPECIAL)) {
 			$texte .= $langs->trans('RemoveSpecialChars').' = '.yn(1)."<br>\n";
 		}
 		// Apply a regex replacement pattern on code if COMPANY_DIGITARIA_CLEAN_REGEX is set. Value must be a regex with parenthesis. The part into parenthesis is kept, the rest removed.
 		if (getDolGlobalString('COMPANY_DIGITARIA_CLEAN_REGEX')) {
 			$texte .= $langs->trans('COMPANY_DIGITARIA_CLEAN_REGEX').' = ' . getDolGlobalString('COMPANY_DIGITARIA_CLEAN_REGEX')."<br>\n";
 		}
-		// If value is not unique (if COMPANY_DIGITARIA_UNIQUE_CODE is set to 0), we show this
-		if (!getDolGlobalString('COMPANY_DIGITARIA_UNIQUE_CODE', '1')) {
-			$texte .= $langs->trans('DuplicateForbidden').' = '.yn(0)."<br>\n";
+		// Unique index on code if COMPANY_DIGITARIA_UNIQUE_CODE is set to 1 or not set (default)
+		if (!isset($conf->global->COMPANY_DIGITARIA_UNIQUE_CODE) || getDolGlobalString('COMPANY_DIGITARIA_UNIQUE_CODE')) {
+			$texte .= $langs->trans('COMPANY_DIGITARIA_UNIQUE_CODE').' = '.yn(1)."<br>\n";
 		}
 		$texte .= '</td>';
 		$texte .= '<td class="right"><input type="submit" class="button button-edit reposition smallpaddingimp" name="modify" value="'.$langs->trans("Modify").'"></td>';
@@ -161,12 +160,12 @@ class mod_codecompta_digitaria extends ModeleAccountancyCode
 	/**
 	 *  Return an example of result returned by getNextValue
 	 *
-	 *  @param	Translate		$langs		Object langs
-	 *  @param	Societe|string	$objsoc		Object thirdparty
-	 *  @param	int				$type		Type of third party (1:customer, 2:supplier, -1:autodetect)
-	 *  @return	string						Example
+	 *  @param	Translate	$langs		Object langs
+	 *  @param	Societe		$objsoc		Object thirdparty
+	 *  @param	int			$type		Type of third party (1:customer, 2:supplier, -1:autodetect)
+	 *  @return	string					Example
 	 */
-	public function getExample($langs, $objsoc = '', $type = -1)
+	public function getExample($langs, $objsoc = 0, $type = -1)
 	{
 		global $conf, $mysoc;
 
@@ -177,9 +176,9 @@ class mod_codecompta_digitaria extends ModeleAccountancyCode
 			$thirdpartylabelexample = preg_replace('/([^a-z0-9])/i', '', $mysoc->name);
 		}
 		$s .= "<br>\n";
-		$s .= $this->prefixcustomeraccountancycode.strtoupper(substr($thirdpartylabelexample, 0, (int) $this->customeraccountancycodecharacternumber));
+		$s .= $this->prefixcustomeraccountancycode.strtoupper(substr($thirdpartylabelexample, 0, $this->customeraccountancycodecharacternumber));
 		$s .= "<br>\n";
-		$s .= $this->prefixsupplieraccountancycode.strtoupper(substr($thirdpartylabelexample, 0, (int) $this->supplieraccountancycodecharacternumber));
+		$s .= $this->prefixsupplieraccountancycode.strtoupper(substr($thirdpartylabelexample, 0, $this->supplieraccountancycodecharacternumber));
 		return $s;
 	}
 
@@ -189,7 +188,7 @@ class mod_codecompta_digitaria extends ModeleAccountancyCode
 	 *
 	 *  @param	DoliDB	$db              Database handler
 	 *  @param  Societe	$societe         Third party object
-	 *  @param  string	$type			'customer' or 'supplier'
+	 *  @param  int		$type			'customer' or 'supplier'
 	 *  @return	int						>=0 if OK, <0 if KO
 	 */
 	public function get_code($db, $societe, $type = '')
@@ -231,11 +230,11 @@ class mod_codecompta_digitaria extends ModeleAccountancyCode
 				$codetouse = preg_replace('/' . getDolGlobalString('COMPANY_DIGITARIA_CLEAN_REGEX').'/', '\1\2\3', $codetouse);
 			}
 
-			$this->code = $prefix.strtoupper(substr($codetouse, 0, (int) $width));
+			$this->code = $prefix.strtoupper(substr($codetouse, 0, $width));
 			dol_syslog("mod_codecompta_digitaria::get_code search code proposed=".$this->code, LOG_DEBUG);
 
 			// Unique index on code if COMPANY_DIGITARIA_UNIQUE_CODE is set to 1 or not set (default)
-			if (getDolGlobalString('COMPANY_DIGITARIA_UNIQUE_CODE', '1')) {
+			if (!isset($conf->global->COMPANY_DIGITARIA_UNIQUE_CODE) || getDolGlobalString('COMPANY_DIGITARIA_UNIQUE_CODE')) {
 				$disponibility = $this->checkIfAccountancyCodeIsAlreadyUsed($db, $this->code, $type);
 
 				while ($disponibility != 0 && $i < 1000) {
@@ -261,7 +260,9 @@ class mod_codecompta_digitaria extends ModeleAccountancyCode
 
 					$i++;
 				}
-			} // else { $disponibility = 0; /* Already set */ }
+			} else {
+				$disponibility == 0;
+			}
 		}
 
 		if ($disponibility == 0) {
@@ -276,7 +277,7 @@ class mod_codecompta_digitaria extends ModeleAccountancyCode
 	 *
 	 *  @param	DoliDB	$db             Database handler
 	 *  @param  string	$code           Code of third party
-	 *  @param  string	$type			'customer' or 'supplier'
+	 *  @param  int		$type			'customer' or 'supplier'
 	 *  @return	int						>=0 if OK, <0 if KO
 	 */
 	public function checkIfAccountancyCodeIsAlreadyUsed($db, $code, $type = '')

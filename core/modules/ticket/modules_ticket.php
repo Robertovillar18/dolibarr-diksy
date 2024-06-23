@@ -57,7 +57,7 @@ abstract class ModelePDFTicket extends CommonDocGenerator
 
 
 /**
- *  Parent Class of the project reference numbering model classes
+ *  Classe mere des modeles de numerotation des references de projets
  */
 abstract class ModeleNumRefTicket extends CommonNumRefGenerator
 {

@@ -36,7 +36,7 @@ if (isModEnabled('project')) {
 // Load translation files required by the page
 $langs->loadLangs(array('sendings', 'companies', 'bills', 'deliveries', 'orders', 'stocks', 'other', 'propal'));
 
-$id = (GETPOSTINT('id') ? GETPOSTINT('id') : GETPOSTINT('facid')); // For backward compatibility
+$id = (GETPOST('id', 'int') ? GETPOST('id', 'int') : GETPOST('facid', 'int')); // For backward compatibility
 $ref = GETPOST('ref', 'alpha');
 $action = GETPOST('action', 'aZ09');
 
@@ -52,19 +52,19 @@ if ($id > 0 || !empty($ref)) {
 	}
 
 	// Linked documents
-	if ($typeobject == 'commande' && $object->origin_object->id && isModEnabled('order')) {
+	if ($typeobject == 'commande' && $object->$typeobject->id && isModEnabled('commande')) {
 		$objectsrc = new Commande($db);
-		$objectsrc->fetch($object->origin_object->id);
+		$objectsrc->fetch($object->$typeobject->id);
 	}
-	if ($typeobject == 'propal' && $object->origin_object->id && isModEnabled("propal")) {
+	if ($typeobject == 'propal' && $object->$typeobject->id && isModEnabled("propal")) {
 		$objectsrc = new Propal($db);
-		$objectsrc->fetch($object->origin_object->id);
+		$objectsrc->fetch($object->$typeobject->id);
 	}
 
 	$upload_dir = $conf->expedition->dir_output."/sending/".dol_sanitizeFileName($object->ref);
 }
 
-$permissionnote = $user->hasRight('expedition', 'creer'); // Used by the include of actions_setnotes.inc.php
+$permissionnote = $user->rights->expedition->creer; // Used by the include of actions_setnotes.inc.php
 
 // Security check
 if ($user->socid) {

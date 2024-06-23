@@ -33,9 +33,20 @@ include_once DOL_DOCUMENT_ROOT.'/core/boxes/modules_boxes.php';
 class box_accountancy_last_manual_entries extends ModeleBoxes
 {
 	public $boxcode = "accountancy_last_manual_entries";
-	public $boximg = "accountancy";
+	public $boximg = "accounting";
 	public $boxlabel = "BoxLastManualEntries";
 	public $depends = array("accounting");
+
+	/**
+	 * @var DoliDB Database handler.
+	 */
+	public $db;
+
+	public $param;
+
+	public $info_box_head = array();
+	public $info_box_contents = array();
+
 
 	/**
 	 *  Constructor

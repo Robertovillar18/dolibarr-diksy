@@ -24,7 +24,7 @@ require_once DOL_DOCUMENT_ROOT.'/core/class/commondocgenerator.class.php';
 abstract class ModelePDFStock extends CommonDocGenerator
 {
 	/**
-	 * @var DoliDB Database handler
+	 * @var DoliDb Database handler
 	 */
 	public $db;
 

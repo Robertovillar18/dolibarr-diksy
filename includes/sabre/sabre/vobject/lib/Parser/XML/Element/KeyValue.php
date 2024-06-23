@@ -34,8 +34,10 @@ class KeyValue extends SabreXml\Element\KeyValue
      * the next element.
      *
      * @param XML\Reader $reader
+     *
+     * @return mixed
      */
-    public static function xmlDeserialize(SabreXml\Reader $reader): array
+    public static function xmlDeserialize(SabreXml\Reader $reader)
     {
         // If there's no children, we don't do anything.
         if ($reader->isEmptyElement) {

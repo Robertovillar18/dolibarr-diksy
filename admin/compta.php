@@ -56,7 +56,7 @@ $list = array(
  * Actions
  */
 
-$accounting_mode = getDolGlobalString('ACCOUNTING_MODE', 'RECETTES-DEPENSES');
+$accounting_mode = !getDolGlobalString('ACCOUNTING_MODE') ? 'RECETTES-DEPENSES' : $conf->global->ACCOUNTING_MODE;
 
 if ($action == 'update') {
 	$error = 0;
@@ -124,7 +124,7 @@ if ($action == 'update') {
  * View
  */
 
-llxHeader('', '', '', '', 0, 0, '', '', '', 'mod-admin page-compta');
+llxHeader();
 
 $form = new Form($db);
 

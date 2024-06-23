@@ -31,11 +31,11 @@ class DolMemoryCollector extends MemoryCollector
 	/**
 	 *	Return value of indicator
 	 *
-	 *  @return array       Array
+	 *  @return array
 	 */
 	public function collect()
 	{
-		global $conf;
+		global $conf, $langs;
 
 		$this->updatePeakUsage();
 		return array(
@@ -48,7 +48,7 @@ class DolMemoryCollector extends MemoryCollector
 	/**
 	 *	Return widget settings
 	 *
-	 *  @return array	Array
+	 *  @return array
 	 */
 	public function getWidgets()
 	{

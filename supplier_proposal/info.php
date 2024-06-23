@@ -36,8 +36,8 @@ if (isModEnabled('project')) {
 // Load translation files required by the page
 $langs->loadLangs(array('supplier_proposal', 'compta'));
 
-$id = GETPOSTINT('id');
-$socid = GETPOSTINT('socid');
+$id = GETPOST('id', 'int');
+$socid = GETPOST('socid', 'int');
 
 // Security check
 if (!empty($user->socid)) {

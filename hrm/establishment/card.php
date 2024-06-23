@@ -35,7 +35,7 @@ $error = 0;
 $action = GETPOST('action', 'aZ09');
 $cancel = GETPOST('cancel', 'alpha');
 $confirm = GETPOST('confirm', 'alpha');
-$id = GETPOSTINT('id');
+$id = GETPOST('id', 'int');
 
 // List of status
 static $tmpstatus2label = array(
@@ -75,7 +75,7 @@ if (empty($permissiontoread)) {
  */
 
 if ($action == 'confirm_delete' && $confirm == "yes") {
-	$result = $object->delete($user);
+	$result = $object->delete($id);
 	if ($result >= 0) {
 		header("Location: ../admin/admin_establishment.php");
 		exit;
@@ -96,11 +96,11 @@ if ($action == 'confirm_delete' && $confirm == "yes") {
 			$object->address = GETPOST('address', 'alpha');
 			$object->zip = GETPOST('zipcode', 'alpha');
 			$object->town = GETPOST('town', 'alpha');
-			$object->country_id = GETPOSTINT("country_id");
-			$object->status = GETPOSTINT('status');
+			$object->country_id = GETPOST("country_id", 'int');
+			$object->status = GETPOST('status', 'int');
 			$object->fk_user_author	= $user->id;
 			$object->datec = dol_now();
-			$object->entity = GETPOSTINT('entity') > 0 ? GETPOSTINT('entity') : $conf->entity;
+			$object->entity = GETPOST('entity', 'int') > 0 ? GETPOST('entity', 'int') : $conf->entity;
 
 			$id = $object->create($user);
 
@@ -133,22 +133,22 @@ if ($action == 'confirm_delete' && $confirm == "yes") {
 			$object->address = GETPOST('address', 'alpha');
 			$object->zip 			= GETPOST('zipcode', 'alpha');
 			$object->town			= GETPOST('town', 'alpha');
-			$object->country_id     = GETPOSTINT('country_id');
+			$object->country_id     = GETPOST('country_id', 'int');
 			$object->fk_user_mod = $user->id;
-			$object->status         = GETPOSTINT('status');
-			$object->entity         = GETPOSTINT('entity') > 0 ? GETPOSTINT('entity') : $conf->entity;
+			$object->status         = GETPOST('status', 'int');
+			$object->entity         = GETPOST('entity', 'int') > 0 ? GETPOST('entity', 'int') : $conf->entity;
 
 			$result = $object->update($user);
 
 			if ($result > 0) {
-				header("Location: ".$_SERVER["PHP_SELF"]."?id=".GETPOSTINT('id'));
+				header("Location: ".$_SERVER["PHP_SELF"]."?id=".GETPOST('id', 'int'));
 				exit;
 			} else {
 				setEventMessages($object->error, $object->errors, 'errors');
 			}
 		}
 	} else {
-		header("Location: ".$_SERVER["PHP_SELF"]."?id=".GETPOSTINT('id'));
+		header("Location: ".$_SERVER["PHP_SELF"]."?id=".GETPOST('id', 'int'));
 		exit;
 	}
 }
@@ -232,7 +232,7 @@ if ($action == 'create') {
 	print '<tr>';
 	print '<td>'.$form->editfieldkey('Country', 'selectcountry_id', '', $object, 0).'</td>';
 	print '<td class="maxwidthonsmartphone">';
-	print $form->select_country(GETPOSTISSET('country_id') ? GETPOSTINT('country_id') : ($object->country_id ? $object->country_id : $mysoc->country_id), 'country_id');
+	print $form->select_country(GETPOSTISSET('country_id') ? GETPOST('country_id', 'int') : ($object->country_id ? $object->country_id : $mysoc->country_id), 'country_id');
 	if ($user->admin) {
 		print info_admin($langs->trans("YouCanChangeValuesForThisListFromDictionarySetup"), 1);
 	}

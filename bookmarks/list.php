@@ -31,7 +31,7 @@ $langs->loadLangs(array('bookmarks', 'admin'));
 // Get Parameters
 $action 	= GETPOST('action', 'aZ09');
 $massaction = GETPOST('massaction', 'alpha');
-$show_files = GETPOSTINT('show_files');
+$show_files = GETPOST('show_files', 'int');
 $confirm 	= GETPOST('confirm', 'alpha');
 $cancel     = GETPOST('cancel', 'alpha');
 $toselect 	= GETPOST('toselect', 'array');
@@ -40,14 +40,14 @@ $backtopage = GETPOST('backtopage', 'alpha');
 $optioncss 	= GETPOST('optioncss', 'alpha');
 $mode 		= GETPOST('mode', 'aZ');
 
-$id = GETPOSTINT("id");
+$id = GETPOST("id", 'int');
 $search_title = GETPOST('search_title', 'alpha');
 
 // Load variable for pagination
-$limit = GETPOSTINT('limit') ? GETPOSTINT('limit') : $conf->liste_limit;
+$limit = GETPOST('limit', 'int') ? GETPOST('limit', 'int') : $conf->liste_limit;
 $sortfield = GETPOST('sortfield', 'aZ09comma');
 $sortorder = GETPOST('sortorder', 'aZ09comma');
-$page = GETPOSTISSET('pageplusone') ? (GETPOSTINT('pageplusone') - 1) : GETPOSTINT("page");
+$page = GETPOSTISSET('pageplusone') ? (GETPOST('pageplusone') - 1) : GETPOST("page", 'int');
 if (empty($page) || $page < 0 || GETPOST('button_search', 'alpha') || GETPOST('button_removefilter', 'alpha')) {
 	// If $page is not defined, or '' or -1 or if we click on clear filters
 	$page = 0;
@@ -213,7 +213,7 @@ $num = $db->num_rows($resql);
 // Output page
 // --------------------------------------------------------------------
 
-llxHeader('', $title, '', '', 0, 0, '', '', '', 'mod-bookmarks page-list');
+llxHeader('', $title);
 
 $arrayofselected = is_array($toselect) ? $toselect : array();
 
@@ -247,7 +247,7 @@ $arrayofmassactions = array(
 if (!empty($permissiontodelete)) {
 	$arrayofmassactions['predelete'] = img_picto('', 'delete', 'class="pictofixedwidth"').$langs->trans("Delete");
 }
-if (GETPOSTINT('nomassaction') || in_array($massaction, array('presend', 'predelete'))) {
+if (GETPOST('nomassaction', 'int') || in_array($massaction, array('presend', 'predelete'))) {
 	$arrayofmassactions = array();
 }
 $massactionbutton = $form->selectMassAction('', $arrayofmassactions);
@@ -296,7 +296,7 @@ if (!empty($moreforfilter)) {
 }
 
 $varpage = empty($contextpage) ? $_SERVER["PHP_SELF"] : $contextpage;
-$selectedfields = $form->multiSelectArrayWithCheckbox('selectedfields', $arrayfields, $varpage, getDolGlobalString('MAIN_CHECKBOX_LEFT_COLUMN')); // This also change content of $arrayfields
+$selectedfields = $form->multiSelectArrayWithCheckbox('selectedfields', $arrayfields, $varpage, getDolGlobalString('MAIN_CHECKBOX_LEFT_COLUMN', '')); // This also change content of $arrayfields
 $selectedfields .= (count($arrayofmassactions) ? $form->showCheckAddButtons('checkforselect', 1) : '');
 
 print '<div class="div-table-responsive">';

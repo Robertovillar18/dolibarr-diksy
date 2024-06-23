@@ -1,7 +1,6 @@
 <?php
 /* Copyright (C) 2006-2016 Laurent Destailleur  <eldy@users.sourceforge.net>
  * Copyright (C) 2012      JF FERRY             <jfefe@aternatik.fr>
- * Copyright (C) 2024		MDW							<mdeweerd@users.noreply.github.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -78,11 +77,11 @@ $server->wsdl->addComplexType(
 	'all',
 	'',
 	array(
-		'dolibarrkey' => array('name' => 'dolibarrkey', 'type' => 'xsd:string'),
-		'sourceapplication' => array('name' => 'sourceapplication', 'type' => 'xsd:string'),
-		'login' => array('name' => 'login', 'type' => 'xsd:string'),
-		'password' => array('name' => 'password', 'type' => 'xsd:string'),
-		'entity' => array('name' => 'entity', 'type' => 'xsd:string'),
+		'dolibarrkey' => array('name'=>'dolibarrkey', 'type'=>'xsd:string'),
+		'sourceapplication' => array('name'=>'sourceapplication', 'type'=>'xsd:string'),
+		'login' => array('name'=>'login', 'type'=>'xsd:string'),
+		'password' => array('name'=>'password', 'type'=>'xsd:string'),
+		'entity' => array('name'=>'entity', 'type'=>'xsd:string'),
 	)
 );
 
@@ -96,21 +95,21 @@ $server->wsdl->addComplexType(
 	'all',
 	'',
 	array(
-		'id' => array('name' => 'id', 'type' => 'xsd:string'),
-		'id_mere' => array('name' => 'id_mere', 'type' => 'xsd:string'),
-		'label' => array('name' => 'label', 'type' => 'xsd:string'),
-		'description' => array('name' => 'description', 'type' => 'xsd:string'),
-		'socid' => array('name' => 'socid', 'type' => 'xsd:string'),
-		'type' => array('name' => 'type', 'type' => 'xsd:string'),
-		'visible' => array('name' => 'visible', 'type' => 'xsd:string'),
-		'dir' => array('name' => 'dir', 'type' => 'xsd:string'),
-		'photos' => array('name' => 'photos', 'type' => 'tns:PhotosArray'),
-		'filles' => array('name' => 'filles', 'type' => 'tns:FillesArray')
+		'id' => array('name'=>'id', 'type'=>'xsd:string'),
+		'id_mere' => array('name'=>'id_mere', 'type'=>'xsd:string'),
+		'label' => array('name'=>'label', 'type'=>'xsd:string'),
+		'description' => array('name'=>'description', 'type'=>'xsd:string'),
+		'socid' => array('name'=>'socid', 'type'=>'xsd:string'),
+		'type' => array('name'=>'type', 'type'=>'xsd:string'),
+		'visible' => array('name'=>'visible', 'type'=>'xsd:string'),
+		'dir'=> array('name'=>'dir', 'type'=>'xsd:string'),
+		'photos' => array('name'=>'photos', 'type'=>'tns:PhotosArray'),
+		'filles' => array('name'=>'filles', 'type'=>'tns:FillesArray')
 	)
 );
 
 /*
- * The child categories, sub-tables of the category
+ * Les catégories filles, sous tableau dez la catégorie
  */
 $server->wsdl->addComplexType(
 	'FillesArray',
@@ -120,14 +119,14 @@ $server->wsdl->addComplexType(
 	'SOAP-ENC:Array',
 	array(),
 	array(
-		array('ref' => 'SOAP-ENC:arrayType', 'wsdl:arrayType' => 'tns:categorie[]')
+		array('ref'=>'SOAP-ENC:arrayType', 'wsdl:arrayType'=>'tns:categorie[]')
 	),
 	'tns:categorie'
 );
 
-/*
- * Image of product
-*/
+ /*
+  * Image of product
+ */
 $server->wsdl->addComplexType(
 	'PhotosArray',
 	'complexType',
@@ -144,9 +143,9 @@ $server->wsdl->addComplexType(
 		)
 );
 
-/*
- * An image
-*/
+ /*
+  * An image
+ */
 $server->wsdl->addComplexType(
 	'image',
 	'complexType',
@@ -154,10 +153,10 @@ $server->wsdl->addComplexType(
 	'all',
 	'',
 	array(
-				'photo' => array('name' => 'photo', 'type' => 'xsd:string'),
-				'photo_vignette' => array('name' => 'photo_vignette', 'type' => 'xsd:string'),
-				'imgWidth' => array('name' => 'imgWidth', 'type' => 'xsd:string'),
-				'imgHeight' => array('name' => 'imgHeight', 'type' => 'xsd:string')
+				'photo' => array('name'=>'photo', 'type'=>'xsd:string'),
+				'photo_vignette' => array('name'=>'photo_vignette', 'type'=>'xsd:string'),
+				'imgWidth' => array('name'=>'imgWidth', 'type'=>'xsd:string'),
+				'imgHeight' => array('name'=>'imgHeight', 'type'=>'xsd:string')
 		)
 );
 
@@ -171,8 +170,8 @@ $server->wsdl->addComplexType(
 	'all',
 	'',
 	array(
-		'result_code' => array('name' => 'result_code', 'type' => 'xsd:string'),
-		'result_label' => array('name' => 'result_label', 'type' => 'xsd:string'),
+		'result_code' => array('name'=>'result_code', 'type'=>'xsd:string'),
+		'result_label' => array('name'=>'result_label', 'type'=>'xsd:string'),
 	)
 );
 
@@ -188,9 +187,9 @@ $styleuse = 'encoded'; // encoded/literal/literal wrapped
 $server->register(
 	'getCategory',
 	// Entry values
-	array('authentication' => 'tns:authentication', 'id' => 'xsd:string'),
+	array('authentication'=>'tns:authentication', 'id'=>'xsd:string'),
 	// Exit values
-	array('result' => 'tns:result', 'categorie' => 'tns:categorie'),
+	array('result'=>'tns:result', 'categorie'=>'tns:categorie'),
 	$ns,
 	$ns.'#getCategory',
 	$styledoc,
@@ -256,28 +255,28 @@ function getCategory($authentication, $id)
 
 				$cats = $categorie->get_filles();
 				if (count($cats) > 0) {
-					foreach ($cats as $child_cat) {
+					foreach ($cats as $fille) {
 						$dir = (!empty($conf->categorie->dir_output) ? $conf->categorie->dir_output : $conf->service->dir_output);
-						$pdir = get_exdir($child_cat->id, 2, 0, 0, $categorie, 'category').$child_cat->id."/photos/";
+						$pdir = get_exdir($fille->id, 2, 0, 0, $categorie, 'category').$fille->id."/photos/";
 						$dir = $dir.'/'.$pdir;
 						$cat['filles'][] = array(
-							'id' => $child_cat->id,
+							'id'=>$fille->id,
 							'id_mere' => $categorie->id_mere,
-							'label' => $child_cat->label,
-							'description' => $child_cat->description,
-							'socid' => $child_cat->socid,
-							//'visible'=>$child_cat->visible,
-							'type' => $child_cat->type,
+							'label'=>$fille->label,
+							'description'=>$fille->description,
+							'socid'=>$fille->socid,
+							//'visible'=>$fille->visible,
+							'type'=>$fille->type,
 							'dir' => $pdir,
-							'photos' => $child_cat->liste_photos($dir, $nbmax)
+							'photos' => $fille->liste_photos($dir, $nbmax)
 						);
 					}
 				}
 
 				// Create
 				$objectresp = array(
-					'result' => array('result_code' => 'OK', 'result_label' => ''),
-					'categorie' => $cat
+					'result'=>array('result_code'=>'OK', 'result_label'=>''),
+					'categorie'=> $cat
 				);
 			} else {
 				$error++;
@@ -292,7 +291,7 @@ function getCategory($authentication, $id)
 	}
 
 	if ($error) {
-		$objectresp = array('result' => array('result_code' => $errorcode, 'result_label' => $errorlabel));
+		$objectresp = array('result'=>array('result_code' => $errorcode, 'result_label' => $errorlabel));
 	}
 
 	return $objectresp;

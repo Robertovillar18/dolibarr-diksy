@@ -28,7 +28,7 @@ require_once DOL_DOCUMENT_ROOT.'/comm/mailing/class/mailing.class.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/functions2.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/emailing.lib.php';
 
-$id = GETPOSTINT('id');
+$id = GETPOST('id', 'int');
 
 // Load translation files required by the page
 $langs->load("mails");
@@ -64,20 +64,20 @@ if ($object->fetch($id) >= 0) {
 	$morehtmlref .= $form->editfieldval("", 'title', $object->title, $object, 0, 'string', '', null, null, '', 1);
 	$morehtmlref .= '</div>';
 
-	$morehtmlstatus = '';
+	$morehtmlright = '';
 	$nbtry = $nbok = 0;
-	if ($object->status == 2 || $object->status == 3) {
+	if ($object->statut == 2 || $object->statut == 3) {
 		$nbtry = $object->countNbOfTargets('alreadysent');
 		$nbko  = $object->countNbOfTargets('alreadysentko');
 
-		$morehtmlstatus .= ' ('.$nbtry.'/'.$object->nbemail;
+		$morehtmlright .= ' ('.$nbtry.'/'.$object->nbemail;
 		if ($nbko) {
-			$morehtmlstatus .= ' - '.$nbko.' '.$langs->trans("Error");
+			$morehtmlright .= ' - '.$nbko.' '.$langs->trans("Error");
 		}
-		$morehtmlstatus .= ') &nbsp; ';
+		$morehtmlright .= ') &nbsp; ';
 	}
 
-	dol_banner_tab($object, 'id', $linkback, 1, 'rowid', 'ref', $morehtmlref, '', 0, '', $morehtmlstatus);
+	dol_banner_tab($object, 'id', $linkback, 1, 'rowid', 'ref', $morehtmlref, '', 0, '', $morehtmlright);
 
 	print '<div class="underbanner clearboth"></div><br>';
 

@@ -35,8 +35,8 @@ $langs->loadLangs(array("accountancy", "admin", "bills", "compta", "errors", "hr
 $mesg = '';
 $action = GETPOST('action', 'aZ09');
 $cancel = GETPOST('cancel', 'alpha');
-$id = GETPOSTINT('id');
-$rowid = GETPOSTINT('rowid');
+$id = GETPOST('id', 'int');
+$rowid = GETPOST('rowid', 'int');
 $massaction = GETPOST('massaction', 'aZ09');
 $optioncss = GETPOST('optioncss', 'alpha');
 $mode = GETPOST('mode', 'aZ'); // The output mode ('list', 'kanban', 'hierarchy', 'calendar', ...)
@@ -44,7 +44,7 @@ $contextpage = GETPOST('contextpage', 'aZ') ? GETPOST('contextpage', 'aZ') : 'ac
 
 $search_subaccount = GETPOST('search_subaccount', 'alpha');
 $search_label = GETPOST('search_label', 'alpha');
-$search_type = GETPOST('search_type', 'intcomma');
+$search_type = GETPOST('search_type', 'int');
 
 // Security check
 if ($user->socid > 0) {
@@ -55,10 +55,10 @@ if (!$user->hasRight('accounting', 'chartofaccount')) {
 }
 
 // Load variable for pagination
-$limit = GETPOSTINT('limit') ? GETPOSTINT('limit') : $conf->liste_limit;
+$limit = GETPOST('limit', 'int') ? GETPOST('limit', 'int') : $conf->liste_limit;
 $sortfield = GETPOST('sortfield', 'aZ09comma');
 $sortorder = GETPOST('sortorder', 'aZ09comma');
-$page = GETPOSTISSET('pageplusone') ? (GETPOSTINT('pageplusone') - 1) : GETPOSTINT("page");
+$page = GETPOSTISSET('pageplusone') ? (GETPOST('pageplusone') - 1) : GETPOST("page", 'int');
 if (empty($page) || $page == -1) {
 	$page = 0;
 }     // If $page is not defined, or '' or -1
@@ -288,7 +288,7 @@ if (!getDolGlobalInt('MAIN_DISABLE_FULL_SCANLIST')) {
 
 $sql .= $db->plimit($limit + 1, $offset);
 
-dol_syslog("accountancy/admin/subaccount.php:: sql=".$sql);
+dol_syslog('accountancy/admin/subaccount.php:: $sql='.$sql);
 $resql = $db->query($sql);
 
 if ($resql) {
@@ -333,8 +333,7 @@ if ($resql) {
 	print '<div class="info">'.$langs->trans("WarningCreateSubAccounts").'</div>';
 
 	$varpage = empty($contextpage) ? $_SERVER["PHP_SELF"] : $contextpage;
-	$htmlofselectarray = $form->multiSelectArrayWithCheckbox('selectedfields', $arrayfields, $varpage, getDolGlobalString('MAIN_CHECKBOX_LEFT_COLUMN'));  // This also change content of $arrayfields with user setup
-	$selectedfields = ($mode != 'kanban' ? $htmlofselectarray : '');
+	$selectedfields = ($mode != 'kanban' ? $form->multiSelectArrayWithCheckbox('selectedfields', $arrayfields, $varpage, getDolGlobalString('MAIN_CHECKBOX_LEFT_COLUMN', '')) : ''); // This also change content of $arrayfields
 	$selectedfields .= (count($arrayofmassactions) ? $form->showCheckAddButtons('checkforselect', 1) : '');
 
 	$moreforfilter = '';

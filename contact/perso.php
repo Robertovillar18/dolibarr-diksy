@@ -3,7 +3,6 @@
  * Copyright (C) 2004-2011  Laurent Destailleur     <eldy@users.sourceforge.net>
  * Copyright (C) 2005-2012  Regis Houssin           <regis.houssin@inodbox.com>
  * Copyright (C) 2018-2021  Frédéric France         <frederic.france@netlogic.fr>
- * Copyright (C) 2024		MDW							<mdeweerd@users.noreply.github.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +21,7 @@
 /**
  *       \file       htdocs/contact/perso.php
  *       \ingroup    societe
- *       \brief      Onglet information personnelles d'un contact
+ *       \brief      Onglet informations personnelles d'un contact
  */
 
 // Load Dolibarr environment
@@ -34,7 +33,7 @@ require_once DOL_DOCUMENT_ROOT.'/core/lib/contact.lib.php';
 // Load translation files required by the page
 $langs->loadLangs(array('companies', 'other'));
 
-$id = GETPOSTINT('id');
+$id = GETPOST('id', 'int');
 $action = GETPOST('action', 'aZ09');
 
 // Security check
@@ -56,7 +55,7 @@ if ($action == 'update' && !GETPOST("cancel") && $user->hasRight('societe', 'con
 
 	// Note: Correct date should be completed with location to have exact GM time of birth.
 	$object->birthday = dol_mktime(0, 0, 0, GETPOST("birthdaymonth"), GETPOST("birthdayday"), GETPOST("birthdayyear"));
-	$object->birthday_alert = GETPOSTINT("birthday_alert");
+	$object->birthday_alert = GETPOST("birthday_alert");
 
 	if (GETPOST('deletephoto')) {
 		$object->photo = '';
@@ -120,8 +119,8 @@ if ($action == 'update' && !GETPOST("cancel") && $user->hasRight('societe', 'con
 
 $now = dol_now();
 
-$title = $langs->trans("ContactPersonalData");
-if (getDolGlobalString('MAIN_HTML_TITLE') && preg_match('/contactnameonly/', getDolGlobalString('MAIN_HTML_TITLE')) && $object->lastname) {
+$title = (getDolGlobalString('SOCIETE_ADDRESSES_MANAGEMENT') ? $langs->trans("Contacts") : $langs->trans("ContactsAddresses"));
+if (getDolGlobalString('MAIN_HTML_TITLE') && preg_match('/contactnameonly/', $conf->global->MAIN_HTML_TITLE) && $object->lastname) {
 	$title = $object->lastname;
 }
 $help_url = 'EN:Module_Third_Parties|FR:Module_Tiers|ES:Empresas';
@@ -136,7 +135,7 @@ $head = contact_prepare_head($object);
 
 if ($action == 'edit') {
 	/*
-	 * Card in edit mode
+	 * Fiche en mode edition
 	 */
 
 	print '<form name="perso" method="POST" enctype="multipart/form-data" action="'.$_SERVER['PHP_SELF'].'?id='.$object->id.'">';
@@ -295,8 +294,8 @@ if ($action == 'edit') {
 
 		print ' &nbsp; ';
 		//var_dump($birthdatearray);
-		$ageyear = (int) convertSecondToTime($now - $object->birthday, 'year') - 1970;
-		$agemonth = (int) convertSecondToTime($now - $object->birthday, 'month') - 1;
+		$ageyear = convertSecondToTime($now - $object->birthday, 'year') - 1970;
+		$agemonth = convertSecondToTime($now - $object->birthday, 'month') - 1;
 		if ($ageyear >= 2) {
 			print '('.$ageyear.' '.$langs->trans("DurationYears").')';
 		} elseif ($agemonth >= 2) {

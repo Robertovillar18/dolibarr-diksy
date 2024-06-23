@@ -43,8 +43,8 @@ if (!defined('NOREQUIRESOC')) {
 require '../../main.inc.php';
 require_once DOL_DOCUMENT_ROOT.'/societe/class/client.class.php';
 
-$idstatus = GETPOSTINT('id');
-$idprospect = GETPOSTINT('prospectid');
+$idstatus = GETPOST('id', 'int');
+$idprospect = GETPOST('prospectid', 'int');
 $action = GETPOST('action', 'aZ09');
 
 $prospectstatic = new Client($db);

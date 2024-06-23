@@ -41,10 +41,10 @@ if ($user->socid > 0) {
 	$socid = $user->socid;
 }
 
-$limit = GETPOSTINT('limit') ? GETPOSTINT('limit') : $conf->liste_limit;
+$limit = GETPOST('limit', 'int') ? GETPOST('limit', 'int') : $conf->liste_limit;
 $sortfield = GETPOST('sortfield', 'aZ09comma');
 $sortorder = GETPOST('sortorder', 'aZ09comma');
-$page = GETPOSTISSET('pageplusone') ? (GETPOSTINT('pageplusone') - 1) : GETPOSTINT("page");
+$page = GETPOSTISSET('pageplusone') ? (GETPOST('pageplusone') - 1) : GETPOST("page", 'int');
 if (empty($page) || $page == -1) {
 	$page = 0;
 }     // If $page is not defined, or '' or -1
@@ -57,11 +57,11 @@ if (!$sortorder) {
 if (!$sortfield) {
 	$sortfield = "p.name";
 }
-$limit = GETPOSTINT('limit') ? GETPOSTINT('limit') : $conf->liste_limit;
+$limit = GETPOST('limit', 'int') ? GETPOST('limit', 'int') : $conf->liste_limit;
 
 
 /*
- * List mode
+ * Mode liste
  */
 
 $sql = "SELECT s.rowid as socid, s.nom as name, st.libelle as stcomm, p.rowid as cidp, p.lastname, p.firstname, p.email, p.phone";

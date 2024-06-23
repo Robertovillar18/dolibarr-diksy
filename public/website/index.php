@@ -1,6 +1,5 @@
 <?php
 /* Copyright (C) 2016-2017 Laurent Destailleur  <eldy@users.sourceforge.net>
- * Copyright (C) 2024		MDW							<mdeweerd@users.noreply.github.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -81,11 +80,6 @@ $error = 0;
 $websitekey = GETPOST('website', 'alpha');
 $pageid = GETPOST('page', 'alpha') ? GETPOST('page', 'alpha') : GETPOST('pageid', 'alpha');
 $pageref = GETPOST('pageref', 'alphanohtml') ? GETPOST('pageref', 'alphanohtml') : '';
-// If page is xx/pagename, xx is a language, we set $pageref to pagename
-$reg = array();
-if (preg_match('/^(\w\w)\/(.*)$/', $pageref, $reg)) {
-	$pageref = $reg[2];
-}
 
 $accessallowed = 1;
 $type = '';
@@ -111,13 +105,11 @@ if (empty($pageid)) {
 	$objectpage = new WebsitePage($db);
 
 	if ($pageref) {
-		// @phan-suppress-next-line PhanPluginSuspiciousParamPosition
 		$result = $objectpage->fetch(0, $object->id, $pageref);
 		if ($result > 0) {
 			$pageid = $objectpage->id;
 		} elseif ($result == 0) {
 			// Page not found from ref=pageurl, we try using alternative alias
-			// @phan-suppress-next-line PhanPluginSuspiciousParamPosition
 			$result = $objectpage->fetch(0, $object->id, null, $pageref);
 			if ($result > 0) {
 				$pageid = $objectpage->id;
@@ -153,20 +145,10 @@ if (empty($pageid)) {
 	include DOL_DOCUMENT_ROOT.'/public/error-404.php';
 	exit;
 }
-if (empty($pageref)) {
-	$objectpage = new WebsitePage($db);
-	$result = $objectpage->fetch($pageid);
-	if ($result > 0) {
-		$pageref = $objectpage->ref;
-	}
-}
-if (preg_match('/^_(library|service)_page_/', $pageref)) {
-	$originalcontentonly = 1;
-}
 
 $appli = constant('DOL_APPLICATION_TITLE');
 if (getDolGlobalString('MAIN_APPLICATION_TITLE')) {
-	$appli = getDolGlobalString('MAIN_APPLICATION_TITLE');
+	$appli = $conf->global->MAIN_APPLICATION_TITLE;
 }
 
 
@@ -196,7 +178,7 @@ if ($pageid == 'css') {   // No more used ?
 $refname = basename(dirname($original_file)."/");
 
 // Security:
-// Limit access if permissions are insufficient
+// Limite acces si droits non corrects
 if (!$accessallowed) {
 	accessforbidden();
 }
@@ -207,7 +189,7 @@ if (!$accessallowed) {
 if (preg_match('/\.\./', $original_file) || preg_match('/[<>|]/', $original_file)) {
 	dol_syslog("Refused to deliver file ".$original_file);
 	$file = basename($original_file); // Do no show plain path of original_file in shown error message
-	dol_print_error(null, $langs->trans("ErrorFileNameInvalid", $file));
+	dol_print_error(0, $langs->trans("ErrorFileNameInvalid", $file));
 	exit;
 }
 
@@ -234,9 +216,7 @@ if (!file_exists($original_file_osencoded)) {
 
 // Output page content
 define('USEDOLIBARRSERVER', 1);
-if (!isset($originalcontentonly)) {
-	print '<!-- Page content '.$original_file.' rendered with DOLIBARR SERVER : Html with CSS link and html header + Body that was saved into tpl dir -->'."\n";
-}
+print '<!-- Page content '.$original_file.' rendered with DOLIBARR SERVER : Html with CSS link and html header + Body that was saved into tpl dir -->'."\n";
 include_once $original_file_osencoded; // Note: The pageXXX.tpl.php showed here contains a formatage with dolWebsiteOutput() at end of page.
 
 if (is_object($db)) {

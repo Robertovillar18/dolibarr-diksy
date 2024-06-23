@@ -2,8 +2,6 @@
 /* Copyright (C) 2011-2022  Alexandre Spangaro  <aspangaro@open-dsi.fr>
  * Copyright (C) 2014       Juanjo Menent       <jmenent@2byte.es>
  * Copyright (C) 2021       Gauthier VERDOL     <gauthier.verdol@atm-consulting.fr>
- * Copyright (C) 2024       Frédéric France             <frederic.france@free.fr>
- * Copyright (C) 2024		MDW							<mdeweerd@users.noreply.github.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -49,10 +47,12 @@ class Salary extends CommonObject
 	 */
 	public $picto = 'salary';
 
-	/**
-	 * @var array<string, array<string>>	List of child tables. To test if we can delete object.
-	 */
-	protected $childtables = array('payment_salary' => array('name' => 'SalaryPayment', 'fk_element' => 'fk_salary'));
+	public $tms;
+
+	// /**
+	//  * @var array	List of child tables. To test if we can delete object.
+	//  */
+	protected $childtables = array('payment_salary' => array('name'=>'SalaryPayment', 'fk_element'=>'fk_salary'));
 
 	// /**
 	//  * @var array    List of child tables. To know object to delete on cascade.
@@ -72,7 +72,6 @@ class Salary extends CommonObject
 
 	public $salary;
 	public $amount;
-
 	/**
 	 * @var int ID
 	 */
@@ -120,15 +119,13 @@ class Salary extends CommonObject
 	public $user;
 
 	/**
-	 * @var int 1 if salary paid COMPLETELY, 0 otherwise (do not use it anymore, use statut and close_code)
-	 * @deprecated
+	 * 1 if salary paid COMPLETELY, 0 otherwise (do not use it anymore, use statut and close_code)
 	 */
 	public $paye;
 
 	const STATUS_UNPAID = 0;
 	const STATUS_PAID = 1;
 
-	public $resteapayer;
 
 	/**
 	 *	Constructor
@@ -193,9 +190,11 @@ class Salary extends CommonObject
 
 		// Update extrafield
 		if (!$error) {
-			$result = $this->insertExtraFields();
-			if ($result < 0) {
-				$error++;
+			if (!$error) {
+				$result = $this->insertExtraFields();
+				if ($result < 0) {
+					$error++;
+				}
 			}
 		}
 
@@ -294,7 +293,7 @@ class Salary extends CommonObject
 	 *  Delete object in database
 	 *
 	 *	@param	User	$user       User that delete
-	 *  @param  int 	$notrigger 	0=launch triggers after, 1=disable triggers
+	 *  @param  bool 	$notrigger 	false=launch triggers after, true=disable triggers
 	 *	@return	int					Return integer <0 if KO, >0 if OK
 	 */
 	public function delete($user, $notrigger = 0)
@@ -308,14 +307,14 @@ class Salary extends CommonObject
 	 *  Used to build previews or test instances.
 	 *	id must be 0 if object instance is a specimen.
 	 *
-	 *  @return int
+	 *  @return	void
 	 */
 	public function initAsSpecimen()
 	{
 		$this->id = 0;
 
-		$this->tms = dol_now();
-		$this->fk_user = 0;
+		$this->tms = '';
+		$this->fk_user = '';
 		$this->datep = '';
 		$this->datev = '';
 		$this->amount = '';
@@ -323,11 +322,9 @@ class Salary extends CommonObject
 		$this->datesp = '';
 		$this->dateep = '';
 		$this->note = '';
-		$this->fk_bank = 0;
-		$this->fk_user_author = 0;
-		$this->fk_user_modif = 0;
-
-		return 1;
+		$this->fk_bank = '';
+		$this->fk_user_author = '';
+		$this->fk_user_modif = '';
 	}
 
 	/**
@@ -347,11 +344,11 @@ class Salary extends CommonObject
 		$this->amount = price2num(trim($this->amount));
 		$this->label = trim($this->label);
 		$this->note = trim($this->note);
-		$this->fk_bank = (int) $this->fk_bank;
-		$this->fk_user_author = (int) $this->fk_user_author;
-		$this->fk_user_modif = (int) $this->fk_user_modif;
-		$this->accountid = (int) $this->accountid;
-		$this->paye = (int) $this->paye;
+		$this->fk_bank = trim($this->fk_bank);
+		$this->fk_user_author = trim($this->fk_user_author);
+		$this->fk_user_modif = trim($this->fk_user_modif);
+		$this->accountid = trim($this->accountid);
+		$this->paye = trim($this->paye);
 
 		// Check parameters
 		if (!$this->label) {
@@ -366,6 +363,16 @@ class Salary extends CommonObject
 			$this->error = $langs->trans("ErrorFieldRequired", $langs->transnoentities("Amount"));
 			return -5;
 		}
+		/* if (isModEnabled("banque") && (empty($this->accountid) || $this->accountid <= 0))
+		{
+			$this->error = $langs->trans("ErrorFieldRequired", $langs->transnoentities("Account"));
+			return -6;
+		}
+		if (isModEnabled("banque") && (empty($this->type_payment) || $this->type_payment <= 0))
+		{
+			$this->error = $langs->trans("ErrorFieldRequired", $langs->transnoentities("PaymentMode"));
+			return -7;
+		}*/
 
 		$this->db->begin();
 
@@ -418,9 +425,11 @@ class Salary extends CommonObject
 			if ($this->id > 0) {
 				// Update extrafield
 				if (!$error) {
-					$result = $this->insertExtraFields();
-					if ($result < 0) {
-						$error++;
+					if (!$error) {
+						$result = $this->insertExtraFields();
+						if ($result < 0) {
+							$error++;
+						}
 					}
 				}
 
@@ -574,7 +583,7 @@ class Salary extends CommonObject
 
 		global $action, $hookmanager;
 		$hookmanager->initHooks(array('salarypayment'));
-		$parameters = array('id' => $this->id, 'getnomurl' => &$result);
+		$parameters = array('id'=>$this->id, 'getnomurl' => &$result);
 		$reshook = $hookmanager->executeHooks('getNomUrl', $parameters, $this, $action); // Note that $action and $object may have been modified by some hooks
 		if ($reshook > 0) {
 			$result = $hookmanager->resPrint;
@@ -667,7 +676,7 @@ class Salary extends CommonObject
 
 	// phpcs:disable PEAR.NamingConventions.ValidFunctionName.ScopeNotCamelCaps
 	/**
-	 *    Tag social contribution as paid completely
+	 *    Tag social contribution as payed completely
 	 *
 	 *	  @deprecated
 	 *    @see setPaid()
@@ -682,7 +691,7 @@ class Salary extends CommonObject
 	}
 
 	/**
-	 *    Tag social contribution as paid completely
+	 *    Tag social contribution as payed completely
 	 *
 	 *    @param    User    $user       Object user making change
 	 *    @return   int					Return integer <0 if KO, >0 if OK
@@ -705,7 +714,7 @@ class Salary extends CommonObject
 
 	// phpcs:disable PEAR.NamingConventions.ValidFunctionName.ScopeNotCamelCaps
 	/**
-	 *    Remove tag paid on social contribution
+	 *    Remove tag payed on social contribution
 	 *
 	 *    @param	User	$user       Object user making change
 	 *    @return	int					Return integer <0 if KO, >0 if OK
@@ -732,7 +741,7 @@ class Salary extends CommonObject
 	 * Return label of current status
 	 *
 	 * @param	int			$mode       	0=label long, 1=labels short, 2=Picto + Label short, 3=Picto, 4=Picto + Label long, 5=Label short + Picto
-	 * @param   double		$alreadypaid	0=No payment already done, >0=Some payments were already done (we recommend to put here amount paid if you have it, 1 otherwise)
+	 * @param   double		$alreadypaid	0=No payment already done, >0=Some payments were already done (we recommand to put here amount payed if you have it, 1 otherwise)
 	 * @return  string						Label
 	 */
 	public function getLibStatut($mode = 0, $alreadypaid = -1)
@@ -746,7 +755,7 @@ class Salary extends CommonObject
 	 *
 	 *  @param	int		$status        	Id status
 	 *  @param  int		$mode          	0=long label, 1=short label, 2=Picto + short label, 3=Picto, 4=Picto + long label, 5=short label + picto, 6=Long label + picto
-	 *  @param  double	$alreadypaid	0=No payment already done, >0=Some payments were already done (we recommend to put here amount paid if you have it, 1 otherwise)
+	 *  @param  double	$alreadypaid	0=No payment already done, >0=Some payments were already done (we recommand to put here amount payed if you have it, 1 otherwise)
 	 *  @return string        			Label
 	 */
 	public function LibStatut($status, $mode = 0, $alreadypaid = -1)
@@ -857,8 +866,7 @@ class Salary extends CommonObject
 		if ($this->paye == 0) {
 			require_once DOL_DOCUMENT_ROOT.'/societe/class/companybankaccount.class.php';
 			$bac = new CompanyBankAccount($this->db);
-			// @phan-suppress-next-line PhanPluginSuspiciousParamPosition
-			$bac->fetch(0, '', $mysoc->id);
+			$bac->fetch(0, $mysoc->id);
 
 			$sql = "SELECT count(rowid) as nb";
 			$sql .= " FROM ".$this->db->prefix()."prelevement_demande";

@@ -1,7 +1,6 @@
 <?php
 /* Copyright (C) 2005 Laurent Destailleur <eldy@users.sourceforge.net>
  * Copyright (C) 2015 Marcos García       <marcosgdf@gmail.com>
- * Copyright (C) 2024       Frédéric France             <frederic.france@free.fr>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -40,12 +39,19 @@ class Bookmark extends CommonObject
 	public $table_element = 'bookmark';
 
 	/**
-	 * @var string  String with name of icon for myobject. Must be the part after the 'object_' into object_myobject.png
+	 * 0=No test on entity, 1=Test with field entity, 2=Test with link by societe
+	 * @var int
+	 */
+	public $ismultientitymanaged = 1;
+
+	/**
+	 * @var string String with name of icon for myobject. Must be the part after the 'object_' into object_myobject.png
 	 */
 	public $picto = 'bookmark';
 
 	/**
-	 * @var string  Last error number. For example: 'DB_ERROR_RECORD_ALREADY_EXISTS', '12345', ...
+	 * Last error code on a local method
+	 * @var int		Error number
 	 */
 	public $errno;
 
@@ -55,7 +61,7 @@ class Bookmark extends CommonObject
 	public $id;
 
 	/**
-	 * @var int   User ID. If > 0, bookmark of one user. If == 0, bookmark public (for everybody)
+	 * @var int User ID. If > 0, bookmark of one user. If == 0, bookmark public (for everybody)
 	 */
 	public $fk_user;
 
@@ -97,8 +103,6 @@ class Bookmark extends CommonObject
 	public function __construct($db)
 	{
 		$this->db = $db;
-
-		$this->ismultientitymanaged = 1;
 	}
 
 	/**
@@ -276,7 +280,7 @@ class Bookmark extends CommonObject
 	}
 
 	/**
-	 *  Return a link to the object card (with optionally the picto)
+	 *  Return a link to the object card (with optionaly the picto)
 	 *
 	 *  @param  int     $withpicto                  Include picto in link (0=No picto, 1=Include picto into link, 2=Only picto)
 	 *  @param  string  $option                     On what the link point to ('nolink', ...)

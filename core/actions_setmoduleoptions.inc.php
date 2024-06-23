@@ -23,7 +23,7 @@
 
 // $error must have been initialized to 0
 // $action must be defined
-// $arrayofparameters must be set to list of parameters to update for action 'update' on constants
+// $arrayofparameters must be set for action 'update'
 // $nomessageinupdate can be set to 1
 // $nomessageinsetmoduleoptions can be set to 1
 // $formSetup may be defined
@@ -35,20 +35,18 @@ if ($action == 'update' && !empty($formSetup) && is_object($formSetup) && !empty
 }
 
 
-if ($action == 'update' && !empty($arrayofparameters) && is_array($arrayofparameters) && !empty($user->admin)) {
+if ($action == 'update' && is_array($arrayofparameters) && !empty($user->admin)) {
 	$db->begin();
 
 	foreach ($arrayofparameters as $key => $val) {
 		// Modify constant only if key was posted (avoid resetting key to the null value)
 		if (GETPOSTISSET($key)) {
 			if (!empty($val['type']) && preg_match('/category:/', $val['type'])) {
-				if (GETPOSTINT($key) == '-1') {
+				if (GETPOST($key, 'int') == '-1') {
 					$val_const = '';
 				} else {
-					$val_const = GETPOSTINT($key);
+					$val_const = GETPOST($key, 'int');
 				}
-			} elseif ($val['type'] == 'html') {
-				$val_const = GETPOST($key, 'restricthtml');
 			} else {
 				$val_const = GETPOST($key, 'alpha');
 			}

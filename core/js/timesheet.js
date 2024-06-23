@@ -1,6 +1,6 @@
 /* Copyright (C) 2014      delcroip            <delcroip@gmail.com>
  * Copyright (C) 2015-2017 Laurent Destailleur <eldy@users.sourceforge.net>
- * Copyright (C) 2021-2024 Josep Lluís Amador  <joseplluis@lliuretic.cat>
+ * Copyright (C) 2021      Josep Lluís Amador  <joseplluis@lliuretic.cat>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -144,10 +144,9 @@ function updateTotal(days,mode)
                 }
                 if (result >= 0)
                 {
-                	nbextrahour = Math.floor((total.getMinutes()+taskTime.getMinutes()) / 60);
-                	nbextradays = nbextradays + Math.floor((total.getHours()+taskTime.getHours() + nbextrahour + result*24) / 24);
+                	nbextradays = nbextradays + Math.floor((total.getHours()+taskTime.getHours() + result*24) / 24);
                 	//console.log("i="+i+" result="+result);
-                	total.setHours(total.getHours()+taskTime.getHours());
+			    	total.setHours(total.getHours()+taskTime.getHours());
                 	total.setMinutes(total.getMinutes()+taskTime.getMinutes());
             		//console.log("i="+i+" nbextradays cumul="+nbextradays+" h="+total.getHours()+" "+taskTime.getHours());
                 }
@@ -171,8 +170,7 @@ function updateTotal(days,mode)
                 }
                 if (result >= 0)
                 {
-			nbextrahour = Math.floor((total.getMinutes()+taskTime.getMinutes()) / 60);
-                	nbextradays = nbextradays + Math.floor((total.getHours()+taskTime.getHours() + nbextrahour + result*24) / 24);
+                	nbextradays = nbextradays + Math.floor((total.getHours()+taskTime.getHours() + result*24) / 24);
                 	//console.log("i="+i+" result="+result);
                 	total.setHours(total.getHours()+taskTime.getHours());
                 	total.setMinutes(total.getMinutes()+taskTime.getMinutes());

@@ -36,7 +36,7 @@ if (!$user->hasRight('adherent', 'lire')) {
 	accessforbidden();
 }
 
-$rowid = GETPOSTINT("rowid");
+$rowid = GETPOST("rowid", 'int');
 
 
 

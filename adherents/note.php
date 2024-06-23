@@ -37,7 +37,7 @@ $langs->loadLangs(array("companies", "members", "bills"));
 
 // Get parameters
 $action = GETPOST('action', 'aZ09');
-$id = GETPOSTINT('id');
+$id = GETPOST('id', 'int');
 $ref = GETPOST('ref', 'alphanohtml');
 
 

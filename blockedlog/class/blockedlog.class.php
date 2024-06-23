@@ -2,7 +2,6 @@
 /* Copyright (C) 2017       ATM Consulting      <contact@atm-consulting.fr>
  * Copyright (C) 2017-2020  Laurent Destailleur <eldy@destailleur.fr>
  * Copyright (C) 2022 		charlene benke		<charlene@patas-monkey.com>
- * Copyright (C) 2024		MDW							<mdeweerd@users.noreply.github.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -147,7 +146,7 @@ class BlockedLog
 		$this->trackedevents = array();
 
 		// Customer Invoice/Facture / Payment
-		if (isModEnabled('invoice')) {
+		if (isModEnabled('facture')) {
 			$this->trackedevents['BILL_VALIDATE'] = 'logBILL_VALIDATE';
 			$this->trackedevents['BILL_DELETE'] = 'logBILL_DELETE';
 			$this->trackedevents['BILL_SENTBYMAIL'] = 'logBILL_SENTBYMAIL';
@@ -189,14 +188,14 @@ class BlockedLog
 		 */
 
 		// Members
-		if (isModEnabled('member')) {
+		if (isModEnabled('adherent')) {
 			$this->trackedevents['MEMBER_SUBSCRIPTION_CREATE'] = 'logMEMBER_SUBSCRIPTION_CREATE';
 			$this->trackedevents['MEMBER_SUBSCRIPTION_MODIFY'] = 'logMEMBER_SUBSCRIPTION_MODIFY';
 			$this->trackedevents['MEMBER_SUBSCRIPTION_DELETE'] = 'logMEMBER_SUBSCRIPTION_DELETE';
 		}
 
 		// Bank
-		if (isModEnabled("bank")) {
+		if (isModEnabled("banque")) {
 			$this->trackedevents['PAYMENT_VARIOUS_CREATE'] = 'logPAYMENT_VARIOUS_CREATE';
 			$this->trackedevents['PAYMENT_VARIOUS_MODIFY'] = 'logPAYMENT_VARIOUS_MODIFY';
 			$this->trackedevents['PAYMENT_VARIOUS_DELETE'] = 'logPAYMENT_VARIOUS_DELETE';
@@ -370,13 +369,13 @@ class BlockedLog
 	}
 
 	/**
-	 *	Populate properties of log from object data
+	 *      Populate properties of log from object data
 	 *
-	 *	@param	CommonObject	$object		object to store
-	 *	@param	string			$action		action
-	 *	@param	string			$amounts	amounts
-	 *	@param	?User			$fuser		User object (forced)
-	 *	@return	int							>0 if OK, <0 if KO
+	 *      @param		Object		$object     object to store
+	 *      @param		string		$action     action
+	 *      @param		string		$amounts    amounts
+	 *      @param		User		$fuser		User object (forced)
+	 *      @return		int						>0 if OK, <0 if KO
 	 */
 	public function setObjectData(&$object, $action, $amounts, $fuser = null)
 	{
@@ -513,7 +512,7 @@ class BlockedLog
 						$lineid++;
 						foreach ($tmpline as $keyline => $valueline) {
 							if (!in_array($keyline, array(
-								'ref', 'multicurrency_code', 'multicurrency_total_ht', 'multicurrency_total_tva', 'multicurrency_total_ttc', 'qty', 'product_type', 'product_label', 'vat_src_code', 'tva_tx', 'info_bits', 'localtax1_tx', 'localtax2_tx', 'total_ht', 'total_tva', 'total_ttc', 'total_localtax1', 'total_localtax2'
+								'ref', 'multicurrency_code', 'multicurrency_total_ht', 'multicurrency_total_tva', 'multicurrency_total_ttc', 'qty', 'product_type', 'vat_src_code', 'tva_tx', 'info_bits', 'localtax1_tx', 'localtax2_tx', 'total_ht', 'total_tva', 'total_ttc', 'total_localtax1', 'total_localtax2'
 							))) {
 								continue; // Discard if not into a dedicated list
 							}
@@ -913,7 +912,7 @@ class BlockedLog
 
 		include_once DOL_DOCUMENT_ROOT.'/core/lib/security.lib.php';
 
-		$this->signature_line = dol_hash($keyforsignature, '5'); // Not really useful
+		$this->signature_line = dol_hash($keyforsignature, '5'); // Not really usefull
 		$this->signature = dol_hash($previoushash.$keyforsignature, '5');
 		if ($forcesignature) {
 			$this->signature = $forcesignature;
@@ -1000,7 +999,7 @@ class BlockedLog
 		// Recalculate hash
 		$keyforsignature = $this->buildKeyForSignature();
 
-		//$signature_line = dol_hash($keyforsignature, '5'); // Not really useful
+		//$signature_line = dol_hash($keyforsignature, '5'); // Not really usefull
 		$signature = dol_hash($previoushash.$keyforsignature, 'sha256');
 		//var_dump($previoushash); var_dump($keyforsignature); var_dump($signature_line); var_dump($signature);
 
@@ -1015,7 +1014,7 @@ class BlockedLog
 				unset($keyforsignature);
 				return array('checkresult' => $res, 'calculatedsignature' => $signature, 'previoushash' => $previoushash);
 			} else {	// Consume much memory ($keyforsignature is a large var)
-				return array('checkresult' => $res, 'calculatedsignature' => $signature, 'previoushash' => $previoushash, 'keyforsignature' => $keyforsignature);
+				return array('checkresult' => $res, 'calculatedsignature' => $signature, 'previoushash' => $previoushash, 'keyforsignature'=>$keyforsignature);
 			}
 		} else {
 			unset($keyforsignature);
@@ -1026,7 +1025,7 @@ class BlockedLog
 	/**
 	 * Return a string for signature.
 	 * Note: rowid of line not included as it is not a business data and this allow to make backup of a year
-	 * and restore it into another database with different id without comprimising checksums
+	 * and restore it into another database with different id wihtout comprimising checksums
 	 *
 	 * @return string		Key for signature
 	 */
@@ -1082,7 +1081,7 @@ class BlockedLog
 	}
 
 	/**
-	 *	Return array of log objects (with criteria)
+	 *	Return array of log objects (with criterias)
 	 *
 	 *	@param	string 	$element      	element to search
 	 *	@param	int 	$fk_object		id of object to search
@@ -1095,7 +1094,7 @@ class BlockedLog
 	 *  @param	string	$search_ref		search ref
 	 *  @param	string	$search_amount	search amount
 	 *  @param	string	$search_code	search code
-	 *	@return	BlockedLog[]|int<-2,-1>	Array of object log or <0 if error
+	 *	@return	array|int				Array of object log or <0 if error
 	 */
 	public function getLog($element, $fk_object, $limit = 0, $sortfield = '', $sortorder = '', $search_fk_user = -1, $search_start = -1, $search_end = -1, $search_ref = '', $search_amount = '', $search_code = '')
 	{
@@ -1228,7 +1227,7 @@ class BlockedLog
 			dol_print_error($this->db);
 		}
 
-		dol_syslog("Module Blockedlog alreadyUsed with ignoresystem=".$ignoresystem." is ".json_encode($result));
+		dol_syslog("Module Blockedlog alreadyUsed with ignoresystem=".$ignoresystem." is ".$result);
 
 		return $result;
 	}

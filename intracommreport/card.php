@@ -1,7 +1,6 @@
 <?php
 /* Copyright (C) 2015       ATM Consulting          <support@atm-consulting.fr>
  * Copyright (C) 2019-2020  Open-DSI                <support@open-dsi.fr>
- * Copyright (C) 2024		MDW							<mdeweerd@users.noreply.github.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,7 +43,7 @@ require_once DOL_DOCUMENT_ROOT.'/intracommreport/class/intracommreport.class.php
 $langs->loadLangs(array("intracommreport"));
 
 // Get Parameters
-$id = GETPOSTINT('id');
+$id = GETPOST('id', 'int');
 $action = GETPOST('action');
 $year = GETPOSTINT('year');
 $month = GETPOSTINT('month');
@@ -79,9 +78,9 @@ $hookmanager->initHooks(array('intracommcard', 'globalcard'));
 $error = 0;
 
 // Permissions
-$permissiontoread = $user->hasRight('intracommreport', 'read');
-$permissiontoadd = $user->hasRight('intracommreport', 'write');
-$permissiontodelete = $user->hasRight('intracommreport', 'delete');
+$permissiontoread = $user->rights->intracommreport->read;
+$permissiontoadd = $user->rights->intracommreport->write;
+$permissiontodelete = $user->rights->intracommreport->delete;
 
 // Security check (enable the most restrictive one)
 //if ($user->socid > 0) accessforbidden();
@@ -109,7 +108,7 @@ if ($reshook < 0) {
 }
 
 if ($permissiontodelete && $action == 'confirm_delete' && $confirm == 'yes') {
-	$result = $object->delete($user);
+	$result = $object->delete($id, $user);
 	if ($result > 0) {
 		if (!empty($backtopage)) {
 			header("Location: ".$backtopage);
@@ -235,7 +234,7 @@ if ($id > 0 && $action != 'edit') {
 	 */
 	//$head = intracommreport_prepare_head($object);
 
-	print dol_get_fiche_head(array(), 'general', $langs->trans("IntracommReport"), -1, 'user');
+	print dol_get_fiche_head("", 'general', $langs->trans("IntracommReport"), -1, 'user');
 
 	// Confirm remove report
 	if ($action == 'delete') {
@@ -248,7 +247,7 @@ if ($id > 0 && $action != 'edit') {
 			);
 		}
 		print $form->formconfirm(
-			"card.php?rowid=".urlencode((string) ($id)),
+			"card.php?rowid=".urlencode($id),
 			$langs->trans("DeleteReport"),
 			$langs->trans("ConfirmDeleteReport"),
 			"confirm_delete",

@@ -86,23 +86,17 @@ print "<td>".$langs->trans("Value")."</td>";
 print "<td></td>";
 print "</tr>";
 
-// Security key for cron (if CRON_DISABLE_KEY_CHANGE is 1: modification is not allowed, -1: no button refresh)
 print '<tr class="oddeven">';
 print '<td class="fieldrequired">'.$langs->trans("KeyForCronAccess").'</td>';
 $disabled = '';
-if (getDolGlobalInt('CRON_DISABLE_KEY_CHANGE') > 0) {
+if (getDolGlobalString('CRON_DISABLE_KEY_CHANGE')) {
 	$disabled = ' disabled="disabled"';
 }
 print '<td>';
-if (getDolGlobalString('CRON_DISABLE_KEY_CHANGE') != 1) {
-	print '<input type="text" class="flat minwidth300"'.$disabled.' id="CRON_KEY" name="CRON_KEY" value="'.(GETPOST('CRON_KEY') ? GETPOST('CRON_KEY') : getDolGlobalString('CRON_KEY')).'">';
-	if (getDolGlobalString('CRON_DISABLE_KEY_CHANGE') == 0) {
-		if (!empty($conf->use_javascript_ajax)) {
-			print '&nbsp;'.img_picto($langs->trans('Generate'), 'refresh', 'id="generate_token" class="linkobject"');
-		}
-	} elseif (getDolGlobalString('CRON_DISABLE_KEY_CHANGE') == -1) {
-		$langs->load("errors");
-		print '&nbsp;'.img_picto($langs->trans("WarningChangingThisMayBreakStopTaskScheduler"), 'info');
+if (!getDolGlobalString('CRON_DISABLE_KEY_CHANGE')) {
+	print '<input type="text" class="flat minwidth300 widthcentpercentminusx"'.$disabled.' id="CRON_KEY" name="CRON_KEY" value="'.(GETPOST('CRON_KEY') ? GETPOST('CRON_KEY') : getDolGlobalString('CRON_KEY')).'">';
+	if (!empty($conf->use_javascript_ajax)) {
+		print '&nbsp;'.img_picto($langs->trans('Generate'), 'refresh', 'id="generate_token" class="linkobject"');
 	}
 } else {
 	print getDolGlobalString('CRON_KEY');
@@ -116,7 +110,9 @@ print '</table>';
 
 print dol_get_fiche_end();
 
-print $form->buttonsSaveCancel("Save", '');
+if (!getDolGlobalString('CRON_DISABLE_KEY_CHANGE')) {
+	print $form->buttonsSaveCancel("Save", '');
+}
 
 print '</form>';
 

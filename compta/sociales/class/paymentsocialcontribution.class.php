@@ -2,8 +2,6 @@
 /* Copyright (C) 2002       Rodolphe Quiedeville    <rodolphe@quiedeville.org>
  * Copyright (C) 2004-2007  Laurent Destailleur     <eldy@users.sourceforge.net>
  * Copyright (C) 2022       Alexandre Spangaro      <aspangaro@open-dsi.fr>
- * Copyright (C) 2024       Frédéric France             <frederic.france@free.fr>
- * Copyright (C) 2024		MDW							<mdeweerd@users.noreply.github.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +19,7 @@
 
 /**
  *      \file       htdocs/compta/sociales/class/paymentsocialcontribution.class.php
- *		\ingroup    invoice
+ *		\ingroup    facture
  *		\brief      File of class to manage payment of social contributions
  */
 
@@ -60,6 +58,7 @@ class PaymentSocialContribution extends CommonObject
 	public $fk_charge;
 
 	public $datec = '';
+	public $tms = '';
 	public $datep = '';
 
 	/**
@@ -83,19 +82,12 @@ class PaymentSocialContribution extends CommonObject
 	public $bank_line;
 
 	/**
-	 * @deprecated  Use $amount instead.
+	 * @deprecated
 	 * @see $amount
-	 * @var float|int
 	 */
 	public $total;
 
-	/**
-	 * @var float|int
-	 */
 	public $amount; // Total amount of payment
-	/**
-	 * @var array<float|int>
-	 */
 	public $amounts = array(); // Array of amounts
 
 	/**
@@ -105,14 +97,12 @@ class PaymentSocialContribution extends CommonObject
 
 	/**
 	 * @var string
-	 * @deprecated Use $num_payment instead
-	 * @see $num_payment
+	 * @deprecated
 	 */
 	public $num_paiement;
 
 	/**
-	 * @var string      Payment reference
-	 *                  (Cheque or bank transfer reference. Can be "ABC123")
+	 * @var string
 	 */
 	public $num_payment;
 
@@ -175,7 +165,7 @@ class PaymentSocialContribution extends CommonObject
 
 		dol_syslog(get_class($this)."::create", LOG_DEBUG);
 
-		// Validate parameters
+		// Validate parametres
 		if (!$this->datepaye) {
 			$this->error = 'ErrorBadValueForParameterCreatePaymentSocialContrib';
 			return -1;
@@ -186,7 +176,7 @@ class PaymentSocialContribution extends CommonObject
 			$this->fk_charge = (int) $this->fk_charge;
 		}
 		if (isset($this->amount)) {
-			$this->amount = (float) $this->amount;
+			$this->amount = trim($this->amount);
 		}
 		if (isset($this->fk_typepaiement)) {
 			$this->fk_typepaiement = (int) $this->fk_typepaiement;
@@ -209,11 +199,11 @@ class PaymentSocialContribution extends CommonObject
 
 		$totalamount = 0;
 		foreach ($this->amounts as $key => $value) {  // How payment is dispatch
-			$newvalue = (float) price2num($value, 'MT');
+			$newvalue = price2num($value, 'MT');
 			$this->amounts[$key] = $newvalue;
 			$totalamount += $newvalue;
 		}
-		$totalamount = (float) price2num($totalamount);
+		$totalamount = price2num($totalamount);
 
 		// Check parameters
 		if ($totalamount == 0) {
@@ -240,7 +230,7 @@ class PaymentSocialContribution extends CommonObject
 				foreach ($this->amounts as $key => $amount) {
 					$contribid = $key;
 					if (is_numeric($amount) && $amount != 0) {
-						$amount = (float) price2num($amount);
+						$amount = price2num($amount);
 
 						// If we want to closed paid invoices
 						if ($closepaidcontrib) {
@@ -251,8 +241,8 @@ class PaymentSocialContribution extends CommonObject
 							$creditnotes = 0;
 							//$deposits=$contrib->getSumDepositsUsed();
 							$deposits = 0;
-							$alreadypayed = (float) price2num($paiement + $creditnotes + $deposits, 'MT');
-							$remaintopay = (float) price2num($contrib->amount - $paiement - $creditnotes - $deposits, 'MT');
+							$alreadypayed = price2num($paiement + $creditnotes + $deposits, 'MT');
+							$remaintopay = price2num($contrib->amount - $paiement - $creditnotes - $deposits, 'MT');
 							if ($remaintopay == 0) {
 								$result = $contrib->setPaid($user);
 							} else {
@@ -326,10 +316,8 @@ class PaymentSocialContribution extends CommonObject
 				$this->tms = $this->db->jdate($obj->tms);
 				$this->datep = $this->db->jdate($obj->datep);
 				$this->amount = $obj->amount;
-				$this->total = $obj->amount;
 				$this->fk_typepaiement = $obj->fk_typepaiement;
 				$this->num_payment = $obj->num_payment;
-				$this->num_paiement = $obj->num_payment;
 				$this->note_private = $obj->note;
 				$this->fk_bank = $obj->fk_bank;
 				$this->fk_user_creat = $obj->fk_user_creat;
@@ -369,7 +357,7 @@ class PaymentSocialContribution extends CommonObject
 			$this->fk_charge = (int) $this->fk_charge;
 		}
 		if (isset($this->amount)) {
-			$this->amount = (float) $this->amount;
+			$this->amount = trim($this->amount);
 		}
 		if (isset($this->fk_typepaiement)) {
 			$this->fk_typepaiement = (int) $this->fk_typepaiement;
@@ -538,25 +526,24 @@ class PaymentSocialContribution extends CommonObject
 	 *  Used to build previews or test instances.
 	 *	id must be 0 if object instance is a specimen.
 	 *
-	 *  @return	int
+	 *  @return	void
 	 */
 	public function initAsSpecimen()
 	{
 		$this->id = 0;
-		$this->fk_charge = 0;
-		$this->datec = dol_now();
-		$this->tms = dol_now();
-		$this->datep = dol_now();
-		$this->amount = 100;
-		$this->fk_typepaiement = 0;
-		$this->num_payment = 'ABC123';
+
+		$this->fk_charge = '';
+		$this->datec = '';
+		$this->tms = '';
+		$this->datep = '';
+		$this->amount = '';
+		$this->fk_typepaiement = '';
+		$this->num_payment = '';
 		$this->note_private = '';
 		$this->note_public = '';
-		$this->fk_bank = 0;
-		$this->fk_user_creat = 0;
-		$this->fk_user_modif = 0;
-
-		return 1;
+		$this->fk_bank = '';
+		$this->fk_user_creat = '';
+		$this->fk_user_modif = '';
 	}
 
 
@@ -581,13 +568,13 @@ class PaymentSocialContribution extends CommonObject
 
 		$error = 0;
 
-		if (isModEnabled("bank")) {
+		if (isModEnabled("banque")) {
 			include_once DOL_DOCUMENT_ROOT.'/compta/bank/class/account.class.php';
 
 			$acc = new Account($this->db);
 			$acc->fetch($accountid);
 
-			$total = $this->amount;
+			$total = $this->total;
 			if ($mode == 'payment_sc') {
 				$total = -$total;
 			}

@@ -1,8 +1,7 @@
 <?php
 /* Copyright (C) 2014-2018  Alexandre Spangaro   <aspangaro@open-dsi.fr>
- * Copyright (C) 2015-2024  Frédéric France      <frederic.france@free.fr>
+ * Copyright (C) 2015-2023 Frederic France      <frederic.france@netlogic.fr>
  * Copyright (C) 2020       Maxime DEMAREST      <maxime@indelog.fr>
- * Copyright (C) 2024		MDW							<mdeweerd@users.noreply.github.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -57,29 +56,19 @@ class PaymentLoan extends CommonObject
 	 */
 	public $datec = '';
 
+	public $tms = '';
+
 	/**
 	 * @var string Payment date
 	 */
 	public $datep = '';
 
-	/**
-	 * @var array<float|int> Array of amounts
-	 */
-	public $amounts = array();
+	public $amounts = array(); // Array of amounts
 
-	/**
-	 * @var float|int  Total amount of payment
-	 */
-	public $amount_capital;
+	public $amount_capital; // Total amount of payment
 
-	/**
-	 * @var float|int
-	 */
 	public $amount_insurance;
 
-	/**
-	 * @var float|int
-	 */
 	public $amount_interest;
 
 	/**
@@ -88,8 +77,7 @@ class PaymentLoan extends CommonObject
 	public $fk_typepayment;
 
 	/**
-	 * @var string      Payment reference
-	 *                  (Cheque or bank transfer reference. Can be "ABC123")
+	 * @var int Payment ID
 	 */
 	public $num_payment;
 
@@ -108,28 +96,11 @@ class PaymentLoan extends CommonObject
 	 */
 	public $fk_user_modif;
 
-	/**
-	 * @var string
-	 */
 	public $type_code;
-	/**
-	 * @var string
-	 */
 	public $type_label;
 	public $chid;
-	/**
-	 * @var string
-	 */
 	public $label;
-
-	/**
-	 * @var int
-	 */
 	public $paymenttype;
-
-	/**
-	 * @var int
-	 */
 	public $bank_account;
 	public $bank_line;
 
@@ -170,19 +141,19 @@ class PaymentLoan extends CommonObject
 			$this->fk_loan = (int) $this->fk_loan;
 		}
 		if (isset($this->amount_capital)) {
-			$this->amount_capital = (float) price2num($this->amount_capital ? $this->amount_capital : 0);
+			$this->amount_capital = price2num($this->amount_capital ? $this->amount_capital : 0);
 		}
 		if (isset($this->amount_insurance)) {
-			$this->amount_insurance = (float) price2num($this->amount_insurance ? $this->amount_insurance : 0);
+			$this->amount_insurance = price2num($this->amount_insurance ? $this->amount_insurance : 0);
 		}
 		if (isset($this->amount_interest)) {
-			$this->amount_interest = (float) price2num($this->amount_interest ? $this->amount_interest : 0);
+			$this->amount_interest = price2num($this->amount_interest ? $this->amount_interest : 0);
 		}
 		if (isset($this->fk_typepayment)) {
 			$this->fk_typepayment = (int) $this->fk_typepayment;
 		}
 		if (isset($this->num_payment)) {
-			$this->num_payment = trim($this->num_payment);
+			$this->num_payment = (int) $this->num_payment;
 		}
 		if (isset($this->note_private)) {
 			$this->note_private = trim($this->note_private);
@@ -201,7 +172,7 @@ class PaymentLoan extends CommonObject
 		}
 
 		$totalamount = $this->amount_capital + $this->amount_insurance + $this->amount_interest;
-		$totalamount = (float) price2num($totalamount);
+		$totalamount = price2num($totalamount);
 
 		// Check parameters
 		if ($totalamount == 0) {
@@ -332,19 +303,19 @@ class PaymentLoan extends CommonObject
 			$this->fk_loan = (int) $this->fk_loan;
 		}
 		if (isset($this->amount_capital)) {
-			$this->amount_capital = (float) $this->amount_capital;
+			$this->amount_capital = trim($this->amount_capital);
 		}
 		if (isset($this->amount_insurance)) {
-			$this->amount_insurance = (float) $this->amount_insurance;
+			$this->amount_insurance = trim($this->amount_insurance);
 		}
 		if (isset($this->amount_interest)) {
-			$this->amount_interest = (float) $this->amount_interest;
+			$this->amount_interest = trim($this->amount_interest);
 		}
 		if (isset($this->fk_typepayment)) {
 			$this->fk_typepayment = (int) $this->fk_typepayment;
 		}
 		if (isset($this->num_payment)) {
-			$this->num_payment = trim($this->num_payment);
+			$this->num_payment = (int) $this->num_payment;
 		}
 		if (isset($this->note_private)) {
 			$this->note = trim($this->note_private);
@@ -534,7 +505,7 @@ class PaymentLoan extends CommonObject
 		$error = 0;
 		$this->db->begin();
 
-		if (isModEnabled("bank")) {
+		if (isModEnabled("banque")) {
 			require_once DOL_DOCUMENT_ROOT.'/compta/bank/class/account.class.php';
 
 			$acc = new Account($this->db);
@@ -548,7 +519,7 @@ class PaymentLoan extends CommonObject
 			// Insert payment into llx_bank
 			$bank_line_id = $acc->addline(
 				$this->datep,
-				$this->paymenttype, // Payment mode ID or code ("CHQ or VIR for example") it's integer in db
+				$this->paymenttype, // Payment mode ID or code ("CHQ or VIR for example")
 				$label,
 				$total,
 				$this->num_payment,
@@ -693,7 +664,7 @@ class PaymentLoan extends CommonObject
 
 		global $action;
 		$hookmanager->initHooks(array($this->element . 'dao'));
-		$parameters = array('id' => $this->id, 'getnomurl' => &$result);
+		$parameters = array('id'=>$this->id, 'getnomurl' => &$result);
 		$reshook = $hookmanager->executeHooks('getNomUrl', $parameters, $this, $action); // Note that $action and $object may have been modified by some hooks
 		if ($reshook > 0) {
 			$result = $hookmanager->resPrint;

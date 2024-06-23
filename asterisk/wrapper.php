@@ -77,38 +77,38 @@ require_once DOL_DOCUMENT_ROOT.'/core/lib/functions2.lib.php';
 
 
 // Security check
-if (!isModEnabled('clicktodial')) {
+if (empty($conf->clicktodial->enabled)) {
 	accessforbidden();
 	exit;
 }
 
 
 // Define Asterisk setup
-if (!getDolGlobalString('ASTERISK_HOST')) {
+if (!isset($conf->global->ASTERISK_HOST)) {
 	$conf->global->ASTERISK_HOST = "127.0.0.1";
 }
-if (!getDolGlobalString('ASTERISK_TYPE')) {
+if (!isset($conf->global->ASTERISK_TYPE)) {
 	$conf->global->ASTERISK_TYPE = "SIP/";
 }
-if (!getDolGlobalString('ASTERISK_INDICATIF')) {
+if (!isset($conf->global->ASTERISK_INDICATIF)) {
 	$conf->global->ASTERISK_INDICATIF = "0";
 }
-if (!getDolGlobalString('ASTERISK_PORT')) {
+if (!isset($conf->global->ASTERISK_PORT)) {
 	$conf->global->ASTERISK_PORT = 5038;
 }
 if (getDolGlobalString('ASTERISK_INDICATIF') == 'NONE') {
 	$conf->global->ASTERISK_INDICATIF = '';
 }
-if (!getDolGlobalString('ASTERISK_CONTEXT')) {
+if (!isset($conf->global->ASTERISK_CONTEXT)) {
 	$conf->global->ASTERISK_CONTEXT = "from-internal";
 }
-if (!getDolGlobalString('ASTERISK_WAIT_TIME')) {
+if (!isset($conf->global->ASTERISK_WAIT_TIME)) {
 	$conf->global->ASTERISK_WAIT_TIME = "30";
 }
-if (!getDolGlobalString('ASTERISK_PRIORITY')) {
+if (!isset($conf->global->ASTERISK_PRIORITY)) {
 	$conf->global->ASTERISK_PRIORITY = "1";
 }
-if (!getDolGlobalString('ASTERISK_MAX_RETRY')) {
+if (!isset($conf->global->ASTERISK_MAX_RETRY)) {
 	$conf->global->ASTERISK_MAX_RETRY = "2";
 }
 
@@ -118,36 +118,30 @@ $password = GETPOST('password', 'none');
 $caller = GETPOST('caller', 'alphanohtml');
 $called = GETPOST('called', 'alphanohtml');
 
-// Sanitize input data to avoid to use the wrapper to inject malicious paylod into asterisk
-$login = preg_replace('/[\n\r]/', '', $login);
-$password = preg_replace('/[\n\r]/', '', $password);
-$caller = preg_replace('/[\n\r]/', '', $caller);
-$called = preg_replace('/[\n\r]/', '', $called);
-
 // IP address of Asterisk server
-$strHost = getDolGlobalString('ASTERISK_HOST');
+$strHost = $conf->global->ASTERISK_HOST;
 
 // Specify the type of extension through which your extension is connected.
 // ex: SIP/, IAX2/, ZAP/, etc
-$channel = getDolGlobalString('ASTERISK_TYPE');
+$channel = $conf->global->ASTERISK_TYPE;
 
 // Outgoing call sign
-$prefix = getDolGlobalString('ASTERISK_INDICATIF');
+$prefix = $conf->global->ASTERISK_INDICATIF;
 
 // Asterisk Port
-$port = getDolGlobalString('ASTERISK_PORT');
+$port = $conf->global->ASTERISK_PORT;
 
 // Context ( generalement from-internal )
-$strContext = getDolGlobalString('ASTERISK_CONTEXT');
+$strContext = $conf->global->ASTERISK_CONTEXT;
 
 // Waiting time before hanging up
-$strWaitTime = getDolGlobalString('ASTERISK_WAIT_TIME');
+$strWaitTime = $conf->global->ASTERISK_WAIT_TIME;
 
 // Priority
-$strPriority = getDolGlobalString('ASTERISK_PRIORITY');
+$strPriority = $conf->global->ASTERISK_PRIORITY;
 
 // Number of call attempts
-$strMaxRetry = getDolGlobalString('ASTERISK_MAX_RETRY');
+$strMaxRetry = $conf->global->ASTERISK_MAX_RETRY;
 
 
 /*
@@ -187,7 +181,7 @@ if (!empty($number)) {
 		$errno = 0;
 		$errstr = 0;
 		$strCallerId = "Dolibarr caller $found <".strtolower($number).">";
-		$oSocket = @fsockopen($strHost, (int) $port, $errno, $errstr, 10);
+		$oSocket = @fsockopen($strHost, $port, $errno, $errstr, 10);
 		if (!$oSocket) {
 			print '<body>'."\n";
 			$txt = "Failed to execute fsockopen($strHost, $port, \$errno, \$errstr, 10)<br>\n";
@@ -202,18 +196,18 @@ if (!empty($number)) {
 			dol_syslog($txt);
 			print '<body onload="history.go(-1);">'."\n";
 			print '<!-- '.$txt.' -->';
-			fwrite($oSocket, "Action: login\r\n");
-			fwrite($oSocket, "Events: off\r\n");
-			fwrite($oSocket, "Username: $login\r\n");
-			fwrite($oSocket, "Secret: $password\r\n\r\n");
-			fwrite($oSocket, "Action: originate\r\n");
-			fwrite($oSocket, "Channel: ".$channel.$caller."\r\n");
-			fwrite($oSocket, "WaitTime: $strWaitTime\r\n");
-			fwrite($oSocket, "CallerId: $strCallerId\r\n");
-			fwrite($oSocket, "Exten: ".$prefix.$number."\r\n");
-			fwrite($oSocket, "Context: $strContext\r\n");
-			fwrite($oSocket, "Priority: $strPriority\r\n\r\n");
-			fwrite($oSocket, "Action: Logoff\r\n\r\n");
+			fputs($oSocket, "Action: login\r\n");
+			fputs($oSocket, "Events: off\r\n");
+			fputs($oSocket, "Username: $login\r\n");
+			fputs($oSocket, "Secret: $password\r\n\r\n");
+			fputs($oSocket, "Action: originate\r\n");
+			fputs($oSocket, "Channel: ".$channel.$caller."\r\n");
+			fputs($oSocket, "WaitTime: $strWaitTime\r\n");
+			fputs($oSocket, "CallerId: $strCallerId\r\n");
+			fputs($oSocket, "Exten: ".$prefix.$number."\r\n");
+			fputs($oSocket, "Context: $strContext\r\n");
+			fputs($oSocket, "Priority: $strPriority\r\n\r\n");
+			fputs($oSocket, "Action: Logoff\r\n\r\n");
 			sleep(2);
 			fclose($oSocket);
 			print '</body>'."\n";

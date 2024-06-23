@@ -2,7 +2,6 @@
 /* Copyright (C) 2005-2012	Laurent Destailleur	<eldy@users.sourceforge.net>
  * Copyright (C) 2005-2021	Regis Houssin		<regis.houssin@inodbox.com>
  * Copyright (C) 2014		Marcos García		<marcosgdf@gmail.com>
- * Copyright (C) 2024		MDW							<mdeweerd@users.noreply.github.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,12 +43,13 @@ class InterfaceLdapsynchro extends DolibarrTriggers
 		$this->name = preg_replace('/^Interface/i', '', get_class($this));
 		$this->family = "ldap";
 		$this->description = "Triggers of this module allows to synchronize Dolibarr toward a LDAP database.";
-		$this->version = self::VERSIONS['prod'];
+		// 'development', 'experimental', 'dolibarr' or version
+		$this->version = self::VERSION_DOLIBARR;
 		$this->picto = 'technic';
 	}
 
 	/**
-	 * Function called when a Dolibarr business event is done.
+	 * Function called when a Dolibarrr business event is done.
 	 * All functions "runTrigger" are triggered if file is inside directory htdocs/core/triggers or htdocs/module/code/triggers (and declared)
 	 *
 	 * @param string		$action		Event action code
@@ -83,7 +83,7 @@ class InterfaceLdapsynchro extends DolibarrTriggers
 			dol_syslog("Trigger '".$this->name."' for action '$action' launched by ".__FILE__.". id=".$object->id);
 			if (getDolGlobalString('LDAP_SYNCHRO_ACTIVE') && getDolGlobalInt('LDAP_SYNCHRO_ACTIVE') === Ldap::SYNCHRO_DOLIBARR_TO_LDAP) {
 				$ldap = new Ldap();
-				$result = $ldap->connectBind();
+				$result = $ldap->connect_bind();
 
 				if ($result > 0) {
 					$info = $object->_load_ldap_info();
@@ -91,7 +91,7 @@ class InterfaceLdapsynchro extends DolibarrTriggers
 
 					//For compatibility with Samba 4 AD
 					if ($ldap->serverType == "activedirectory") {
-						$info['userAccountControl'] = getDolGlobalString('LDAP_USERACCOUNTCONTROL');
+						$info['userAccountControl'] = $conf->global->LDAP_USERACCOUNTCONTROL;
 					}
 
 					$result = $ldap->add($dn, $info, $user);
@@ -105,7 +105,7 @@ class InterfaceLdapsynchro extends DolibarrTriggers
 			dol_syslog("Trigger '".$this->name."' for action '$action' launched by ".__FILE__.". id=".$object->id);
 			if (getDolGlobalString('LDAP_SYNCHRO_ACTIVE') && getDolGlobalInt('LDAP_SYNCHRO_ACTIVE') === Ldap::SYNCHRO_DOLIBARR_TO_LDAP) {
 				$ldap = new Ldap();
-				$result = $ldap->connectBind();
+				$result = $ldap->connect_bind();
 
 				if ($result > 0) {
 					if (empty($object->oldcopy) || !is_object($object->oldcopy)) {
@@ -184,7 +184,7 @@ class InterfaceLdapsynchro extends DolibarrTriggers
 			dol_syslog("Trigger '".$this->name."' for action '$action' launched by ".__FILE__.". id=".$object->id);
 			if (getDolGlobalString('LDAP_SYNCHRO_ACTIVE') && getDolGlobalInt('LDAP_SYNCHRO_ACTIVE') === Ldap::SYNCHRO_DOLIBARR_TO_LDAP) {
 				$ldap = new Ldap();
-				$result = $ldap->connectBind();
+				$result = $ldap->connect_bind();
 
 				if ($result > 0) {
 					if (empty($object->oldcopy) || !is_object($object->oldcopy)) {
@@ -217,7 +217,7 @@ class InterfaceLdapsynchro extends DolibarrTriggers
 			dol_syslog("Trigger '".$this->name."' for action '$action' launched by ".__FILE__.". id=".$object->id);
 			if (getDolGlobalInt("LDAP_SYNCHRO_ACTIVE") === Ldap::SYNCHRO_DOLIBARR_TO_LDAP && getDolGlobalString('LDAP_SERVER_TYPE') == "activedirectory") {
 				$ldap = new Ldap();
-				$result = $ldap->connectBind();
+				$result = $ldap->connect_bind();
 				if ($result > 0) {
 					$info = $object->_load_ldap_info();
 					$dn = $object->_load_ldap_dn($info);
@@ -233,7 +233,6 @@ class InterfaceLdapsynchro extends DolibarrTriggers
 							$userAccountControl -= 2;
 						}
 						$info['userAccountControl'] = $userAccountControl;
-						// @phan-suppress-next-line PhanPluginSuspiciousParamPosition
 						$resUpdate = $ldap->update($dn, $info, $user, $dn);
 						if ($resUpdate < 0) {
 							$this->error = "ErrorLDAP " . $ldap->error;
@@ -247,7 +246,7 @@ class InterfaceLdapsynchro extends DolibarrTriggers
 			dol_syslog("Trigger '".$this->name."' for action '$action' launched by ".__FILE__.". id=".$object->id);
 			if (getDolGlobalString('LDAP_SYNCHRO_ACTIVE') && getDolGlobalInt('LDAP_SYNCHRO_ACTIVE') === Ldap::SYNCHRO_DOLIBARR_TO_LDAP) {
 				$ldap = new Ldap();
-				$result = $ldap->connectBind();
+				$result = $ldap->connect_bind();
 
 				if ($result > 0) {
 					$info = $object->_load_ldap_info();
@@ -261,11 +260,11 @@ class InterfaceLdapsynchro extends DolibarrTriggers
 				}
 			}
 		} elseif ($action == 'USERGROUP_CREATE') {
-			// Groups
+			// Groupes
 			dol_syslog("Trigger '".$this->name."' for action '$action' launched by ".__FILE__.". id=".$object->id);
 			if (getDolGlobalString('LDAP_SYNCHRO_ACTIVE') && getDolGlobalInt('LDAP_SYNCHRO_ACTIVE') === Ldap::SYNCHRO_DOLIBARR_TO_LDAP) {
 				$ldap = new Ldap();
-				$result = $ldap->connectBind();
+				$result = $ldap->connect_bind();
 
 				if ($result > 0) {
 					$info = $object->_load_ldap_info();
@@ -296,7 +295,7 @@ class InterfaceLdapsynchro extends DolibarrTriggers
 			dol_syslog("Trigger '".$this->name."' for action '$action' launched by ".__FILE__.". id=".$object->id);
 			if (getDolGlobalString('LDAP_SYNCHRO_ACTIVE') && getDolGlobalInt('LDAP_SYNCHRO_ACTIVE') === Ldap::SYNCHRO_DOLIBARR_TO_LDAP) {
 				$ldap = new Ldap();
-				$result = $ldap->connectBind();
+				$result = $ldap->connect_bind();
 
 				if ($result > 0) {
 					if (empty($object->oldcopy) || !is_object($object->oldcopy)) {
@@ -329,7 +328,7 @@ class InterfaceLdapsynchro extends DolibarrTriggers
 			dol_syslog("Trigger '".$this->name."' for action '$action' launched by ".__FILE__.". id=".$object->id);
 			if (getDolGlobalString('LDAP_SYNCHRO_ACTIVE') && getDolGlobalInt('LDAP_SYNCHRO_ACTIVE') === Ldap::SYNCHRO_DOLIBARR_TO_LDAP) {
 				$ldap = new Ldap();
-				$result = $ldap->connectBind();
+				$result = $ldap->connect_bind();
 
 				if ($result > 0) {
 					$info = $object->_load_ldap_info();
@@ -347,7 +346,7 @@ class InterfaceLdapsynchro extends DolibarrTriggers
 			dol_syslog("Trigger '".$this->name."' for action '$action' launched by ".__FILE__.". id=".$object->id);
 			if (getDolGlobalString('LDAP_CONTACT_ACTIVE')) {
 				$ldap = new Ldap();
-				$result = $ldap->connectBind();
+				$result = $ldap->connect_bind();
 
 				if ($result > 0) {
 					$info = $object->_load_ldap_info();
@@ -364,7 +363,7 @@ class InterfaceLdapsynchro extends DolibarrTriggers
 			dol_syslog("Trigger '".$this->name."' for action '$action' launched by ".__FILE__.". id=".$object->id);
 			if (getDolGlobalString('LDAP_CONTACT_ACTIVE')) {
 				$ldap = new Ldap();
-				$result = $ldap->connectBind();
+				$result = $ldap->connect_bind();
 
 				if ($result > 0) {
 					if (empty($object->oldcopy) || !is_object($object->oldcopy)) {
@@ -397,7 +396,7 @@ class InterfaceLdapsynchro extends DolibarrTriggers
 			dol_syslog("Trigger '".$this->name."' for action '$action' launched by ".__FILE__.". id=".$object->id);
 			if (getDolGlobalString('LDAP_CONTACT_ACTIVE')) {
 				$ldap = new Ldap();
-				$result = $ldap->connectBind();
+				$result = $ldap->connect_bind();
 
 				if ($result > 0) {
 					$info = $object->_load_ldap_info();
@@ -415,7 +414,7 @@ class InterfaceLdapsynchro extends DolibarrTriggers
 			dol_syslog("Trigger '".$this->name."' for action '$action' launched by ".__FILE__.". id=".$object->id);
 			if (getDolGlobalString('LDAP_MEMBER_ACTIVE') && getDolGlobalInt('LDAP_MEMBER_ACTIVE') == Ldap::SYNCHRO_DOLIBARR_TO_LDAP) {
 				$ldap = new Ldap();
-				$result = $ldap->connectBind();
+				$result = $ldap->connect_bind();
 
 				if ($result > 0) {
 					$info = $object->_load_ldap_info();
@@ -460,7 +459,7 @@ class InterfaceLdapsynchro extends DolibarrTriggers
 				// If status field is setup to be synchronized
 				if (getDolGlobalString('LDAP_FIELD_MEMBER_STATUS')) {
 					$ldap = new Ldap();
-					$result = $ldap->connectBind();
+					$result = $ldap->connect_bind();
 
 					if ($result > 0) {
 						$info = $object->_load_ldap_info();
@@ -485,7 +484,7 @@ class InterfaceLdapsynchro extends DolibarrTriggers
 					|| getDolGlobalString('LDAP_FIELD_MEMBER_LASTSUBSCRIPTION_AMOUNT')
 					|| getDolGlobalString('LDAP_FIELD_MEMBER_END_LASTSUBSCRIPTION')) {
 					$ldap = new Ldap();
-					$result = $ldap->connectBind();
+					$result = $ldap->connect_bind();
 
 					if ($result > 0) {
 						$info = $object->_load_ldap_info();
@@ -504,7 +503,7 @@ class InterfaceLdapsynchro extends DolibarrTriggers
 			dol_syslog("Trigger '".$this->name."' for action '$action' launched by ".__FILE__.". id=".$object->id);
 			if (getDolGlobalString('LDAP_MEMBER_ACTIVE') && getDolGlobalInt('LDAP_MEMBER_ACTIVE') == Ldap::SYNCHRO_DOLIBARR_TO_LDAP) {
 				$ldap = new Ldap();
-				$result = $ldap->connectBind();
+				$result = $ldap->connect_bind();
 
 				if ($result > 0) {
 					if (empty($object->oldcopy) || !is_object($object->oldcopy)) {
@@ -594,7 +593,7 @@ class InterfaceLdapsynchro extends DolibarrTriggers
 				// If password field is setup to be synchronized
 				if (getDolGlobalString('LDAP_FIELD_PASSWORD') || getDolGlobalString('LDAP_FIELD_PASSWORD_CRYPTED')) {
 					$ldap = new Ldap();
-					$result = $ldap->connectBind();
+					$result = $ldap->connect_bind();
 
 					if ($result > 0) {
 						$info = $object->_load_ldap_info();
@@ -615,7 +614,7 @@ class InterfaceLdapsynchro extends DolibarrTriggers
 				// If status field is setup to be synchronized
 				if (getDolGlobalString('LDAP_FIELD_MEMBER_STATUS')) {
 					$ldap = new Ldap();
-					$result = $ldap->connectBind();
+					$result = $ldap->connect_bind();
 
 					if ($result > 0) {
 						$info = $object->_load_ldap_info();
@@ -634,7 +633,7 @@ class InterfaceLdapsynchro extends DolibarrTriggers
 			dol_syslog("Trigger '".$this->name."' for action '$action' launched by ".__FILE__.". id=".$object->id);
 			if (getDolGlobalString('LDAP_MEMBER_ACTIVE') && getDolGlobalInt('LDAP_MEMBER_ACTIVE') == Ldap::SYNCHRO_DOLIBARR_TO_LDAP) {
 				$ldap = new Ldap();
-				$result = $ldap->connectBind();
+				$result = $ldap->connect_bind();
 
 				if ($result > 0) {
 					$info = $object->_load_ldap_info();
@@ -682,7 +681,7 @@ class InterfaceLdapsynchro extends DolibarrTriggers
 			dol_syslog("Trigger '".$this->name."' for action '$action' launched by ".__FILE__.". id=".$object->id);
 			if (getDolGlobalString('LDAP_MEMBER_TYPE_ACTIVE') && getDolGlobalInt('LDAP_MEMBER_TYPE_ACTIVE') === Ldap::SYNCHRO_DOLIBARR_TO_LDAP) {
 				$ldap = new Ldap();
-				$result = $ldap->connectBind();
+				$result = $ldap->connect_bind();
 
 				if ($result > 0) {
 					$info = $object->_load_ldap_info();
@@ -704,7 +703,7 @@ class InterfaceLdapsynchro extends DolibarrTriggers
 			dol_syslog("Trigger '".$this->name."' for action '$action' launched by ".__FILE__.". id=".$object->id);
 			if (getDolGlobalString('LDAP_MEMBER_TYPE_ACTIVE') && getDolGlobalInt('LDAP_MEMBER_TYPE_ACTIVE') === Ldap::SYNCHRO_DOLIBARR_TO_LDAP) {
 				$ldap = new Ldap();
-				$result = $ldap->connectBind();
+				$result = $ldap->connect_bind();
 
 				if ($result > 0) {
 					if (empty($object->oldcopy) || !is_object($object->oldcopy)) {
@@ -741,7 +740,7 @@ class InterfaceLdapsynchro extends DolibarrTriggers
 			dol_syslog("Trigger '".$this->name."' for action '$action' launched by ".__FILE__.". id=".$object->id);
 			if (getDolGlobalString('LDAP_MEMBER_TYPE_ACTIVE') && getDolGlobalInt('LDAP_MEMBER_TYPE_ACTIVE') === Ldap::SYNCHRO_DOLIBARR_TO_LDAP) {
 				$ldap = new Ldap();
-				$result = $ldap->connectBind();
+				$result = $ldap->connect_bind();
 
 				if ($result > 0) {
 					$info = $object->_load_ldap_info();

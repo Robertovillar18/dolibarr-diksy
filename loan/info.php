@@ -1,7 +1,6 @@
 <?php
 /* Copyright (C) 2014-2023  Alexandre Spangaro  <aspangaro@easya.solutions>
  * Copyright (C) 2017       Ferran Marcet       <fmarcet@2byte.es>
- * Copyright (C) 2024		MDW							<mdeweerd@users.noreply.github.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,11 +34,11 @@ if (isModEnabled('project')) {
 // Load translation files required by the page
 $langs->loadLangs(array("compta", "bills", "loan"));
 
-$id = GETPOSTINT('id');
+$id = GETPOST('id', 'int');
 $action = GETPOST('action', 'aZ09');
 
 // Security check
-$socid = GETPOSTINT('socid');
+$socid = GETPOST('socid', 'int');
 if ($user->socid) {
 	$socid = $user->socid;
 }
@@ -103,8 +102,7 @@ $morehtmlref .= '</div>';
 
 $linkback = '<a href="'.DOL_URL_ROOT.'/loan/list.php?restore_lastsearch_values=1">'.$langs->trans("BackToList").'</a>';
 
-$morehtmlstatus = $morehtmlright;
-dol_banner_tab($object, 'id', $linkback, 1, 'rowid', 'ref', $morehtmlref, '', 0, '', $morehtmlstatus);
+dol_banner_tab($object, 'id', $linkback, 1, 'rowid', 'ref', $morehtmlref, '', 0, '', $morehtmlright);
 
 print '<div class="fichecenter">';
 print '<div class="underbanner clearboth"></div>';

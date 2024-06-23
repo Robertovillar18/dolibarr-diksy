@@ -1,6 +1,5 @@
 <?php
 /* Copyright (C) 2009-2014 Laurent Destailleur  <eldy@users.sourceforge.net>
- * Copyright (C) 2024		MDW							<mdeweerd@users.noreply.github.com>
  *
 * This program is free software; you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
@@ -35,7 +34,7 @@ if (!$user->admin) {
  * View
 */
 
-llxHeader('', '', '', '', 0, 0, '', '', '', 'mod-admin page-system_xdebug');
+llxHeader();
 
 print load_fiche_titre("XDebug", '', 'title_setup');
 
@@ -65,7 +64,7 @@ if (function_exists('socket_create')) {
 	if (function_exists('xdebug_get_profiler_filename')) {
 		print xdebug_get_profiler_filename() ? "(currently on into file ".xdebug_get_profiler_filename().")" : "(currently off)";
 	} else {
-		print "(currently not available)";
+		print "(currenlty not available)";
 	}
 	print ":<br>\n";
 	print 'xdebug.profiler_enable = '.ini_get('xdebug.profiler_enable')."<br>\n";
@@ -91,12 +90,7 @@ if (function_exists('socket_create')) {
 	//$client = socket_accept($sock);
 	$client = socket_connect($socket, $address, $port);
 	if ($client) {
-		if (is_bool($client)) {
-			$client_str = 'true';
-		} else {
-			$client_str = (string) $client;
-		}
-		print "Connection established: ".$client_str." - address=".$address." port=".$port."<br>\n";
+		print "Connection established: ".$client." - address=".$address." port=".$port."<br>\n";
 		print "There is a Remote debug server at this address.<br>\n";
 		print "<br>\n";
 		print "To be sure this debugger accepts input from your PHP server and xdebug, be sure to have\n";

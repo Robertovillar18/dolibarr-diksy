@@ -33,10 +33,10 @@ require_once DOL_DOCUMENT_ROOT.'/knowledgemanagement/lib/knowledgemanagement_kno
 // Load translation files required by the page
 $langs->loadLangs(array("knowledgemanagement", "companies", "other", "mails"));
 
-$id     = (GETPOST('id') ? GETPOSTINT('id') : GETPOSTINT('facid')); // For backward compatibility
+$id     = (GETPOST('id') ? GETPOST('id', 'int') : GETPOST('facid', 'int')); // For backward compatibility
 $ref    = GETPOST('ref', 'alpha');
-$lineid = GETPOSTINT('lineid');
-$socid  = GETPOSTINT('socid');
+$lineid = GETPOST('lineid', 'int');
+$socid  = GETPOST('socid', 'int');
 $action = GETPOST('action', 'aZ09');
 
 // Initialize technical objects
@@ -64,7 +64,7 @@ $permission = $user->hasRight('knowledgemanagement', 'knowledgerecord', 'write')
  */
 
 if ($action == 'addcontact' && $permission) {
-	$contactid = (GETPOST('userid') ? GETPOSTINT('userid') : GETPOSTINT('contactid'));
+	$contactid = (GETPOST('userid') ? GETPOST('userid', 'int') : GETPOST('contactid', 'int'));
 	$typeid = (GETPOST('typecontact') ? GETPOST('typecontact') : GETPOST('type'));
 	$result = $object->add_contact($contactid, $typeid, GETPOST("source", 'aZ09'));
 
@@ -81,7 +81,7 @@ if ($action == 'addcontact' && $permission) {
 	}
 } elseif ($action == 'swapstatut' && $permission) {
 	// Toggle the status of a contact
-	$result = $object->swapContactStatus(GETPOSTINT('ligne'));
+	$result = $object->swapContactStatus(GETPOST('ligne', 'int'));
 } elseif ($action == 'deletecontact' && $permission) {
 	// Deletes a contact
 	$result = $object->delete_contact($lineid);
@@ -102,7 +102,7 @@ if ($action == 'addcontact' && $permission) {
 $title = $langs->trans('KnowledgeRecord')." - ".$langs->trans('ContactsAddresses');
 $help_url = '';
 //$help_url='EN:Module_Third_Parties|FR:Module_Tiers|ES:Empresas';
-llxHeader('', $title, $help_url, '', 0, 0, '', '', '', 'mod-knowledgemanagement page-contact');
+llxHeader('', $title, $help_url);
 
 $form = new Form($db);
 $formcompany = new FormCompany($db);

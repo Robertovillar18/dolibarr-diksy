@@ -1,6 +1,6 @@
 <?php
 /* Copyright (C) 2021		Laurent Destailleur	<eldy@users.sourceforge.net>
- * Copyright (C) 2022-2024	Frédéric France         <frederic.france@free.fr>
+ * Copyright (C) 2022       Frédéric France         <frederic.france@netlogic.fr>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,25 +31,33 @@ require_once DOL_DOCUMENT_ROOT.'/core/modules/member/modules_member.class.php';
  */
 class mod_member_simple extends ModeleNumRefMembers
 {
-
-	// variables inherited from ModeleNumRefMembers class
-	public $name = 'Simple';
+	/**
+	 * Dolibarr version of the loaded document
+	 * @var string
+	 */
 	public $version = 'dolibarr';
 
-	// variables not inherited
-
 	/**
+	 * prefix
+	 *
 	 * @var string
 	 */
 	public $prefix = '';
 
 	/**
-	 *	Constructor
+	 * @var string Error code (or message)
 	 */
-	public function __construct()
-	{
-		$this->code_auto = 1;
-	}
+	public $error = '';
+
+	/**
+	 * @var string model name
+	 */
+	public $name = 'Simple';
+
+	/**
+	 * @var int Automatic numbering
+	 */
+	public $code_auto = 1;
 
 	/**
 	 *  Return description of numbering module
@@ -79,7 +87,7 @@ class mod_member_simple extends ModeleNumRefMembers
 	 *  Checks if the numbers already in the database do not
 	 *  cause conflicts that would prevent this numbering working.
 	 *
-	 *	@param	CommonObject	$object	Object we need next value for
+	 *	@param	Object		$object		Object we need next value for
 	 *  @return boolean     			false if KO (there is a conflict), true if OK
 	 */
 	public function canBeActivated($object)
@@ -115,7 +123,7 @@ class mod_member_simple extends ModeleNumRefMembers
 	 *
 	 *  @param  Societe		$objsoc		Object third party
 	 *  @param  Adherent	$object		Object we need next value for
-	 *  @return	string|-1				Value if OK, -1 if KO
+	 *  @return	string					Value if OK, 0 if KO
 	 */
 	public function getNextValue($objsoc, $object)
 	{

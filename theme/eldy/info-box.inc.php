@@ -20,7 +20,7 @@ if (!defined('ISLOADEDBYSTEELSHEET')) {
 .info-box {
 	display: block;
 	position: relative;
-	min-height: 94px;	/* must be same height than info-box-icon */
+	min-height: 90px;
 	background: var(--colorbacklineimpair2);
 	width: 100%;
 	box-shadow: 1px 1px 15px rgba(192, 192, 192, 0.2);
@@ -83,11 +83,11 @@ if (!defined('ISLOADEDBYSTEELSHEET')) {
 	display: block;
 	overflow: hidden;
 	float: left;
-	line-height: 94px;	/* must be same height as min-height of .info-box */
-	height: 94px; 	    /* must be same height as min-height of .info-box */
+	height: 90px;
 	width: 88px;
 	text-align: center;
 	font-size: 2.8em;
+	line-height: 90px;
 	background: var(--colorbacktitle1) !important;
 }
 
@@ -288,16 +288,6 @@ a.info-box-text-a i.fa.fa-exclamation-triangle {
 .info-box-text{
 	font-size: 0.92em;
 }
-/* Force values for small screen 480 */
-@media only screen and (max-width: 480px)
-{
-	.info-box-text {
-		font-size: 0.82em;
-	}
-	.info-box-line {
-		line-height: 1.25em;
-	}
-}
 .info-box-text:first-letter{text-transform: uppercase}
 a.info-box-text{ text-decoration: none;}
 
@@ -326,7 +316,7 @@ if (!isset($conf->global->THEME_SATURATE_RATIO)) {
 	$conf->global->THEME_SATURATE_RATIO = 0.7;
 }
 if (GETPOSTISSET('THEME_SATURATE_RATIO')) {
-	$conf->global->THEME_SATURATE_RATIO = GETPOSTINT('THEME_SATURATE_RATIO');
+	$conf->global->THEME_SATURATE_RATIO = GETPOST('THEME_SATURATE_RATIO', 'int');
 }
 
 ?>
@@ -403,12 +393,6 @@ if (GETPOSTISSET('THEME_SATURATE_RATIO')) {
 }
 .bg-infobox-holiday{
 	<?php echo $prefix; ?>color: #755114 !important;
-}
-
-/* Disable colors on left vmenu */
-a.vmenu span, span.vmenu, span.vmenu span {
-	/* To force no color on picto in left menu */
-	/* color: var(--colortextbackvmenu) !important; */
 }
 
 .infobox-adherent, .infobox-member {
@@ -521,18 +505,6 @@ a.vmenu span, span.vmenu, span.vmenu span {
 	margin: 0 -8px 0 -8px;
 	/*justify-content: space-between;*/
 }
-.box-flex-container-columns {
-	display: flex; /* or inline-flex */
-	flex-direction: row;
-	flex-wrap: nowrap;
-	justify-content: space-between;
-}
-.box-flex-container-column {
-	flex-grow: 1;
-	}
-.box-flex-container-column:not(:last-of-type) {
-	border-right: 1px solid #AAA;
-}
 
 .box-flex-grow-zero {
 	flex-grow: 0 !important;
@@ -542,32 +514,14 @@ a.vmenu span, span.vmenu, span.vmenu span {
 	flex-grow : 1;
 	flex-shrink: 1;
 	flex-basis: auto;
-	width: 290px;
+	width: 280px;
 }
 .box-flex-item.filler {
 	height: 0;
 }
-.box-flex-item {
-	margin-top: 5px;
-	margin-<?php echo $right; ?>: 20px;
-	margin-bottom: 0px;
-	margin-<?php echo $left; ?>: 10px;
+.box-flex-item, .box-flex-item.filler {
+	margin: 5px 10px 0px 10px;
 }
-.kanban .box-flex-item {
-	line-height: 1.4em;
-}
-
-/* css for small kanban */
-.box-flex-item-small {
-	width: 200px !important;
-}
-.box-flex-item-small .info-box-sm .info-box-content {
-	margin-left: 0;
-}
-.box-flex-item-small .info-box-icon.bg-infobox-action {
-	display: none;
-}
-
 
 .info-box-title {
 	width: calc(100% - 20px);
@@ -586,33 +540,11 @@ a.vmenu span, span.vmenu, span.vmenu span {
 	}
 }
 
-@media only screen and (max-width: 768px) {
+@media only screen and (max-width: 767px) {
 	.info-box-module {
 		min-width: 260px;
 	}
-	.box-flex-item {
-		width: 280px;
-	}
 }
-
-@media only screen and (max-width: 570px)
-{
-	.box-flex-item {
-		margin: 3px 8px 3px 8px !important;
-	}
-}
-
-@media only screen and (max-width: 480px) {
-	.info-box-module {
-		min-width: 250px;
-	}
-	.box-flex-item {
-		width: 250px;
-	}
-}
-
-
-
 
 .info-box-module .info-box-content {
 	height: 98px;
@@ -623,12 +555,12 @@ a.vmenu span, span.vmenu, span.vmenu span {
 }
 */
 
-@media only screen and (max-width: 768px)
+@media only screen and (max-width: 767px)
 {
 	.box-flex-container {
 		margin: 0 0 0 0px !important;
 		width: 100% !important;
-		/* justify-content: space-between; */
+		justify-content: space-between;
 	}
 	.info-box-module {
 		width: 100%;
@@ -655,7 +587,7 @@ a.vmenu span, span.vmenu, span.vmenu span {
 		padding-right: 2px;
 	}
 	.info-box-line-text {
-		width: calc(100% - 98px);
-		max-width: calc(100% - 88px);
+		width: calc(100% - 92px);
+		max-width: calc(100% - 82px);
 	}
 }

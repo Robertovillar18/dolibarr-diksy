@@ -2,8 +2,6 @@
 /* Copyright (C) 2007-2012 Laurent Destailleur  <eldy@users.sourceforge.net>
  * Copyright (C) 2014	   Juanjo Menent		<jmenent@2byte.es>
  * Copyright (C) 2015      Ion Agorria          <ion@agorria.com>
- * Copyright (C) 2024		Frédéric France			<frederic.france@free.fr>
- * Copyright (C) 2024		MDW							<mdeweerd@users.noreply.github.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -80,7 +78,7 @@ class PriceGlobalVariableUpdater
 	/**
 	 *  Constructor
 	 *
-	 *  @param  DoliDB      $db      Database handler
+	 *  @param  DoliDb      $db      Database handler
 	 */
 	public function __construct($db)
 	{
@@ -191,11 +189,11 @@ class PriceGlobalVariableUpdater
 	/**
 	 *  Update object into database
 	 *
-	 *  @param	User|null	$user       User that modifies
-	 *  @param  int			$notrigger	0=launch triggers after, 1=disable triggers
-	 *  @return int     		   	 	Return integer <0 if KO, >0 if OK
+	 *  @param	User	$user        User that modifies
+	 *  @param  int		$notrigger	 0=launch triggers after, 1=disable triggers
+	 *  @return int     		   	 Return integer <0 if KO, >0 if OK
 	 */
-	public function update($user = null, $notrigger = 0)
+	public function update($user = 0, $notrigger = 0)
 	{
 		$error = 0;
 
@@ -307,7 +305,7 @@ class PriceGlobalVariableUpdater
 	 *	Initialise object with example values
 	 *	Id must be 0 if object instance is a specimen
 	 *
-	 *	@return int
+	 *	@return	void
 	 */
 	public function initAsSpecimen()
 	{
@@ -319,8 +317,6 @@ class PriceGlobalVariableUpdater
 		$this->update_interval = 0;
 		$this->next_update = 0;
 		$this->last_status = '';
-
-		return 1;
 	}
 
 	/**
@@ -457,7 +453,7 @@ class PriceGlobalVariableUpdater
 		$langs->load("errors");
 		dol_syslog(__METHOD__, LOG_DEBUG);
 
-		$this->error = '';
+		$this->error = null;
 		$this->checkParameters();
 
 		//Try to load the target global variable and abort if fails
@@ -561,12 +557,12 @@ class PriceGlobalVariableUpdater
 	/**
 	 *  Update next_update into database
 	 *
-	 *  @param	string		$next_update	Next update to write
-	 *  @param	User|null	$user       	User that modifies
-	 *  @param  int			$notrigger		0=launch triggers after, 1=disable triggers
-	 *  @return int     		   	 		Return integer <0 if KO, >0 if OK
+	 *  @param	string	$next_update Next update to write
+	 *  @param	User	$user        User that modifies
+	 *  @param  int		$notrigger	 0=launch triggers after, 1=disable triggers
+	 *  @return int     		   	 Return integer <0 if KO, >0 if OK
 	 */
-	public function update_next_update($next_update, $user = null, $notrigger = 0)
+	public function update_next_update($next_update, $user = 0, $notrigger = 0)
 	{
 		// phpcs:enable
 		$error = 0;
@@ -606,12 +602,12 @@ class PriceGlobalVariableUpdater
 	/**
 	 *  Update last_status into database
 	 *
-	 *  @param	string		$last_status	Status to write
-	 *  @param	User|null	$user       	User that modifies
-	 *  @param  int			$notrigger		0=launch triggers after, 1=disable triggers
-	 *  @return int     		   	 		Return integer <0 if KO, >0 if OK
+	 *  @param	string	$last_status Status to write
+	 *  @param	User	$user        User that modifies
+	 *  @param  int		$notrigger	 0=launch triggers after, 1=disable triggers
+	 *  @return int     		   	 Return integer <0 if KO, >0 if OK
 	 */
-	public function update_status($last_status, $user = null, $notrigger = 0)
+	public function update_status($last_status, $user = 0, $notrigger = 0)
 	{
 		// phpcs:enable
 		$error = 0;

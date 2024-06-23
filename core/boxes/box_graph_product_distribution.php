@@ -18,7 +18,7 @@
 
 /**
  *	\file       htdocs/core/boxes/box_graph_product_distribution.php
- *	\ingroup    invoices
+ *	\ingroup    factures
  *	\brief      Box to show graph of invoices per month
  */
 include_once DOL_DOCUMENT_ROOT.'/core/boxes/modules_boxes.php';
@@ -34,7 +34,18 @@ class box_graph_product_distribution extends ModeleBoxes
 	public $boxlabel = "BoxProductDistribution";
 	public $depends = array("product|service", "facture|propal|commande");
 
+	/**
+	 * @var DoliDB Database handler.
+	 */
+	public $db;
+
+	public $param;
+
+	public $info_box_head = array();
+	public $info_box_contents = array();
+
 	public $widgettype = 'graph';
+
 
 	/**
 	 *  Constructor
@@ -44,13 +55,13 @@ class box_graph_product_distribution extends ModeleBoxes
 	 */
 	public function __construct($db, $param)
 	{
-		global $user;
+		global $user, $conf;
 
 		$this->db = $db;
 
 		$this->hidden = !(
-			(isModEnabled('invoice') && $user->hasRight('facture', 'lire'))
-			|| (isModEnabled('order') && $user->hasRight('commande', 'lire'))
+			(isModEnabled('facture') && $user->hasRight('facture', 'lire'))
+			|| (isModEnabled('commande') && $user->hasRight('commande', 'lire'))
 			|| (isModEnabled('propal') && $user->hasRight('propal', 'lire'))
 		);
 	}
@@ -80,7 +91,7 @@ class box_graph_product_distribution extends ModeleBoxes
 		$param_showordernb = 'DOLUSERCOOKIE_box_'.$this->boxcode.'_showordernb';
 		$autosetarray = preg_split("/[,;:]+/", GETPOST('DOL_AUTOSET_COOKIE'));
 		if (in_array('DOLUSERCOOKIE_box_'.$this->boxcode, $autosetarray)) {
-			$year = GETPOSTINT($param_year);
+			$year = GETPOST($param_year, 'int');
 			$showinvoicenb = GETPOST($param_showinvoicenb, 'alpha');
 			$showpropalnb = GETPOST($param_showpropalnb, 'alpha');
 			$showordernb = GETPOST($param_showordernb, 'alpha');
@@ -96,13 +107,13 @@ class box_graph_product_distribution extends ModeleBoxes
 			$showinvoicenb = 1;
 			$showordernb = 1;
 		}
-		if (!isModEnabled('invoice') || !$user->hasRight('facture', 'lire')) {
+		if (!isModEnabled('facture') || !$user->hasRight('facture', 'lire')) {
 			$showinvoicenb = 0;
 		}
 		if (isModEnabled('propal') || !$user->hasRight('propal', 'lire')) {
 			$showpropalnb = 0;
 		}
-		if (!isModEnabled('order') || !$user->hasRight('commande', 'lire')) {
+		if (!isModEnabled('commande') || !$user->hasRight('commande', 'lire')) {
 			$showordernb = 0;
 		}
 
@@ -203,7 +214,7 @@ class box_graph_product_distribution extends ModeleBoxes
 			}
 		}
 
-		if (isModEnabled('order') && $user->hasRight('commande', 'lire')) {
+		if (isModEnabled('commande') && $user->hasRight('commande', 'lire')) {
 			// Build graphic number of object. $data = array(array('Lib',val1,val2,val3),...)
 			if ($showordernb) {
 				$langs->load("orders");
@@ -267,7 +278,7 @@ class box_graph_product_distribution extends ModeleBoxes
 		}
 
 
-		if (isModEnabled('invoice') && $user->hasRight('facture', 'lire')) {
+		if (isModEnabled('facture') && $user->hasRight('facture', 'lire')) {
 			// Build graphic number of object. $data = array(array('Lib',val1,val2,val3),...)
 			if ($showinvoicenb) {
 				$langs->load("bills");
@@ -358,10 +369,10 @@ class box_graph_product_distribution extends ModeleBoxes
 				$stringtoshow .= '<input type="checkbox" name="'.$param_showpropalnb.'"'.($showpropalnb ? ' checked' : '').'> '.$langs->trans("ForProposals");
 				$stringtoshow .= '&nbsp;';
 			}
-			if (isModEnabled('order') || $user->hasRight('commande', 'lire')) {
+			if (isModEnabled('commande') || $user->hasRight('commande', 'lire')) {
 				$stringtoshow .= '<input type="checkbox" name="'.$param_showordernb.'"'.($showordernb ? ' checked' : '').'> '.$langs->trans("ForCustomersOrders");
 			}
-			if (isModEnabled('invoice') || $user->hasRight('facture', 'lire')) {
+			if (isModEnabled('facture') || $user->hasRight('facture', 'lire')) {
 				$stringtoshow .= '<input type="checkbox" name="'.$param_showinvoicenb.'"'.($showinvoicenb ? ' checked' : '').'> '.$langs->trans("ForCustomersInvoices");
 				$stringtoshow .= ' &nbsp; ';
 			}
@@ -384,13 +395,13 @@ class box_graph_product_distribution extends ModeleBoxes
 				$stringtoshow .= '<div class="fichecenter"><div class="containercenter"><div class="fichehalfleft">';
 				if (isModEnabled('propal') && $showpropalnb) {
 					$stringtoshow .= $px2->show();
-				} elseif (isModEnabled('order') && $showordernb) {
+				} elseif (isModEnabled('commande') && $showordernb) {
 					$stringtoshow .= $px3->show();
 				}
 				$stringtoshow .= '</div><div class="fichehalfright">';
-				if (isModEnabled('invoice') && $showinvoicenb) {
+				if (isModEnabled('facture') && $showinvoicenb) {
 					$stringtoshow .= $px1->show();
-				} elseif (isModEnabled('order') && $showordernb) {
+				} elseif (isModEnabled('commande') && $showordernb) {
 					$stringtoshow .= $px3->show();
 				}
 				$stringtoshow .= '</div></div></div>';

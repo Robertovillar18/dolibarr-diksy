@@ -49,7 +49,7 @@ $action = GETPOST('action', 'aZ09');
  * Actions
  */
 
-// Sauvegardes parameters
+// Sauvegardes parametres
 if ($action == 'update') {
 	$i = 0;
 

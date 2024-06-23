@@ -58,7 +58,7 @@ class modDon extends DolibarrModules
 		// Data directories to create when module is enabled
 		$this->dirs = array("/don/temp");
 
-		// Dependencies
+		// Dependancies
 		$this->depends = array();
 		$this->requiredby = array();
 

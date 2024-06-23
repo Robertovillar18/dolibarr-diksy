@@ -3,11 +3,10 @@
  * Copyright (C) 2014-2020  Laurent Destailleur     <eldy@users.sourceforge.net>
  * Copyright (C) 2015       Jean-François Ferry     <jfefe@aternatik.fr>
  * Copyright (C) 2015       Charlie BENKE           <charlie@patas-monkey.com>
- * Copyright (C) 2018-2024  Frédéric France         <frederic.france@free.fr>
+ * Copyright (C) 2018-2022  Frédéric France         <frederic.france@netlogic.fr>
  * Copyright (C) 2021       Gauthier VERDOL         <gauthier.verdol@atm-consulting.fr>
  * Copyright (C) 2023       Maxime Nicolas          <maxime@oarces.com>
  * Copyright (C) 2023       Benjamin GREMBI         <benjamin@oarces.com>
- * Copyright (C) 2024		MDW							<mdeweerd@users.noreply.github.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -60,18 +59,18 @@ $backtopageforcancel = GETPOST('backtopageforcancel', 'alpha');
 $confirm = GETPOST('confirm');
 
 $label = GETPOST('label', 'alphanohtml');
-$projectid = GETPOSTINT('projectid') ? GETPOSTINT('projectid') : GETPOSTINT('fk_project');
-$accountid = GETPOSTINT('accountid') > 0 ? GETPOSTINT('accountid') : 0;
+$projectid = (GETPOST('projectid', 'int') ? GETPOST('projectid', 'int') : GETPOST('fk_project', 'int'));
+$accountid = GETPOST('accountid', 'int') > 0 ? GETPOST('accountid', 'int') : 0;
 if (GETPOSTISSET('auto_create_paiement') || $action === 'add') {
-	$auto_create_paiement = GETPOSTINT("auto_create_paiement");
+	$auto_create_paiement = GETPOST("auto_create_paiement", "int");
 } else {
 	$auto_create_paiement = !getDolGlobalString('CREATE_NEW_SALARY_WITHOUT_AUTO_PAYMENT');
 }
 
-$datep = dol_mktime(12, 0, 0, GETPOSTINT("datepmonth"), GETPOSTINT("datepday"), GETPOSTINT("datepyear"));
-$datev = dol_mktime(12, 0, 0, GETPOSTINT("datevmonth"), GETPOSTINT("datevday"), GETPOSTINT("datevyear"));
-$datesp = dol_mktime(12, 0, 0, GETPOSTINT("datespmonth"), GETPOSTINT("datespday"), GETPOSTINT("datespyear"));
-$dateep = dol_mktime(12, 0, 0, GETPOSTINT("dateepmonth"), GETPOSTINT("dateepday"), GETPOSTINT("dateepyear"));
+$datep = dol_mktime(12, 0, 0, GETPOST("datepmonth", 'int'), GETPOST("datepday", 'int'), GETPOST("datepyear", 'int'));
+$datev = dol_mktime(12, 0, 0, GETPOST("datevmonth", 'int'), GETPOST("datevday", 'int'), GETPOST("datevyear", 'int'));
+$datesp = dol_mktime(12, 0, 0, GETPOST("datespmonth", 'int'), GETPOST("datespday", 'int'), GETPOST("datespyear", 'int'));
+$dateep = dol_mktime(12, 0, 0, GETPOST("dateepmonth", 'int'), GETPOST("dateepday", 'int'), GETPOST("dateepyear", 'int'));
 $fk_user = GETPOSTINT('userid');
 
 $object = new Salary($db);
@@ -213,7 +212,7 @@ if ($action == 'reopen' && $permissiontoadd) {
 // payment mode
 if ($action == 'setmode' && $permissiontoadd) {
 	$object->fetch($id);
-	$result = $object->setPaymentMethods(GETPOSTINT('mode_reglement_id'));
+	$result = $object->setPaymentMethods(GETPOST('mode_reglement_id', 'int'));
 	if ($result < 0) {
 		setEventMessages($object->error, $object->errors, 'errors');
 	}
@@ -222,7 +221,7 @@ if ($action == 'setmode' && $permissiontoadd) {
 // bank account
 if ($action == 'setbankaccount' && $permissiontoadd) {
 	$object->fetch($id);
-	$result = $object->setBankAccount(GETPOSTINT('fk_account'));
+	$result = $object->setBankAccount(GETPOST('fk_account', 'int'));
 	if ($result < 0) {
 		setEventMessages($object->error, $object->errors, 'errors');
 	}
@@ -235,11 +234,11 @@ if ($action == 'add' && empty($cancel)) {
 		$datev = $datep;
 	}
 
-	$type_payment = GETPOSTINT("paymenttype");
+	$type_payment = GETPOST("paymenttype", 'alpha');
 	$amount = price2num(GETPOST("amount", 'alpha'), 'MT', 2);
 
-	$object->accountid = GETPOSTINT("accountid") > 0 ? GETPOSTINT("accountid") : 0;
-	$object->fk_user = GETPOSTINT("fk_user") > 0 ? GETPOSTINT("fk_user") : 0;
+	$object->accountid = GETPOST("accountid", 'int') > 0 ? GETPOST("accountid", "int") : 0;
+	$object->fk_user = GETPOST("fk_user", 'int') > 0 ? GETPOST("fk_user", "int") : 0;
 	$object->datev = $datev;
 	$object->datep = $datep;
 	$object->amount = $amount;
@@ -253,7 +252,7 @@ if ($action == 'add' && empty($cancel)) {
 
 	// Set user current salary as ref salary for the payment
 	$fuser = new User($db);
-	$fuser->fetch(GETPOSTINT("fk_user"));
+	$fuser->fetch(GETPOST("fk_user", "int"));
 	$object->salary = $fuser->salary;
 
 	// Fill array 'array_options' with data from add form
@@ -282,7 +281,7 @@ if ($action == 'add' && empty($cancel)) {
 		setEventMessages($langs->trans("ErrorFieldRequired", $langs->transnoentitiesnoconv("Amount")), null, 'errors');
 		$error++;
 	}
-	if (isModEnabled("bank") && !empty($auto_create_paiement) && !$object->accountid > 0) {
+	if (isModEnabled("banque") && !empty($auto_create_paiement) && !$object->accountid > 0) {
 		setEventMessages($langs->trans("ErrorFieldRequired", $langs->transnoentitiesnoconv("BankAccount")), null, 'errors');
 		$error++;
 	}
@@ -302,7 +301,7 @@ if ($action == 'add' && empty($cancel)) {
 			$paiement->chid         = $object->id;	// deprecated
 			$paiement->datep        = $datep;
 			$paiement->datev		= $datev;
-			$paiement->amounts      = array($object->id => $amount); // Tableau de montant
+			$paiement->amounts      = array($object->id=>$amount); // Tableau de montant
 			$paiement->fk_typepayment = $type_payment;
 			$paiement->num_payment  = GETPOST("num_payment", 'alphanohtml');
 			$paiement->note_private = GETPOST("note", 'restricthtml');
@@ -317,7 +316,7 @@ if ($action == 'add' && empty($cancel)) {
 			}
 
 			if (!$error) {
-				$result = $paiement->addPaymentToBank($user, 'payment_salary', '(SalaryPayment)', GETPOSTINT('accountid'), '', '');
+				$result = $paiement->addPaymentToBank($user, 'payment_salary', '(SalaryPayment)', GETPOST('accountid', 'int'), '', '');
 				if (!($result > 0)) {
 					$error++;
 					setEventMessages($paiement->error, null, 'errors');
@@ -330,7 +329,7 @@ if ($action == 'add' && empty($cancel)) {
 
 			if (GETPOST('saveandnew', 'alpha')) {
 				setEventMessages($langs->trans("RecordSaved"), null, 'mesgs');
-				header("Location: card.php?action=create&fk_project=" . urlencode((string) ($projectid)) . "&accountid=" . urlencode((string) ($accountid)) . '&paymenttype=' . urlencode((string) (GETPOSTINT('paymenttype'))) . '&datepday=' . GETPOSTINT("datepday") . '&datepmonth=' . GETPOSTINT("datepmonth") . '&datepyear=' . GETPOSTINT("datepyear"));
+				header("Location: card.php?action=create&fk_project=" . urlencode($projectid) . "&accountid=" . urlencode($accountid) . '&paymenttype=' . urlencode(GETPOST('paymenttype', 'aZ09')) . '&datepday=' . GETPOST("datepday", 'int') . '&datepmonth=' . GETPOST("datepmonth", 'int') . '&datepyear=' . GETPOST("datepyear", 'int'));
 				exit;
 			} else {
 				header("Location: " . $_SERVER['PHP_SELF'] . '?id=' . $object->id);
@@ -402,8 +401,7 @@ if ($action == 'confirm_clone' && $confirm == 'yes' && $permissiontoadd) {
 
 	if ($object->id > 0) {
 		$object->paye = 0;
-		$object->id = 0;
-		$object->ref = '';
+		$object->id = $object->ref = null;
 
 		if (GETPOST('amount', 'alphanohtml')) {
 			$object->amount = price2num(GETPOST('amount', 'alphanohtml'), 'MT', 2);
@@ -415,8 +413,8 @@ if ($action == 'confirm_clone' && $confirm == 'yes' && $permissiontoadd) {
 			$object->label = $langs->trans("CopyOf").' '.$object->label;
 		}
 
-		$newdatestart = dol_mktime(0, 0, 0, GETPOSTINT('clone_date_startmonth'), GETPOSTINT('clone_date_startday'), GETPOSTINT('clone_date_startyear'));
-		$newdateend = dol_mktime(0, 0, 0, GETPOSTINT('clone_date_endmonth'), GETPOSTINT('clone_date_endday'), GETPOSTINT('clone_date_endyear'));
+		$newdatestart = dol_mktime(0, 0, 0, GETPOST('clone_date_startmonth', 'int'), GETPOST('clone_date_startday', 'int'), GETPOST('clone_date_startyear', 'int'));
+		$newdateend = dol_mktime(0, 0, 0, GETPOST('clone_date_endmonth', 'int'), GETPOST('clone_date_endday', 'int'), GETPOST('clone_date_endyear', 'int'));
 
 		if ($newdatestart) {
 			$object->datesp = $newdatestart;
@@ -446,14 +444,14 @@ if ($action == 'confirm_clone' && $confirm == 'yes' && $permissiontoadd) {
 
 // Action to update one extrafield
 if ($action == "update_extras" && $permissiontoadd) {
-	$object->fetch(GETPOSTINT('id'));
+	$object->fetch(GETPOST('id', 'int'));
 
 	$attributekey = GETPOST('attribute', 'alpha');
 	$attributekeylong = 'options_'.$attributekey;
 
 	if (GETPOSTISSET($attributekeylong.'day') && GETPOSTISSET($attributekeylong.'month') && GETPOSTISSET($attributekeylong.'year')) {
 		// This is properties of a date
-		$object->array_options['options_'.$attributekey] = dol_mktime(GETPOSTINT($attributekeylong.'hour'), GETPOSTINT($attributekeylong.'min'), GETPOSTINT($attributekeylong.'sec'), GETPOSTINT($attributekeylong.'month'), GETPOSTINT($attributekeylong.'day'), GETPOSTINT($attributekeylong.'year'));
+		$object->array_options['options_'.$attributekey] = dol_mktime(GETPOST($attributekeylong.'hour', 'int'), GETPOST($attributekeylong.'min', 'int'), GETPOST($attributekeylong.'sec', 'int'), GETPOST($attributekeylong.'month', 'int'), GETPOST($attributekeylong.'day', 'int'), GETPOST($attributekeylong.'year', 'int'));
 		//var_dump(dol_print_date($object->array_options['options_'.$attributekey]));exit;
 	} else {
 		$object->array_options['options_'.$attributekey] = GETPOST($attributekeylong, 'alpha');
@@ -498,19 +496,19 @@ if ($id > 0) {
 // Create
 if ($action == 'create' && $permissiontoadd) {
 	$year_current = dol_print_date(dol_now('gmt'), "%Y", 'gmt');
-	$pastmonth = dol_print_date(dol_now(), "%m") - 1;
+	$pastmonth = strftime("%m", dol_now()) - 1;
 	$pastmonthyear = $year_current;
 	if ($pastmonth == 0) {
 		$pastmonth = 12;
 		$pastmonthyear--;
 	}
 
-	$datespmonth = GETPOSTINT('datespmonth');
-	$datespday = GETPOSTINT('datespday');
-	$datespyear = GETPOSTINT('datespyear');
-	$dateepmonth = GETPOSTINT('dateepmonth');
-	$dateepday = GETPOSTINT('dateepday');
-	$dateepyear = GETPOSTINT('dateepyear');
+	$datespmonth = GETPOST('datespmonth', 'int');
+	$datespday = GETPOST('datespday', 'int');
+	$datespyear = GETPOST('datespyear', 'int');
+	$dateepmonth = GETPOST('dateepmonth', 'int');
+	$dateepday = GETPOST('dateepday', 'int');
+	$dateepyear = GETPOST('dateepyear', 'int');
 	$datesp = dol_mktime(0, 0, 0, $datespmonth, $datespday, $datespyear);
 	$dateep = dol_mktime(23, 59, 59, $dateepmonth, $dateepday, $dateepyear);
 
@@ -561,7 +559,7 @@ if ($action == 'create' && $permissiontoadd) {
 		print '</script>'."\n";
 	}
 
-	print dol_get_fiche_head();
+	print dol_get_fiche_head('');
 
 	print '<table class="border centpercent">';
 
@@ -569,7 +567,7 @@ if ($action == 'create' && $permissiontoadd) {
 	print '<tr><td class="titlefieldcreate">';
 	print $form->editfieldkey('Employee', 'fk_user', '', $object, 0, 'string', '', 1).'</td><td>';
 	$noactive = 0; // We keep active and unactive users
-	print img_picto('', 'user', 'class="pictofixedwidth"').$form->select_dolusers(GETPOSTINT('fk_user'), 'fk_user', 1, '', 0, '', '', 0, 0, 0, 'AND employee=1', 0, '', 'maxwidth300', $noactive);
+	print img_picto('', 'user', 'class="paddingrighonly"').$form->select_dolusers(GETPOST('fk_user', 'int'), 'fk_user', 1, '', 0, '', '', 0, 0, 0, 'AND employee=1', 0, '', 'maxwidth300', $noactive);
 	print '</td></tr>';
 
 	// Label
@@ -581,13 +579,13 @@ if ($action == 'create' && $permissiontoadd) {
 	// Date start period
 	print '<tr><td>';
 	print $form->editfieldkey('DateStartPeriod', 'datesp', '', $object, 0, 'string', '', 1).'</td><td>';
-	print $form->selectDate($datesp, "datesp", 0, 0, 0, 'add');
+	print $form->selectDate($datesp, "datesp", '', '', '', 'add');
 	print '</td></tr>';
 
 	// Date end period
 	print '<tr><td>';
 	print $form->editfieldkey('DateEndPeriod', 'dateep', '', $object, 0, 'string', '', 1).'</td><td>';
-	print $form->selectDate($dateep, "dateep", 0, 0, 0, 'add');
+	print $form->selectDate($dateep, "dateep", '', '', '', 'add');
 	print '</td></tr>';
 
 	// Amount
@@ -623,10 +621,10 @@ if ($action == 'create' && $permissiontoadd) {
 	print '<td><input id="auto_create_paiement" name="auto_create_paiement" type="checkbox" ' . (empty($auto_create_paiement) ? '' : 'checked="checked"') . ' value="1"></td></tr>'."\n";	// Date payment
 
 	// Bank
-	if (isModEnabled("bank")) {
+	if (isModEnabled("banque")) {
 		print '<tr><td id="label_fk_account">';
 		print $form->editfieldkey('BankAccount', 'selectaccountid', '', $object, 0, 'string', '', 1).'</td><td>';
-		print img_picto('', 'bank_account', 'class="pictofixedwidth"');
+		print img_picto('', 'bank_account', 'class="paddingrighonly"');
 		$form->select_comptes($accountid, "accountid", 0, '', 1); // Affiche liste des comptes courant
 		print '</td></tr>';
 	}
@@ -647,11 +645,11 @@ if ($action == 'create' && $permissiontoadd) {
 	// Date value for bank
 	print '<tr class="hide_if_no_auto_create_payment"><td>';
 	print $form->editfieldkey('DateValue', 'datev', '', $object, 0).'</td><td>';
-	print $form->selectDate((empty($datev) ? -1 : $datev), "datev", 0, 0, 0, 'add', 1, 1);
+	print $form->selectDate((empty($datev) ? -1 : $datev), "datev", '', '', '', 'add', 1, 1);
 	print '</td></tr>';
 
 	// Number
-	if (isModEnabled("bank")) {
+	if (isModEnabled("banque")) {
 		// Number
 		print '<tr class="hide_if_no_auto_create_payment"><td><label for="num_payment">'.$langs->trans('Numero');
 		print ' <em>('.$langs->trans("ChequeOrTransferNumber").')</em>';
@@ -946,7 +944,7 @@ if ($id > 0) {
 	print '</td></tr>';
 
 	// Default Bank Account
-	if (isModEnabled("bank")) {
+	if (isModEnabled("banque")) {
 		print '<tr><td class="nowrap">';
 		print '<table width="100%" class="nobordernopadding"><tr><td class="nowrap">';
 		print $langs->trans('DefaultBankAccount');
@@ -975,7 +973,7 @@ if ($id > 0) {
 	print '<div class="fichehalfright">';
 
 	$nbcols = 3;
-	if (isModEnabled("bank")) {
+	if (isModEnabled("banque")) {
 		$nbcols++;
 	}
 
@@ -1003,13 +1001,13 @@ if ($id > 0) {
 		$i = 0;
 		$total = 0;
 
-		print '<div class="div-table-responsive-no-min">'; // You can use div-table-responsive-no-min if you don't need reserved height for your table
+		print '<div class="div-table-responsive-no-min">'; // You can use div-table-responsive-no-min if you dont need reserved height for your table
 		print '<table class="noborder paymenttable">';
 		print '<tr class="liste_titre">';
 		print '<td>'.$langs->trans("RefPayment").'</td>';
 		print '<td>'.$langs->trans("Date").'</td>';
 		print '<td>'.$langs->trans("Type").'</td>';
-		if (isModEnabled("bank")) {
+		if (isModEnabled("banque")) {
 			print '<td class="liste_titre right">'.$langs->trans('BankAccount').'</td>';
 		}
 		print '<td class="right">'.$langs->trans("Amount").'</td>';
@@ -1033,7 +1031,7 @@ if ($id > 0) {
 				print '<td>'.dol_print_date($db->jdate($objp->dp), 'dayhour', 'tzuserrel')."</td>\n";
 				$labeltype = $langs->trans("PaymentType".$objp->type_code) != "PaymentType".$objp->type_code ? $langs->trans("PaymentType".$objp->type_code) : $objp->paiement_type;
 				print "<td>".$labeltype.' '.$objp->num_payment."</td>\n";
-				if (isModEnabled("bank")) {
+				if (isModEnabled("banque")) {
 					$bankaccountstatic->id = $objp->baid;
 					$bankaccountstatic->ref = $objp->baref;
 					$bankaccountstatic->label = $objp->baref;

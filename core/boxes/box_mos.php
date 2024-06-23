@@ -38,6 +38,17 @@ class box_mos extends ModeleBoxes
 	public $depends  = array("mrp");
 
 	/**
+	 * @var DoliDB Database handler.
+	 */
+	public $db;
+
+	public $param;
+
+	public $info_box_head = array();
+	public $info_box_contents = array();
+
+
+	/**
 	 *  Constructor
 	 *
 	 *  @param  DoliDB  $db         Database handler
@@ -49,7 +60,7 @@ class box_mos extends ModeleBoxes
 
 		$this->db = $db;
 
-		$this->hidden = !$user->hasRight('bom', 'read');
+		$this->hidden = empty($user->rights->bom->read);
 	}
 
 	/**

@@ -1,6 +1,5 @@
 <?php
-/* Copyright (C) 2017-2024  Laurent Destailleur         <eldy@users.sourceforge.net>
- * Copyright (C) 2024       Frédéric France             <frederic.france@free.fr>
+/* Copyright (C) 2017-2019 Laurent Destailleur  <eldy@users.sourceforge.net>
  *
 * This program is free software; you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
@@ -19,9 +18,8 @@
 
 /**
  *	\file			htdocs/core/website.inc.php
- *  \brief			Common file loaded by all website pages (after master.inc.php). It sets the new object $weblangs.
- *  				This file is included in top of all container pages (in edit mode, in dolibarr web server mode and in external web server mode).
- *  				It is run only when a web page is called.
+ *  \brief			Common file loaded by all website pages (after master.inc.php). It set the new object $weblangs, using parameter 'l'.
+ *  				This file is included in top of all container pages and is run only when a web page is called.
  *  			    The global variable $websitekey must be defined.
  */
 
@@ -48,7 +46,7 @@ if (isset($_SERVER["HTTP_USER_AGENT"]) && is_object($conf) && empty($conf->brows
 	}
 }
 // Define $website
-if (is_null($website)) {
+if (!is_object($website)) {
 	$website = new Website($db);
 	$website->fetch(0, $websitekey);
 }
@@ -59,44 +57,20 @@ if (empty($pageid) && !empty($websitepagefile)) {
 		$pageid = $website->fk_default_home;
 	}
 }
-if (is_null($websitepage)) {
+if (!is_object($websitepage)) {
 	$websitepage = new WebsitePage($db);
 }
 // Define $weblangs
-if (is_null($weblangs)) {
+if (!is_object($weblangs)) {
 	$weblangs = new Translate('', $conf);
 }
-if (is_null($pagelangs)) {
+if (!is_object($pagelangs)) {
 	$pagelangs = new Translate('', $conf);
 }
 if (!empty($pageid) && $pageid > 0) {
 	$websitepage->fetch($pageid);
 
-	// Rule to define weblang of visitor:
-	// 1 - Take parameter lang
-	// 2 - Cookie lang of website (set by a possible js lang selector)
-	// 3 - XX/... found in url page
-	// 4 - auto (so web browser lang)
-	$srclang = GETPOSTISSET('lang') ? GETPOST('lang', 'aZ09') : '';
-	if (empty($srclang)) {
-		$srclang = (empty($_COOKIE['weblangs-shortcode']) ? '' : preg_replace('/[^a-zA-Z0-9_\-]/', '', $_COOKIE['weblangs-shortcode']));
-	}
-	if (empty($srclang)) {
-		$reg = array();
-		// With Dolibarr server, url is in parameter pageref
-		if (defined('USEDOLIBARRSERVER') && !empty($_GET['pageref']) && preg_match('/^\/?(\w\w)\//', $_GET['pageref'], $reg) && $reg[1] != 'js') {	// We reuse $_GET['pageref'] because $pageref may have been cleaned already from the language code.
-			$srclang = $reg[1];
-		}
-		// With External server, url is in parameter pageref
-		if (defined('USEEXTERNALSERVER') && !empty($_SERVER['PHP_SELF']) && preg_match('/^\/?(\w\w)\//', $_SERVER['PHP_SELF'], $reg) && $reg[1] != 'js') {
-			$srclang = $reg[1];
-		}
-	}
-	if (empty($srclang)) {
-		$srclang= 'auto';
-	}
-	$weblangs->setDefaultLang($srclang);
-
+	$weblangs->setDefaultLang(GETPOSTISSET('lang') ? GETPOST('lang', 'aZ09') : (empty($_COOKIE['weblangs-shortcode']) ? 'auto' : preg_replace('/[^a-zA-Z0-9_\-]/', '', $_COOKIE['weblangs-shortcode'])));
 	$pagelangs->setDefaultLang($websitepage->lang ? $websitepage->lang : $weblangs->shortlang);
 
 	if (!defined('USEDOLIBARREDITOR') && (in_array($websitepage->type_container, array('menu', 'other')) || empty($websitepage->status) && !defined('USEDOLIBARRSERVER'))) {
@@ -289,22 +263,3 @@ if (!defined('USEDOLIBARREDITOR') && empty($website->status)) {
 	print '<center><br><br>'.$weblangs->trans("SorryWebsiteIsCurrentlyOffLine").'</center>';
 	exit;
 }
-
-
-// Get session info and obfuscate session cookie and other variables
-$prefix = dol_getprefix('');
-$sessionname = 'DOLSESSID_'.$prefix;
-//$savsessionid = $_COOKIE[$sessionname];
-
-$_COOKIE[$sessionname] = 'obfuscatedcookie';
-unset($conf->file->instance_unique_id);
-
-unset($dolibarr_main_instance_unique_id);
-unset($dolibarr_main_db_host);
-unset($dolibarr_main_db_port);
-unset($dolibarr_main_db_name);
-unset($dolibarr_main_db_user);
-unset($dolibarr_main_db_pass);
-unset($$dolibarr_main_db_type);
-unset($dolibarr_main_document_root);
-unset($dolibarr_main_document_root_alt);

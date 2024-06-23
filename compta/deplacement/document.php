@@ -38,17 +38,17 @@ require_once DOL_DOCUMENT_ROOT.'/core/class/html.formfile.class.php';
 // Load translation files required by the page
 $langs->loadLangs(array('other', 'trips', 'companies', 'interventions'));
 
-$id = GETPOSTINT('id');
+$id = GETPOST('id', 'int');
 $ref = GETPOST('ref', 'alpha');
 $action = GETPOST('action', 'aZ09');
 $confirm = GETPOST('confirm', 'alpha');
 
 
 // Get parameters
-$limit = GETPOSTINT('limit') ? GETPOSTINT('limit') : $conf->liste_limit;
+$limit = GETPOST('limit', 'int') ? GETPOST('limit', 'int') : $conf->liste_limit;
 $sortfield = GETPOST('sortfield', 'aZ09comma');
 $sortorder = GETPOST('sortorder', 'aZ09comma');
-$page = GETPOSTISSET('pageplusone') ? (GETPOSTINT('pageplusone') - 1) : GETPOSTINT("page");
+$page = GETPOSTISSET('pageplusone') ? (GETPOST('pageplusone') - 1) : GETPOST("page", 'int');
 if (empty($page) || $page == -1) {
 	$page = 0;
 }     // If $page is not defined, or '' or -1
@@ -75,7 +75,7 @@ if ($user->socid) {
 }
 $result = restrictedArea($user, 'deplacement', $id, '');
 
-$permissiontoadd = $user->hasRight('deplacement', 'creer');	// Used by the include of actions_dellink.inc.php
+$permissiontoadd = $user->rights->deplacement->creer;	// Used by the include of actions_dellink.inc.php
 
 
 /*
@@ -129,7 +129,7 @@ if ($object->id) {
 	print '</div>';
 
 	$modulepart = 'deplacement';
-	$permissiontoadd = $user->hasRight('deplacement', 'creer');
+	$permissiontoadd = $user->rights->deplacement->creer;
 	$param = '&id='.$object->id;
 	include DOL_DOCUMENT_ROOT.'/core/tpl/document_actions_post_headers.tpl.php';
 } else {

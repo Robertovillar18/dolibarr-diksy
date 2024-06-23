@@ -42,7 +42,7 @@ if (isModEnabled('project')) {
 // Load translation files required by the page
 $langs->loadLangs(array('other', 'fichinter', 'companies', 'interventions'));
 
-$id = GETPOSTINT('id');
+$id = GETPOST('id', 'int');
 $ref = GETPOST('ref', 'alpha');
 $action = GETPOST('action', 'aZ09');
 $confirm = GETPOST('confirm', 'alpha');
@@ -55,10 +55,10 @@ $result = restrictedArea($user, 'ficheinter', $id, 'fichinter');
 
 
 // Get parameters
-$limit = GETPOSTINT('limit') ? GETPOSTINT('limit') : $conf->liste_limit;
+$limit = GETPOST('limit', 'int') ? GETPOST('limit', 'int') : $conf->liste_limit;
 $sortfield = GETPOST('sortfield', 'aZ09comma');
 $sortorder = GETPOST('sortorder', 'aZ09comma');
-$page = GETPOSTISSET('pageplusone') ? (GETPOSTINT('pageplusone') - 1) : GETPOSTINT("page");
+$page = GETPOSTISSET('pageplusone') ? (GETPOST('pageplusone') - 1) : GETPOST("page", 'int');
 if (empty($page) || $page == -1) {
 	$page = 0;
 }     // If $page is not defined, or '' or -1
@@ -79,7 +79,7 @@ $object->fetch($id, $ref);
 $upload_dir = $conf->ficheinter->dir_output.'/'.dol_sanitizeFileName($object->ref);
 $modulepart = 'fichinter';
 
-$permissiontoadd = $user->hasRight('ficheinter', 'creer'); // Used by the include of actions_setnotes.inc.php
+$permissiontoadd = $user->rights->ficheinter->creer; // Used by the include of actions_setnotes.inc.php
 
 
 /*
@@ -164,7 +164,7 @@ if ($object->id) {
 	print dol_get_fiche_end();
 
 	$modulepart = 'ficheinter';
-	$permtoedit = $user->hasRight('ficheinter', 'creer');
+	$permtoedit = $user->rights->ficheinter->creer;
 	$param = '&id='.$object->id;
 	include DOL_DOCUMENT_ROOT.'/core/tpl/document_actions_post_headers.tpl.php';
 } else {

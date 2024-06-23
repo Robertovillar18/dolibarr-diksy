@@ -158,14 +158,14 @@ if ($action == 'setvalue' && $user->admin) {
 
 $form = new Form($db);
 
-llxHeader('', $langs->trans("LDAPSetup"), 'EN:Module_LDAP_En|FR:Module_LDAP|ES:M&oacute;dulo_LDAP', '', 0, 0, '', '', '', 'mod-admin page-ldap_users');
+llxHeader('', $langs->trans("LDAPSetup"), 'EN:Module_LDAP_En|FR:Module_LDAP|ES:M&oacute;dulo_LDAP');
 $linkback = '<a href="'.DOL_URL_ROOT.'/admin/modules.php?restore_lastsearch_values=1">'.$langs->trans("BackToModuleList").'</a>';
 
 print load_fiche_titre($langs->trans("LDAPSetup"), $linkback, 'title_setup');
 
 $head = ldap_prepare_head();
 
-// Test if the LDAP functionality is available
+// Test si fonction LDAP actives
 if (!function_exists("ldap_connect")) {
 	setEventMessages($langs->trans("LDAPFunctionsNotAvailableOnPHP"), null, 'errors');
 }
@@ -187,7 +187,7 @@ print '<tr class="liste_titre">';
 print '<td colspan="4">'.$langs->trans("LDAPSynchronizeUsers").'</td>';
 print "</tr>\n";
 
-// DN (Domain Name) for the users
+// DN Pour les utilisateurs
 print '<!-- LDAP_USER_DN -->';
 print '<tr class="oddeven"><td><span class="fieldrequired">'.$langs->trans("LDAPUserDn").'</span></td><td>';
 print '<input size="48" type="text" name="user" value="'.getDolGlobalString('LDAP_USER_DN').'">';
@@ -256,14 +256,14 @@ print '</td><td>'.$langs->trans("LDAPFieldLoginSambaExample").'</td>';
 print '<td class="right"><input type="radio" name="key" value="LDAP_FIELD_LOGIN_SAMBA"'.(getDolGlobalString('LDAP_KEY_USERS') == getDolGlobalString('LDAP_FIELD_LOGIN_SAMBA') ? ' checked' : '')."></td>";
 print '</tr>';
 
-// Password not encrypted
+// Password not crypted
 print '<tr class="oddeven"><td>'.$langs->trans("LDAPFieldPasswordNotCrypted").'</td><td>';
 print '<input size="25" type="text" name="fieldpassword" value="'.getDolGlobalString('LDAP_FIELD_PASSWORD').'">';
 print '</td><td>'.$langs->trans("LDAPFieldPasswordExample").'</td>';
 print '<td class="right">&nbsp;</td>';
 print '</tr>';
 
-// Password encrypted
+// Password crypted
 print '<tr class="oddeven"><td>'.$langs->trans("LDAPFieldPasswordCrypted").'</td><td>';
 print '<input size="25" type="text" name="fieldpasswordcrypted" value="'.getDolGlobalString('LDAP_FIELD_PASSWORD_CRYPTED').'">';
 print '</td><td>'.$langs->trans("LDAPFieldPasswordExample").'</td>';
@@ -394,7 +394,7 @@ print '</form>';
 
 
 /*
- * Test de la connection
+ * Test de la connexion
  */
 if (getDolGlobalString('LDAP_SYNCHRO_ACTIVE') == Ldap::SYNCHRO_DOLIBARR_TO_LDAP) {
 	$butlabel = $langs->trans("LDAPTestSynchroUser");
@@ -415,7 +415,7 @@ if (getDolGlobalString('LDAP_SYNCHRO_ACTIVE') == Ldap::SYNCHRO_DOLIBARR_TO_LDAP)
 
 if (function_exists("ldap_connect")) {
 	if ($action == 'testuser') {
-		// Create object
+		// Creation objet
 		$object = new User($db);
 		$object->initAsSpecimen();
 
@@ -423,7 +423,7 @@ if (function_exists("ldap_connect")) {
 
 		// Test synchro
 		$ldap = new Ldap();
-		$result = $ldap->connectBind();
+		$result = $ldap->connect_bind();
 
 		if ($result > 0) {
 			$info = $object->_load_ldap_info();
@@ -446,7 +446,7 @@ if (function_exists("ldap_connect")) {
 
 			print "<br>\n";
 			print "LDAP input file used for test:<br><br>\n";
-			print nl2br($ldap->dumpContent($dn, $info));
+			print nl2br($ldap->dump_content($dn, $info));
 			print "\n<br>";
 		} else {
 			print img_picto('', 'error').' ';
@@ -458,7 +458,7 @@ if (function_exists("ldap_connect")) {
 	}
 
 	if ($action == 'testsearchuser') {
-		// Create object
+		// Creation objet
 		$object = new User($db);
 		$object->initAsSpecimen();
 
@@ -466,7 +466,7 @@ if (function_exists("ldap_connect")) {
 
 		// Test synchro
 		$ldap = new Ldap();
-		$result = $ldap->connectBind();
+		$result = $ldap->connect_bind();
 
 		if ($result > 0) {
 			$required_fields = array(

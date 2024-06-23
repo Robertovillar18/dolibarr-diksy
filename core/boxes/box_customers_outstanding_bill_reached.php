@@ -20,7 +20,7 @@
 
 /**
  *	\file       htdocs/core/boxes/box_clients.php
- *	\ingroup    invoice
+ *	\ingroup    Facture
  *	\brief      Module d'affichage pour les encours dépassés
  */
 
@@ -37,7 +37,16 @@ class box_customers_outstanding_bill_reached extends ModeleBoxes
 	public $boxlabel = "BoxCustomersOutstandingBillReached";
 	public $depends = array("facture", "societe");
 
+	/**
+	 * @var DoliDB Database handler.
+	 */
+	public $db;
+
 	public $enabled = 1;
+
+	public $info_box_head = array();
+	public $info_box_contents = array();
+
 
 	/**
 	 *  Constructor
@@ -47,7 +56,7 @@ class box_customers_outstanding_bill_reached extends ModeleBoxes
 	 */
 	public function __construct($db, $param = '')
 	{
-		global $user;
+		global $conf, $user;
 
 		$this->db = $db;
 
@@ -84,12 +93,12 @@ class box_customers_outstanding_bill_reached extends ModeleBoxes
 			$sql .= ", s.outstanding_limit";
 			$sql .= ", s.datec, s.tms, s.status";
 			$sql .= " FROM ".MAIN_DB_PREFIX."societe as s";
-			if (!$user->hasRight('societe', 'client', 'voir')) {
+			if (!$user->hasRight('societe', 'client', 'voir') && !$user->socid) {
 				$sql .= ", ".MAIN_DB_PREFIX."societe_commerciaux as sc";
 			}
 			$sql .= " WHERE s.client IN (1, 3)";
 			$sql .= " AND s.entity IN (".getEntity('societe').")";
-			if (!$user->hasRight('societe', 'client', 'voir')) {
+			if (!$user->hasRight('societe', 'client', 'voir') && !$user->socid) {
 				$sql .= " AND s.rowid = sc.fk_soc AND sc.fk_user = ".((int) $user->id);
 			}
 			if ($user->socid) {

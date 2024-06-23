@@ -33,9 +33,20 @@ include_once DOL_DOCUMENT_ROOT.'/core/boxes/modules_boxes.php';
 class box_accountancy_suspense_account extends ModeleBoxes
 {
 	public $boxcode = "accountancy_suspense_account";
-	public $boximg = "accountancy";
+	public $boximg = "accounting";
 	public $boxlabel = "BoxSuspenseAccount";
 	public $depends = array("accounting");
+
+	/**
+	 * @var DoliDB Database handler.
+	 */
+	public $db;
+
+	public $param;
+
+	public $info_box_head = array();
+	public $info_box_contents = array();
+
 
 	/**
 	 *  Constructor
@@ -68,7 +79,7 @@ class box_accountancy_suspense_account extends ModeleBoxes
 		$this->info_box_head = array('text' => $langs->trans("BoxTitleSuspenseAccount"));
 
 		if ($user->hasRight('accounting', 'mouvements', 'lire')) {
-			$suspenseAccount = getDolGlobalString('ACCOUNTING_ACCOUNT_SUSPENSE');
+			$suspenseAccount = $conf->global->ACCOUNTING_ACCOUNT_SUSPENSE;
 			if (!empty($suspenseAccount) && $suspenseAccount > 0) {
 				$sql = "SELECT COUNT(*) as nb_suspense_account";
 				$sql .= " FROM ".MAIN_DB_PREFIX."accounting_bookkeeping as b";
@@ -84,7 +95,7 @@ class box_accountancy_suspense_account extends ModeleBoxes
 
 				$this->info_box_contents[0][0] = array(
 					'td' => '',
-					'text' => $langs->trans("NumberOfLinesInSuspenseAccount")
+					'text' => $langs->trans("NumberOfLinesInSuspenseAccount").':'
 				);
 
 				$this->info_box_contents[0][1] = array(

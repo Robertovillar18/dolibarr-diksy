@@ -44,7 +44,7 @@ require '../main.inc.php'; // Load $user and permissions
 require_once DOL_DOCUMENT_ROOT.'/core/lib/company.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/compta/facture/class/facture.class.php';
 
-$facid = GETPOSTINT('facid');
+$facid = GETPOST('facid', 'int');
 $action = GETPOST('action', 'aZ09');
 $email = GETPOST('email', 'alpha');
 

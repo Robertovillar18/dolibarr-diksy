@@ -61,10 +61,10 @@ $hookmanager->initHooks(array('surveycard', 'globalcard'));
 
 $expiredate = dol_mktime(0, 0, 0, GETPOST('expiremonth'), GETPOST('expireday'), GETPOST('expireyear'));
 
-$permissiontoread = $user->hasRight('opensurvey', 'read');
-$permissiontoadd = $user->hasRight('opensurvey', 'write');
+$permissiontoread = $user->rights->opensurvey->read;
+$permissiontoadd = $user->rights->opensurvey->write;
 // permission delete doesn't exists
-$permissiontodelete = $user->hasRight('opensurvey', 'write');
+$permissiontodelete = $user->rights->opensurvey->write;
 
 
 /*
@@ -166,7 +166,7 @@ if (empty($reshook)) {
 
 	// Delete comment
 	if ($action == 'deletecomment') {
-		$idcomment = GETPOSTINT('idcomment');
+		$idcomment = GETPOST('idcomment', 'int');
 		if ($idcomment > 0) {
 			// Security check
 			if (!$user->hasRight('opensurvey', 'write')) {
@@ -341,9 +341,9 @@ $urlwithroot = $urlwithouturlroot.DOL_URL_ROOT; // This is to use external domai
 
 $url = $urlwithroot.'/public/opensurvey/studs.php?sondage='.$object->id_sondage;
 print '<input type="text" class="quatrevingtpercent" '.($action == 'edit' ? 'disabled' : '').' id="opensurveyurl" name="opensurveyurl" value="'.$url.'">';
-//if ($action != 'edit') {
+if ($action != 'edit') {
 	print ajax_autoselect("opensurveyurl", $url, 'image');
-//}
+}
 
 print '</td></tr>';
 

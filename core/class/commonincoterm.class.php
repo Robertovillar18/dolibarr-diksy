@@ -48,7 +48,7 @@ trait CommonIncoterm
 
 	// phpcs:disable PEAR.NamingConventions.ValidFunctionName.ScopeNotCamelCaps
 	/**
-	 *    Return incoterms information
+	 *    Return incoterms informations
 	 *    TODO Use a cache for label get
 	 *
 	 *    @return	string	incoterms info
@@ -76,7 +76,7 @@ trait CommonIncoterm
 	}
 
 	/**
-	 *    Return incoterms information for pdf display
+	 *    Return incoterms informations for pdf display
 	 *
 	 *    @return	string|boolean			Incoterms info or false
 	 */

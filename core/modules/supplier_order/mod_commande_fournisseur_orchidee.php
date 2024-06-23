@@ -2,8 +2,6 @@
 /* Copyright (C) 2003-2007 Rodolphe Quiedeville <rodolphe@quiedeville.org>
  * Copyright (C) 2004-2008 Laurent Destailleur  <eldy@users.sourceforge.net>
  * Copyright (C) 2005-2009 Regis Houssin        <regis.houssin@inodbox.com>
- * Copyright (C) 2024       Frédéric France             <frederic.france@free.fr>
- * Copyright (C) 2024		MDW							<mdeweerd@users.noreply.github.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,15 +20,15 @@
 
 /**
  *	\file       htdocs/core/modules/supplier_order/mod_commande_fournisseur_orchidee.php
- *	\ingroup    order
- *	\brief      File for class for 'orchidee' type numbering the supplier orders
+ *	\ingroup    commande
+ *	\brief      Fichier contenant la classe du modele de numerotation de reference de commande fournisseur Orchidee
  */
 
 require_once DOL_DOCUMENT_ROOT.'/core/modules/supplier_order/modules_commandefournisseur.php';
 
 
 /**
- *	Class providing the 'Orchidee' numbering models for supplier orders
+ *	Classe du modele de numerotation de reference de commande fournisseur Orchidee
  */
 class mod_commande_fournisseur_orchidee extends ModeleNumRefSuppliersOrders
 {
@@ -123,11 +121,11 @@ class mod_commande_fournisseur_orchidee extends ModeleNumRefSuppliersOrders
 	/**
 	 *  Return next value
 	 *
-	 *  @param	Societe|string		$objsoc     Object third party
-	 *  @param  CommandeFournisseur	$object		Object
-	 *  @return string|0      					Value if OK, 0 if KO
+	 *  @param	Societe		$objsoc     Object third party
+	 *  @param  Object	    $object		Object
+	 *  @return string      			Value if OK, 0 if KO
 	 */
-	public function getNextValue($objsoc, $object)
+	public function getNextValue($objsoc = 0, $object = '')
 	{
 		global $db, $conf;
 
@@ -144,5 +142,20 @@ class mod_commande_fournisseur_orchidee extends ModeleNumRefSuppliersOrders
 		$numFinal = get_next_value($db, $mask, 'commande_fournisseur', 'ref', '', $objsoc, $object->date_commande);
 
 		return  $numFinal;
+	}
+
+
+	// phpcs:disable PEAR.NamingConventions.ValidFunctionName.ScopeNotCamelCaps
+	/**
+	 *  Renvoie la reference de commande suivante non utilisee
+	 *
+	 *  @param	Societe		$objsoc     Object third party
+	 *  @param  Object	    $object		Object
+	 *  @return string      			Descriptive text
+	 */
+	public function commande_get_num($objsoc = 0, $object = '')
+	{
+		// phpcs:enable
+		return $this->getNextValue($objsoc, $object);
 	}
 }

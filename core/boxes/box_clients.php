@@ -37,7 +37,16 @@ class box_clients extends ModeleBoxes
 	public $boxlabel = "BoxLastCustomers";
 	public $depends  = array("societe");
 
+	/**
+	 * @var DoliDB Database handler.
+	 */
+	public $db;
+
 	public $enabled = 1;
+
+	public $info_box_head = array();
+	public $info_box_contents = array();
+
 
 	/**
 	 *  Constructor
@@ -47,7 +56,7 @@ class box_clients extends ModeleBoxes
 	 */
 	public function __construct($db, $param = '')
 	{
-		global $user;
+		global $conf, $user;
 
 		$this->db = $db;
 
@@ -75,9 +84,7 @@ class box_clients extends ModeleBoxes
 		include_once DOL_DOCUMENT_ROOT.'/societe/class/client.class.php';
 		$thirdpartystatic = new Client($this->db);
 
-		$this->info_box_head = array(
-			'text' => $langs->trans("BoxTitleLastModifiedCustomers", $max).'<a class="paddingleft" href="'.DOL_URL_ROOT.'/societe/list.php?type=c&sortfield=s.tms&sortorder=DESC"><span class="badge">...</span></a>',
-		);
+		$this->info_box_head = array('text' => $langs->trans("BoxTitleLastModifiedCustomers", $max));
 
 		if ($user->hasRight('societe', 'lire')) {
 			$sql = "SELECT s.rowid as socid, s.nom as name, s.name_alias";
@@ -85,12 +92,12 @@ class box_clients extends ModeleBoxes
 			$sql .= ", s.logo, s.email, s.entity";
 			$sql .= ", s.datec, s.tms, s.status";
 			$sql .= " FROM ".MAIN_DB_PREFIX."societe as s";
-			if (!$user->hasRight('societe', 'client', 'voir')) {
+			if (!$user->hasRight('societe', 'client', 'voir') && !$user->socid) {
 				$sql .= ", ".MAIN_DB_PREFIX."societe_commerciaux as sc";
 			}
 			$sql .= " WHERE s.client IN (1, 3)";
 			$sql .= " AND s.entity IN (".getEntity('societe').")";
-			if (!$user->hasRight('societe', 'client', 'voir')) {
+			if (!$user->hasRight('societe', 'client', 'voir') && !$user->socid) {
 				$sql .= " AND s.rowid = sc.fk_soc AND sc.fk_user = ".((int) $user->id);
 			}
 			// Add where from hooks

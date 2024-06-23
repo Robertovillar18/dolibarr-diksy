@@ -4,8 +4,7 @@
  * Copyright (C) 2005-2014	Regis Houssin			<regis.houssin@inodbox.com>
  * Copyright (C) 2015		Juanjo Menent			<jmenent@2byte.es>
  * Copyright (C) 2018		Ferran Marcet			<fmarcet@2byte.es>
- * Copyright (C) 2019-2024  Frédéric France         <frederic.france@free.fr>
- * Copyright (C) 2024		MDW							<mdeweerd@users.noreply.github.com>
+ * Copyright (C) 2019       Frédéric France         <frederic.france@netlogic.fr>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -53,17 +52,17 @@ if (isModEnabled('productbatch')) {
 // Security check
 $result = restrictedArea($user, 'stock');
 
-$id = GETPOSTINT('id');
+$id = GETPOST('id', 'int');
 $ref = GETPOST('ref', 'alpha');
-$msid = GETPOSTINT('msid');
-$product_id = GETPOSTINT("product_id");
+$msid = GETPOST('msid', 'int');
+$product_id = GETPOST("product_id", 'int');
 $action = GETPOST('action', 'aZ09');
 $cancel = GETPOST('cancel', 'alpha');
 $contextpage = GETPOST('contextpage', 'aZ') ? GETPOST('contextpage', 'aZ') : 'movementlist';
 
-$idproduct = GETPOSTINT('idproduct');
-$year = GETPOSTINT("year");
-$month = GETPOSTINT("month");
+$idproduct = GETPOST('idproduct', 'int');
+$year = GETPOST("year", 'int');
+$month = GETPOST("month", 'int');
 $search_ref = GETPOST('search_ref', 'alpha');
 $search_movement = GETPOST("search_movement", 'alpha');
 $search_product_ref = trim(GETPOST("search_product_ref", 'alpha'));
@@ -73,10 +72,10 @@ $search_inventorycode = trim(GETPOST("search_inventorycode", 'alpha'));
 $search_user = trim(GETPOST("search_user", 'alpha'));
 $search_batch = trim(GETPOST("search_batch", 'alpha'));
 $search_qty = trim(GETPOST("search_qty", 'alpha'));
-$search_type_mouvement = GETPOST('search_type_mouvement', "intcomma");
+$search_type_mouvement = GETPOST('search_type_mouvement', 'int');
 
-$limit = GETPOSTINT('limit') ? GETPOSTINT('limit') : $conf->liste_limit;
-$page = GETPOSTISSET('pageplusone') ? (GETPOSTINT('pageplusone') - 1) : GETPOSTINT("page");
+$limit = GETPOST('limit', 'int') ? GETPOST('limit', 'int') : $conf->liste_limit;
+$page = GETPOSTISSET('pageplusone') ? (GETPOST('pageplusone') - 1) : GETPOST("page", 'int');
 $sortfield = GETPOST('sortfield', 'aZ09comma');
 $sortorder = GETPOST('sortorder', 'aZ09comma');
 if (empty($page) || $page == -1) {
@@ -90,7 +89,7 @@ if (!$sortorder) {
 	$sortorder = "DESC";
 }
 
-$pdluoid = GETPOSTINT('pdluoid');
+$pdluoid = GETPOST('pdluoid', 'int');
 
 // Initialize technical object to manage hooks of page. Note that conf->hooks_modules contains array of hook context
 $object = new MouvementStock($db);
@@ -104,28 +103,28 @@ $extrafields->fetch_name_optionals_label($object->table_element);
 $search_array_options = $extrafields->getOptionalsFromPost($object->table_element, '', 'search_');
 
 $arrayfields = array(
-	'm.rowid' => array('label' => $langs->trans("Ref"), 'checked' => 1),
-	'm.datem' => array('label' => $langs->trans("Date"), 'checked' => 1),
-	'p.ref' => array('label' => $langs->trans("ProductRef"), 'checked' => 1, 'css' => 'maxwidth100'),
-	'p.label' => array('label' => $langs->trans("ProductLabel"), 'checked' => 1),
-	'm.batch' => array('label' => $langs->trans("BatchNumberShort"), 'checked' => 1, 'enabled' => (isModEnabled('productbatch'))),
-	'pl.eatby' => array('label' => $langs->trans("EatByDate"), 'checked' => 0, 'position' => 10, 'enabled' => (isModEnabled('productbatch'))),
-	'pl.sellby' => array('label' => $langs->trans("SellByDate"), 'checked' => 0, 'position' => 10, 'enabled' => (isModEnabled('productbatch'))),
-	'e.ref' => array('label' => $langs->trans("Warehouse"), 'checked' => 1, 'enabled' => (!($id > 0))), // If we are on specific warehouse, we hide it
-	'm.fk_user_author' => array('label' => $langs->trans("Author"), 'checked' => 0),
-	'm.inventorycode' => array('label' => $langs->trans("InventoryCodeShort"), 'checked' => 1),
-	'm.label' => array('label' => $langs->trans("MovementLabel"), 'checked' => 1),
-	'm.type_mouvement' => array('label' => $langs->trans("TypeMovement"), 'checked' => 1),
-	'origin' => array('label' => $langs->trans("Origin"), 'checked' => 1),
-	'm.value' => array('label' => $langs->trans("Qty"), 'checked' => 1),
-	'm.price' => array('label' => $langs->trans("UnitPurchaseValue"), 'checked' => 0),
+	'm.rowid'=>array('label'=>$langs->trans("Ref"), 'checked'=>1),
+	'm.datem'=>array('label'=>$langs->trans("Date"), 'checked'=>1),
+	'p.ref'=>array('label'=>$langs->trans("ProductRef"), 'checked'=>1, 'css'=>'maxwidth100'),
+	'p.label'=>array('label'=>$langs->trans("ProductLabel"), 'checked'=>1),
+	'm.batch'=>array('label'=>$langs->trans("BatchNumberShort"), 'checked'=>1, 'enabled'=>(isModEnabled('productbatch'))),
+	'pl.eatby'=>array('label'=>$langs->trans("EatByDate"), 'checked'=>0, 'position'=>10, 'enabled'=>(isModEnabled('productbatch'))),
+	'pl.sellby'=>array('label'=>$langs->trans("SellByDate"), 'checked'=>0, 'position'=>10, 'enabled'=>(isModEnabled('productbatch'))),
+	'e.ref'=>array('label'=>$langs->trans("Warehouse"), 'checked'=>1, 'enabled'=>(!($id > 0))), // If we are on specific warehouse, we hide it
+	'm.fk_user_author'=>array('label'=>$langs->trans("Author"), 'checked'=>0),
+	'm.inventorycode'=>array('label'=>$langs->trans("InventoryCodeShort"), 'checked'=>1),
+	'm.label'=>array('label'=>$langs->trans("MovementLabel"), 'checked'=>1),
+	'm.type_mouvement'=>array('label'=>$langs->trans("TypeMovement"), 'checked'=>1),
+	'origin'=>array('label'=>$langs->trans("Origin"), 'checked'=>1),
+	'm.value'=>array('label'=>$langs->trans("Qty"), 'checked'=>1),
+	'm.price'=>array('label'=>$langs->trans("UnitPurchaseValue"), 'checked'=>0),
 	//'m.datec'=>array('label'=>$langs->trans("DateCreation"), 'checked'=>0, 'position'=>500),
 	//'m.tms'=>array('label'=>$langs->trans("DateModificationShort"), 'checked'=>0, 'position'=>500)
 );
 
-$usercanread = (($user->hasRight('stock', 'mouvement', 'lire')));
-$usercancreate = (($user->hasRight('stock', 'mouvement', 'creer')));
-$usercandelete = (($user->hasRight('stock', 'mouvement', 'supprimer')));
+$usercanread = (($user->rights->stock->mouvement->lire));
+$usercancreate = (($user->rights->stock->mouvement->creer));
+$usercandelete = (($user->rights->stock->mouvement->supprimer));
 
 
 
@@ -192,9 +191,9 @@ if ($action == "correct_stock") {
 		$origin_element = '';
 		$origin_id = null;
 
-		if (GETPOSTINT('projectid')) {
+		if (GETPOST('projectid', 'int')) {
 			$origin_element = 'project';
-			$origin_id = GETPOSTINT('projectid');
+			$origin_id = GETPOST('projectid', 'int');
 		}
 
 		if ($product->hasbatch()) {
@@ -202,14 +201,14 @@ if ($action == "correct_stock") {
 
 			//$eatby=GETPOST('eatby');
 			//$sellby=GETPOST('sellby');
-			$eatby = dol_mktime(0, 0, 0, GETPOSTINT('eatbymonth'), GETPOSTINT('eatbyday'), GETPOSTINT('eatbyyear'));
-			$sellby = dol_mktime(0, 0, 0, GETPOSTINT('sellbymonth'), GETPOSTINT('sellbyday'), GETPOSTINT('sellbyyear'));
+			$eatby = dol_mktime(0, 0, 0, GETPOST('eatbymonth', 'int'), GETPOST('eatbyday', 'int'), GETPOST('eatbyyear', 'int'));
+			$sellby = dol_mktime(0, 0, 0, GETPOST('sellbymonth', 'int'), GETPOST('sellbyday', 'int'), GETPOST('sellbyyear', 'int'));
 
 			$result = $product->correct_stock_batch(
 				$user,
 				$id,
-				GETPOSTINT("nbpiece"),
-				GETPOSTINT("mouvement"),
+				GETPOST("nbpiece", 'int'),
+				GETPOST("mouvement", 'int'),
 				GETPOST("label", 'san_alpha'),
 				GETPOST('unitprice', 'alpha'),
 				$eatby,
@@ -223,7 +222,7 @@ if ($action == "correct_stock") {
 			$result = $product->correct_stock(
 				$user,
 				$id,
-				GETPOSTINT("nbpiece"),
+				GETPOST("nbpiece", 'int'),
 				GETPOST("mouvement", 'alpha'),
 				GETPOST("label", 'san_alpha'),
 				GETPOST('unitprice', 'alpha'),
@@ -250,13 +249,12 @@ if ($action == "correct_stock") {
 
 // Transfer stock from a warehouse to another warehouse
 if ($action == "transfert_stock" && !$cancel) {
-	$error = 0;
 	$product = new Product($db);
 	if (!empty($product_id)) {
 		$result = $product->fetch($product_id);
 	}
 
-	if (!(GETPOSTINT("id_entrepot_destination") > 0)) {
+	if (!(GETPOST("id_entrepot_destination", 'int') > 0)) {
 		setEventMessages($langs->trans("ErrorFieldRequired", $langs->transnoentitiesnoconv("Warehouse")), null, 'errors');
 		$error++;
 		$action = 'transfert';
@@ -266,12 +264,12 @@ if ($action == "transfert_stock" && !$cancel) {
 		setEventMessages($langs->trans("ErrorFieldRequired", $langs->transnoentitiesnoconv("Product")), null, 'errors');
 		$action = 'transfert';
 	}
-	if (!GETPOSTINT("nbpiece")) {
+	if (!GETPOST("nbpiece", 'int')) {
 		setEventMessages($langs->trans("ErrorFieldRequired", $langs->transnoentitiesnoconv("NumberOfUnit")), null, 'errors');
 		$error++;
 		$action = 'transfert';
 	}
-	if ($id == GETPOSTINT("id_entrepot_destination")) {
+	if ($id == GETPOST("id_entrepot_destination", 'int')) {
 		setEventMessages($langs->trans("ErrorSrcAndTargetWarehouseMustDiffers"), null, 'errors');
 		$error++;
 		$action = 'transfert';
@@ -330,7 +328,7 @@ if ($action == "transfert_stock" && !$cancel) {
 					$result1 = $product->correct_stock_batch(
 						$user,
 						$srcwarehouseid,
-						GETPOSTINT("nbpiece"),
+						GETPOST("nbpiece", 'int'),
 						1,
 						GETPOST("label", 'san_alpha'),
 						$pricesrc,
@@ -342,8 +340,8 @@ if ($action == "transfert_stock" && !$cancel) {
 					// Add stock
 					$result2 = $product->correct_stock_batch(
 						$user,
-						GETPOSTINT("id_entrepot_destination"),
-						GETPOSTINT("nbpiece"),
+						GETPOST("id_entrepot_destination", 'int'),
+						GETPOST("nbpiece", 'int'),
 						0,
 						GETPOST("label", 'san_alpha'),
 						$pricedest,
@@ -358,7 +356,7 @@ if ($action == "transfert_stock" && !$cancel) {
 				$result1 = $product->correct_stock(
 					$user,
 					$id,
-					GETPOSTINT("nbpiece"),
+					GETPOST("nbpiece", 'int'),
 					1,
 					GETPOST("label", 'alpha'),
 					$pricesrc,
@@ -369,7 +367,7 @@ if ($action == "transfert_stock" && !$cancel) {
 				$result2 = $product->correct_stock(
 					$user,
 					GETPOST("id_entrepot_destination"),
-					GETPOSTINT("nbpiece"),
+					GETPOST("nbpiece", 'int'),
 					0,
 					GETPOST("label", 'alpha'),
 					$pricedest,
@@ -402,15 +400,15 @@ if ($action == "transfert_stock" && !$cancel) {
 // The builddoc action for object of a movement must be on the movement card
 // Actions to build doc
 $upload_dir = $conf->stock->dir_output."movement/";
-$permissiontoadd = $user->hasRight('stock', 'creer');
+$permissiontoadd = $user->rights->stock->creer;
 include DOL_DOCUMENT_ROOT.'/core/actions_builddoc.inc.php';
 
 
 if (empty($reshook) && $action != 'remove_file') {
 	$objectclass = 'MouvementStock';
 	$objectlabel = 'Movements';
-	$permissiontoread = $user->hasRight('stock', 'lire');
-	$permissiontodelete = $user->hasRight('stock', 'supprimer');
+	$permissiontoread = $user->rights->stock->lire;
+	$permissiontodelete = $user->rights->stock->supprimer;
 	$uploaddir = $conf->stock->dir_output."/movement/";
 	include DOL_DOCUMENT_ROOT.'/core/actions_massactions.inc.php';
 }
@@ -555,7 +553,7 @@ if ($resql) {
 			$texte .= ' ('.$langs->trans("ForThisWarehouse").')';
 		}
 	}
-	llxHeader("", $texte, $help_url, '', 0, 0, '', '', '', 'mod-product page-stock_movement_card');
+	llxHeader("", $texte, $help_url);
 
 	/*
 	 * Show tab only if we ask a particular warehouse
@@ -673,11 +671,11 @@ if ($resql) {
 		print "<div class=\"tabsAction\">\n";
 
 		if ($user->hasRight('stock', 'mouvement', 'creer')) {
-			print '<a class="butAction" href="'.$_SERVER["PHP_SELF"].'?id='.$id.'&action=correction&token='.newToken().'">'.$langs->trans("CorrectStock").'</a>';
+			print '<a class="butAction" href="'.$_SERVER["PHP_SELF"].'?id='.$id.'&action=correction">'.$langs->trans("CorrectStock").'</a>';
 		}
 
 		if ($user->hasRight('stock', 'mouvement', 'creer')) {
-			print '<a class="butAction" href="'.$_SERVER["PHP_SELF"].'?id='.$id.'&action=transfert&token='.newToken().'">'.$langs->trans("TransferStock").'</a>';
+			print '<a class="butAction" href="'.$_SERVER["PHP_SELF"].'?id='.$id.'&action=transfert">'.$langs->trans("TransferStock").'</a>';
 		}
 
 		print '</div><br>';
@@ -691,7 +689,7 @@ if ($resql) {
 		$param .= '&limit='.((int) $limit);
 	}
 	if ($id > 0) {
-		$param .= '&id='.urlencode((string) ($id));
+		$param .= '&id='.urlencode($id);
 	}
 	if ($search_movement) {
 		$param .= '&search_movement='.urlencode($search_movement);
@@ -718,7 +716,7 @@ if ($resql) {
 		$param .= '&search_user='.urlencode($search_user);
 	}
 	if ($idproduct > 0) {
-		$param .= '&idproduct='.urlencode((string) ($idproduct));
+		$param .= '&idproduct='.urlencode($idproduct);
 	}
 	// Add $param from extra fields
 	include DOL_DOCUMENT_ROOT.'/core/tpl/extrafields_list_search_param.tpl.php';
@@ -756,14 +754,10 @@ if ($resql) {
 	}
 
 	if ($sall) {
-		if (!isset($fieldstosearchall) || !is_array($fieldstosearchall)) {
-			// Ensure $fieldstosearchall is array
-			$fieldstosearchall = array();
-		}
 		foreach ($fieldstosearchall as $key => $val) {
 			$fieldstosearchall[$key] = $langs->trans($val);
 		}
-		print '<div class="divsearchfieldfilter">'.$langs->trans("FilterOnInto", $sall).implode(', ', $fieldstosearchall).'</div>';
+		print '<div class="divsearchfieldfilter">'.$langs->trans("FilterOnInto", $sall).join(', ', $fieldstosearchall).'</div>';
 	}
 
 	$moreforfilter = '';
@@ -897,7 +891,7 @@ if ($resql) {
 	include DOL_DOCUMENT_ROOT.'/core/tpl/extrafields_list_search_input.tpl.php';
 
 	// Fields from hook
-	$parameters = array('arrayfields' => $arrayfields);
+	$parameters = array('arrayfields'=>$arrayfields);
 	$reshook = $hookmanager->executeHooks('printFieldListOption', $parameters); // Note that $action and $object may have been modified by hook
 	print $hookmanager->resPrint;
 	// Date creation
@@ -969,14 +963,14 @@ if ($resql) {
 	include DOL_DOCUMENT_ROOT.'/core/tpl/extrafields_list_search_title.tpl.php';
 
 	// Hook fields
-	$parameters = array('arrayfields' => $arrayfields, 'param' => $param, 'sortfield' => $sortfield, 'sortorder' => $sortorder);
+	$parameters = array('arrayfields'=>$arrayfields, 'param'=>$param, 'sortfield'=>$sortfield, 'sortorder'=>$sortorder);
 	$reshook = $hookmanager->executeHooks('printFieldListTitle', $parameters); // Note that $action and $object may have been modified by hook
 	print $hookmanager->resPrint;
 	if (!empty($arrayfields['m.datec']['checked'])) {
-		print_liste_field_titre($arrayfields['m.datec']['label'], $_SERVER["PHP_SELF"], "m.datec", "", $param, '', $sortfield, $sortorder, 'center nowrap ');
+		print_liste_field_titre($arrayfields['p.datec']['label'], $_SERVER["PHP_SELF"], "p.datec", "", $param, '', $sortfield, $sortorder, 'center nowrap ');
 	}
 	if (!empty($arrayfields['m.tms']['checked'])) {
-		print_liste_field_titre($arrayfields['m.tms']['label'], $_SERVER["PHP_SELF"], "m.tms", "", $param, '', $sortfield, $sortorder, 'center nowrap ');
+		print_liste_field_titre($arrayfields['p.tms']['label'], $_SERVER["PHP_SELF"], "p.tms", "", $param, '', $sortfield, $sortorder, 'center nowrap ');
 	}
 	print_liste_field_titre($selectedfields, $_SERVER["PHP_SELF"], "", '', '', '', $sortfield, $sortorder, 'center maxwidthsearch ');
 	print "</tr>\n";
@@ -1152,8 +1146,8 @@ if ($resql) {
 			$productidselected = $key;
 			$productlabelselected = $val;
 		}
-		$datebefore = dol_get_first_day($year ? $year : dol_print_date(time(), "%Y"), $month ? $month : 1, true);
-		$dateafter = dol_get_last_day($year ? $year : dol_print_date(time(), "%Y"), $month ? $month : 12, true);
+		$datebefore = dol_get_first_day($year ? $year : strftime("%Y", time()), $month ? $month : 1, true);
+		$dateafter = dol_get_last_day($year ? $year : strftime("%Y", time()), $month ? $month : 12, true);
 		$balancebefore = $movement->calculateBalanceForProductBefore($productidselected, $datebefore);
 		$balanceafter = $movement->calculateBalanceForProductBefore($productidselected, $dateafter);
 
@@ -1205,8 +1199,8 @@ if ($action != 'create' && $action != 'edit' && $action != 'delete' && $id > 0) 
 	$genallowed = $usercanread;
 	$delallowed = $usercancreate;
 
-	$genallowed = $user->hasRight('stock', 'lire');
-	$delallowed = $user->hasRight('stock', 'creer');
+	$genallowed = $user->rights->stock->lire;
+	$delallowed = $user->rights->stock->creer;
 
 	print $formfile->showdocuments($modulepart, $objectref, $filedir, $urlsource, $genallowed, $delallowed, '', 0, 0, 0, 28, 0, '', 0, '', $object->default_lang, '', $object);
 	$somethingshown = $formfile->numoffiles;

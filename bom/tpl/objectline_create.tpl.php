@@ -8,7 +8,6 @@
  * Copyright (C) 2015-2016	Marcos García		<marcosgdf@gmail.com>
  * Copyright (C) 2018-2019  Frédéric France         <frederic.france@netlogic.fr>
  * Copyright (C) 2018		Ferran Marcet		<fmarcet@2byte.es>
- * Copyright (C) 2024		Vincent Maury		<vmaury@timgroup.fr>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,8 +37,6 @@ if (empty($object) || !is_object($object)) {
 	exit;
 }
 
-'@phan-var-force CommonObject $this
- @phan-var-force CommonObject $object';
 
 global $forceall, $forcetoshowtitlelines, $filtertype;
 
@@ -89,8 +86,6 @@ if ($nolinesbefore) {
 		print '<td class="linecollost right">' . $form->textwithpicto($langs->trans('ManufacturingEfficiency'), $langs->trans('ValueOfMeansLoss')) . '</td>';
 	} else {
 		print '<td class="linecolunit right">' . $form->textwithpicto($langs->trans('Unit'), '').'</td>';
-		print '<td class="linecolqtyfrozen right">' .$form->textwithpicto($langs->trans('QtyFrozen'), $langs->trans("QuantityConsumedInvariable")) . '</td>';
-
 		if (isModEnabled('workstation')) {
 			print '<td class="linecolworkstation right">' .  $form->textwithpicto($langs->trans('Workstation'), '') . '</td>';
 		}
@@ -123,9 +118,9 @@ if (isModEnabled("product") || isModEnabled("service")) {
 	$statustoshow = -1;
 	if (getDolGlobalString('ENTREPOT_EXTRA_STATUS')) {
 		// hide products in closed warehouse, but show products for internal transfer
-		print $form->select_produits(GETPOSTINT('idprod'), (($filtertype == 1) ? 'idprodservice' : 'idprod'), $filtertype, $conf->product->limit_size, $buyer->price_level, $statustoshow, 2, '', 1, array(), $buyer->id, '1', 0, 'maxwidth500', 0, 'warehouseopen,warehouseinternal', GETPOSTINT('combinations'), 1);
+		print $form->select_produits(GETPOST('idprod', 'int'), (($filtertype == 1) ? 'idprodservice' : 'idprod'), $filtertype, $conf->product->limit_size, $buyer->price_level, $statustoshow, 2, '', 1, array(), $buyer->id, '1', 0, 'maxwidth500', 0, 'warehouseopen,warehouseinternal', GETPOST('combinations', 'array'), 1);
 	} else {
-		print $form->select_produits(GETPOSTINT('idprod'), (($filtertype == 1) ? 'idprodservice' : 'idprod'), $filtertype, $conf->product->limit_size, $buyer->price_level, $statustoshow, 2, '', 1, array(), $buyer->id, '1', 0, 'maxwidth500', 0, '', GETPOSTINT('combinations'), 1);
+		print $form->select_produits(GETPOST('idprod', 'int'), (($filtertype == 1) ? 'idprodservice' : 'idprod'), $filtertype, $conf->product->limit_size, $buyer->price_level, $statustoshow, 2, '', 1, array(), $buyer->id, '1', 0, 'maxwidth500', 0, '', GETPOST('combinations', 'array'), 1);
 	}
 	$urltocreateproduct = DOL_URL_ROOT.'/product/card.php?action=create&backtopage='.urlencode($_SERVER["PHP_SELF"].'?id='.$object->id);
 	print '<a href="'.$urltocreateproduct.'"><span class="fa fa-plus-circle valignmiddle paddingleft" title="'.$langs->trans("AddProduct").'"></span></a>';
@@ -189,10 +184,6 @@ if ($filtertype != 1) {
 	print '</td>';
 
 	$coldisplay++;
-	print '<td class="bordertop nobottom linecolqtyfrozen right"><input type="checkbox" name="qty_frozen" id="qty_frozen" class="flat right" value="1"' . (GETPOST("qty_frozen", 'alpha') ? ' checked="checked"' : '') . '>';
-	print '</td>';
-
-	$coldisplay++;
 	print '<td class="bordertop nobottom nowrap linecolworkstation right">';
 	print $formproduct->selectWorkstations('', 'idworkstations', 1);
 	print '</td>';
@@ -203,11 +194,11 @@ if ($filtertype != 1) {
 	print '</td>';
 }
 
-$coldisplay += $colspan;
-print '<td class="bordertop nobottom linecoledit right valignmiddle" colspan="' . $colspan . '">';
-print '<input type="submit" class="button button-add small" name="addline" id="addline" value="' . $langs->trans('Add') . '">';
-print '</td>';
-print '</tr>';
+	$coldisplay += $colspan;
+	print '<td class="bordertop nobottom linecoledit center valignmiddle" colspan="' . $colspan . '">';
+	print '<input type="submit" class="button button-add" name="addline" id="addline" value="' . $langs->trans('Add') . '">';
+	print '</td>';
+	print '</tr>';
 
 ?>
 
@@ -263,6 +254,7 @@ jQuery(document).ready(function() {
 				}
 			}).done(function(data) {
 				$('#idworkstations').val(data.defaultWk).select2();
+
 			});
 	});
 	<?php } ?>

@@ -22,7 +22,7 @@
 
 /**
  *      \file       htdocs/fourn/facture/contact.php
- *      \ingroup    invoice, fournisseur
+ *      \ingroup    facture, fournisseur
  *      \brief      Onglet de gestion des contacts des factures
  */
 
@@ -39,7 +39,7 @@ if (isModEnabled('project')) {
 
 $langs->loadLangs(array("bills", "other", "companies"));
 
-$id		= (GETPOSTINT('id') ? GETPOSTINT('id') : GETPOSTINT('facid'));
+$id		= (GETPOST('id', 'int') ? GETPOST('id', 'int') : GETPOST('facid', 'int'));
 $ref	= GETPOST('ref', 'alpha');
 $action = GETPOST('action', 'aZ09');
 
@@ -93,14 +93,14 @@ if (empty($reshook)) {
 	} elseif ($action == 'swapstatut' && ($user->hasRight("fournisseur", "facture", "creer") || $user->hasRight("supplier_invoice", "creer"))) {
 		// bascule du statut d'un contact
 		if ($object->fetch($id)) {
-			$result = $object->swapContactStatus(GETPOSTINT('ligne'));
+			$result = $object->swapContactStatus(GETPOST('ligne', 'int'));
 		} else {
 			dol_print_error($db);
 		}
 	} elseif ($action == 'deletecontact' && ($user->hasRight("fournisseur", "facture", "creer") || $user->hasRight("supplier_invoice", "creer"))) {
 		// Efface un contact
 		$object->fetch($id);
-		$result = $object->delete_contact(GETPOSTINT("lineid"));
+		$result = $object->delete_contact(GETPOST("lineid", 'int'));
 
 		if ($result >= 0) {
 			header("Location: ".$_SERVER['PHP_SELF']."?id=".$object->id);
@@ -123,7 +123,7 @@ $userstatic = new User($db);
 
 /* *************************************************************************** */
 /*                                                                             */
-/* Card view and edit mode                                                       */
+/* Mode vue et edition                                                         */
 /*                                                                             */
 /* *************************************************************************** */
 
@@ -145,8 +145,8 @@ if ($id > 0 || !empty($ref)) {
 
 		$morehtmlref = '<div class="refidno">';
 		// Ref supplier
-		$morehtmlref .= $form->editfieldkey("RefSupplierBill", 'ref_supplier', $object->ref_supplier, $object, 0, 'string', '', 0, 1);
-		$morehtmlref .= $form->editfieldval("RefSupplierBill", 'ref_supplier', $object->ref_supplier, $object, 0, 'string', '', null, null, '', 1);
+		$morehtmlref .= $form->editfieldkey("RefSupplier", 'ref_supplier', $object->ref_supplier, $object, 0, 'string', '', 0, 1);
+		$morehtmlref .= $form->editfieldval("RefSupplier", 'ref_supplier', $object->ref_supplier, $object, 0, 'string', '', null, null, '', 1);
 		// Thirdparty
 		$morehtmlref .= '<br>'.$object->thirdparty->getNomUrl(1);
 		if (!getDolGlobalString('MAIN_DISABLE_OTHER_LINK') && $object->thirdparty->id > 0) {

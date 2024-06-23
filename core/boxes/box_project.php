@@ -34,7 +34,17 @@ class box_project extends ModeleBoxes
 	public $boxcode = "project";
 	public $boximg  = "object_projectpub";
 	public $boxlabel;
-	// var $depends = array("projet");
+	//var $depends = array("projet");
+
+	/**
+	 * @var DoliDB Database handler.
+	 */
+	public $db;
+
+	public $param;
+
+	public $info_box_head = array();
+	public $info_box_contents = array();
 
 	/**
 	 *  Constructor
@@ -52,7 +62,7 @@ class box_project extends ModeleBoxes
 		$this->db = $db;
 		$this->boxlabel = "OpenedProjects";
 
-		$this->hidden = !$user->hasRight('projet', 'lire');
+		$this->hidden = empty($user->rights->projet->lire);
 	}
 
 	/**
@@ -83,7 +93,7 @@ class box_project extends ModeleBoxes
 			$companystatic = new Societe($this->db);
 
 			$socid = 0;
-			//if ($user->socid > 0) $socid = $user->socid;    // For external user, no check is done on company because readability is managed by public status of project and assignment.
+			//if ($user->socid > 0) $socid = $user->socid;    // For external user, no check is done on company because readability is managed by public status of project and assignement.
 
 			// Get list of project id allowed to user (in a string list separated by coma)
 			$projectsListId = '';

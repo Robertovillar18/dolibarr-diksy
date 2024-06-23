@@ -939,7 +939,7 @@ SQL;
      * @param int    $syncLevel
      * @param int    $limit
      *
-     * @return array|null
+     * @return array
      */
     public function getChangesForCalendar($calendarId, $syncToken, $syncLevel, $limit = null)
     {

@@ -1,14 +1,11 @@
 <?php
-/* Copyright (C) 2024		MDW							<mdeweerd@users.noreply.github.com>
- * Copyright (C) 2024       Frédéric France             <frederic.france@free.fr>
- */
 
 require_once DOL_DOCUMENT_ROOT.'/core/modules/syslog/logHandler.php';
 
 /**
  * Class to manage logging to a file
  */
-class mod_syslog_file extends LogHandler
+class mod_syslog_file extends LogHandler implements LogHandlerInterface
 {
 	public $code = 'file';
 	public $lastTime = 0;
@@ -48,12 +45,13 @@ class mod_syslog_file extends LogHandler
 	}
 
 	/**
-	 * Is the logger active ?
+	 * Is the module active ?
 	 *
-	 * @return int		1 if logger enabled
+	 * @return int
 	 */
 	public function isActive()
 	{
+		global $conf;
 		return !getDolGlobalString('SYSLOG_DISABLE_LOGHANDLER_FILE') ? 1 : 0; // Set SYSLOG_DISABLE_LOGHANDLER_FILE to 1 to disable this loghandler
 	}
 
@@ -79,21 +77,23 @@ class mod_syslog_file extends LogHandler
 	/**
 	 * 	Return if configuration is valid
 	 *
-	 * 	@return	bool		true if ok
+	 * 	@return	array		Array of errors. Empty array if ok.
 	 */
 	public function checkConfiguration()
 	{
 		global $langs;
 
+		$errors = array();
+
 		$filename = $this->getFilename();
 
 		if (file_exists($filename) && is_writable($filename)) {
 			dol_syslog('admin/syslog: file '.$filename);
-			return true;
 		} else {
-			$this->errors[] = $langs->trans("ErrorFailedToOpenFile", $filename);
-			return false;
+			$errors[] = $langs->trans("ErrorFailedToOpenFile", $filename);
 		}
+
+		return $errors;
 	}
 
 	/**
@@ -113,7 +113,7 @@ class mod_syslog_file extends LogHandler
 		}
 
 		if (getDolGlobalString('SYSLOG_FILE_ONEPERSESSION')) {
-			if (is_numeric(getDolGlobalString('SYSLOG_FILE_ONEPERSESSION'))) {
+			if (is_numeric($conf->global->SYSLOG_FILE_ONEPERSESSION)) {
 				if (getDolGlobalInt('SYSLOG_FILE_ONEPERSESSION') == 1) {	// file depend on instance session key name (Note that session name is same for the instance so for all users and is not a per user value)
 					$suffixinfilename .= '_'.session_name();
 				}
@@ -134,10 +134,11 @@ class mod_syslog_file extends LogHandler
 	 * @param  	array 	$content 			Array containing the info about the message
 	 * @param	string	$suffixinfilename	When output is a file, append this suffix into default log filename.
 	 * @return	void
-	 * @phan-suppress PhanPluginDuplicateArrayKey
 	 */
 	public function export($content, $suffixinfilename = '')
 	{
+		global $conf, $dolibarr_main_prod;
+
 		if (getDolGlobalString('MAIN_SYSLOG_DISABLE_FILE')) {
 			return; // Global option to disable output of this handler
 		}
@@ -153,7 +154,6 @@ class mod_syslog_file extends LogHandler
 
 		if (!$filefd) {
 			if (!defined('SYSLOG_FILE_NO_ERROR') || !constant('SYSLOG_FILE_NO_ERROR')) {
-				global $dolibarr_main_prod;
 				// Do not break dolibarr usage if log fails
 				//throw new Exception('Failed to open log file '.basename($logfile));
 				print 'Failed to open log file '.($dolibarr_main_prod ? basename($logfile) : $logfile);
@@ -177,11 +177,7 @@ class mod_syslog_file extends LogHandler
 				$this->lastTime = $now;
 			}
 
-			// @phan-suppress-next-line PhanParamSuspiciousOrder
-			$message = dol_print_date(dol_now('gmt'), 'standard', 'gmt').$delay." ".sprintf("%-7s", $logLevels[$content['level']])." ".sprintf("%-15s", $content['ip']);
-			$message .= " ".sprintf("%7s", dol_trunc($content['ospid'], 7, 'right', 'UTF-8', 1));
-			$message .= " ".sprintf("%6s", dol_trunc($content['osuser'], 6, 'right', 'UTF-8', 1));
-			$message .= " ".($this->ident > 0 ? str_pad(((string) ''), ((int) $this->ident), ((string) ' ')) : '').$content['message'];
+			$message = dol_print_date(dol_now('gmt'), 'standard', 'gmt').$delay." ".sprintf("%-7s", $logLevels[$content['level']])." ".sprintf("%-15s", $content['ip'])." ".($this->ident > 0 ? str_pad('', $this->ident, ' ') : '').$content['message'];
 			fwrite($filefd, $message."\n");
 			fclose($filefd);
 			dolChmod($logfile);

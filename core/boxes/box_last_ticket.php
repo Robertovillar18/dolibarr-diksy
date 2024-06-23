@@ -36,6 +36,15 @@ class box_last_ticket extends ModeleBoxes
 	public $depends = array("ticket");
 
 	/**
+	 * @var DoliDB Database handler.
+	 */
+	public $db;
+
+	public $param;
+	public $info_box_head = array();
+	public $info_box_contents = array();
+
+	/**
 	 * Constructor
 	 *  @param  DoliDB  $db         Database handler
 	 *  @param  string  $param      More parameters
@@ -65,7 +74,7 @@ class box_last_ticket extends ModeleBoxes
 
 		$text = $langs->trans("BoxLastTicketDescription", $max);
 		$this->info_box_head = array(
-			'text' => $text.'<a class="paddingleft" href="'.DOL_URL_ROOT.'/ticket/list.php?sortfield=t.datec&sortorder=DESC"><span class="badge">...</span></a>',
+			'text' => $text,
 			'limit' => dol_strlen($text),
 		);
 

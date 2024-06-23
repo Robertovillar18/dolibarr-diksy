@@ -35,7 +35,7 @@ $langs->loadLangs(array('banks', 'categories', 'withdrawals', 'companies'));
 $type = GETPOST('type', 'aZ09');
 
 // Security check
-$socid = GETPOSTINT('socid');
+$socid = GETPOST('socid', 'int');
 if ($user->socid) {
 	$socid = $user->socid;
 }

@@ -24,8 +24,8 @@
  * $object (invoice, order, ...)
  * $conf
  * $langs
- * $element     (used to test $user->hasRight($element, 'creer'))
- * $permtoedit  (used to replace test $user->hasRight($element, 'creer'))
+ * $element     (used to test $user->rights->$element->creer)
+ * $permtoedit  (used to replace test $user->rights->$element->creer)
  * $inputalsopricewithtax (0 by default, 1 to also show column with unit price including tax)
  * $outputalsopricetotalwithtax
  * $usemargins (0 to disable all margins columns, 1 to show according to margin setup)
@@ -36,11 +36,8 @@
 // Protection to avoid direct call of template
 if (empty($object) || !is_object($object)) {
 	print "Error, template page can't be called as URL";
-	exit(1);
+	exit;
 }
-
-'@phan-var-force CommonObject $this
- @phan-var-force CommonObject $object';
 
 global $filtertype;
 if (empty($filtertype)) {
@@ -90,10 +87,6 @@ if ($filtertype != 1) {
 } else {
 	print '<td class="linecolunit right">' . $form->textwithpicto($langs->trans('Unit'), '').'</td>';
 
-	// Qty frozen
-	print '<td class="linecolqtyfrozen right">' .$form->textwithpicto($langs->trans('QtyFrozen'), $langs->trans("QuantityConsumedInvariable")) . '</td>';
-
-	// Workstation
 	if (isModEnabled('workstation')) {
 		print '<td class="linecolworkstation right">' .  $form->textwithpicto($langs->trans('DefaultWorkstation'), '') . '</td>';
 	}

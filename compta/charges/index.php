@@ -54,17 +54,19 @@ if ($user->socid) {
 $result = restrictedArea($user, 'tax|salaries', '', '', 'charges|');
 
 $mode = GETPOST("mode", 'alpha');
-$year = GETPOSTINT("year");
+$year = GETPOST("year", 'int');
 $filtre = GETPOST("filtre", 'alpha');
 if (!$year) {
 	$year = date("Y", time());
 }
 $optioncss = GETPOST('optioncss', 'aZ'); // Option for the css output (always '' except when 'print')
 
-$limit = GETPOSTINT('limit') ? GETPOSTINT('limit') : $conf->liste_limit;
+$search_account = GETPOST('search_account', 'int');
+
+$limit = GETPOST('limit', 'int') ? GETPOST('limit', 'int') : $conf->liste_limit;
 $sortfield = GETPOST('sortfield', 'aZ09comma');
 $sortorder = GETPOST('sortorder', 'aZ09comma');
-$page = GETPOSTISSET('pageplusone') ? (GETPOSTINT('pageplusone') - 1) : GETPOSTINT("page");
+$page = GETPOSTISSET('pageplusone') ? (GETPOST('pageplusone') - 1) : GETPOST("page", 'int');
 if (empty($page) || $page == -1) {
 	$page = 0;
 }     // If $page is not defined, or '' or -1
@@ -145,8 +147,8 @@ if (isModEnabled('tax') && $user->hasRight('tax', 'charges', 'lire')) {
 	print_liste_field_titre("RefPayment", $_SERVER["PHP_SELF"], "pc.rowid", "", $param, '', $sortfield, $sortorder);
 	print_liste_field_titre("DatePayment", $_SERVER["PHP_SELF"], "pc.datep", "", $param, 'align="center"', $sortfield, $sortorder);
 	print_liste_field_titre("Type", $_SERVER["PHP_SELF"], "pct.code", "", $param, '', $sortfield, $sortorder);
-	if (isModEnabled("bank")) {
-		print_liste_field_titre("BankAccount", $_SERVER["PHP_SELF"], "ba.label", "", $param, "", $sortfield, $sortorder);
+	if (isModEnabled("banque")) {
+		print_liste_field_titre("Account", $_SERVER["PHP_SELF"], "ba.label", "", $param, "", $sortfield, $sortorder);
 	}
 	print_liste_field_titre("PayedByThisPayment", $_SERVER["PHP_SELF"], "pc.amount", "", $param, 'class="right"', $sortfield, $sortorder);
 	print "</tr>\n";
@@ -221,7 +223,7 @@ if (isModEnabled('tax') && $user->hasRight('tax', 'charges', 'lire')) {
 			}
 			print $obj->num_payment.'</td>';
 			// Account
-			if (isModEnabled("bank")) {
+			if (isModEnabled("banque")) {
 				print '<td>';
 				if ($obj->fk_bank > 0) {
 					//$accountstatic->fetch($obj->fk_bank);
@@ -261,7 +263,7 @@ if (isModEnabled('tax') && $user->hasRight('tax', 'charges', 'lire')) {
 		print '<td class="liste_total center">&nbsp;</td>';
 		print '<td class="liste_total center">&nbsp;</td>';
 		print '<td class="liste_total center">&nbsp;</td>';
-		if (isModEnabled("bank")) {
+		if (isModEnabled("banque")) {
 			print '<td class="liste_total center"></td>';
 		}
 		print '<td class="liste_total right">'.price($totalpaid)."</td>";
@@ -315,8 +317,8 @@ if (isModEnabled('tax') && $user->hasRight('tax', 'charges', 'lire')) {
 		print_liste_field_titre("RefPayment", $_SERVER["PHP_SELF"], "ptva.rowid", "", $param, '', $sortfield, $sortorder);
 		print_liste_field_titre("DatePayment", $_SERVER["PHP_SELF"], "ptva.datep", "", $param, 'align="center"', $sortfield, $sortorder);
 		print_liste_field_titre("Type", $_SERVER["PHP_SELF"], "pct.code", "", $param, '', $sortfield, $sortorder);
-		if (isModEnabled("bank")) {
-			print_liste_field_titre("BankAccount", $_SERVER["PHP_SELF"], "ba.label", "", $param, "", $sortfield, $sortorder);
+		if (isModEnabled("banque")) {
+			print_liste_field_titre("Account", $_SERVER["PHP_SELF"], "ba.label", "", $param, "", $sortfield, $sortorder);
 		}
 		print_liste_field_titre("PayedByThisPayment", $_SERVER["PHP_SELF"], "ptva.amount", "", $param, 'class="right"', $sortfield, $sortorder);
 		print "</tr>\n";
@@ -354,7 +356,7 @@ if (isModEnabled('tax') && $user->hasRight('tax', 'charges', 'lire')) {
 			print $obj->num_payment.'</td>';
 
 			// Account
-			if (isModEnabled("bank")) {
+			if (isModEnabled("banque")) {
 				print '<td>';
 				if ($obj->fk_bank > 0) {
 					//$accountstatic->fetch($obj->fk_bank);
@@ -390,7 +392,7 @@ if (isModEnabled('tax') && $user->hasRight('tax', 'charges', 'lire')) {
 		print '<td class="liste_total"></td>';
 		print '<td class="liste_total"></td>';
 
-		if (isModEnabled("bank")) {
+		if (isModEnabled("banque")) {
 			print '<td class="liste_total"></td>';
 		}
 
@@ -447,7 +449,7 @@ while ($j < $numlt) {
 		$i = 0;
 		$total = 0;
 
-		print '<div class="div-table-responsive-no-min">'; // You can use div-table-responsive-no-min if you don't need reserved height for your table
+		print '<div class="div-table-responsive-no-min">'; // You can use div-table-responsive-no-min if you dont need reserved height for your table
 		print '<table class="noborder centpercent">';
 		print '<tr class="liste_titre">';
 		print_liste_field_titre("PeriodEndDate", $_SERVER["PHP_SELF"], "pv.datev", "", $param, 'width="120"', $sortfield, $sortorder);

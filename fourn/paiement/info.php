@@ -19,7 +19,7 @@
 
 /**
  *    \file       htdocs/fourn/paiement/info.php
- *    \ingroup    invoice, fournisseur
+ *    \ingroup    facture, fournisseur
  *    \brief      Tab for Supplier Payment Information
  */
 
@@ -35,7 +35,7 @@ require_once DOL_DOCUMENT_ROOT.'/fourn/class/paiementfourn.class.php';
 $langs->loadLangs(array("bills", "suppliers", "companies"));
 
 // Get Parameters
-$id = GETPOSTINT('id');
+$id = GETPOST('id', 'int');
 
 // Initialize Objects
 $object = new PaiementFourn($db);

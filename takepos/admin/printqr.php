@@ -31,9 +31,9 @@ if (!$user->admin) {
 
 $langs->load("cashdesk");
 
-$id = GETPOSTINT('id');
+$id = GETPOST('id', 'int');
 
-//$_GET['optioncss'] = "print";
+$_GET['optioncss'] = "print";
 
 print '<center>';
 

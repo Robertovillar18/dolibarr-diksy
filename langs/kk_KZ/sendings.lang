@@ -39,7 +39,7 @@ StatusSendingValidatedShort=Тексерілді
 StatusSendingProcessedShort=Өңделді
 SendingSheet=Жеткізу парағы
 ConfirmDeleteSending=Бұл жүкті шынымен жойғыңыз келе ме?
-ConfirmValidateSending=Are you sure you want to validate this shipment with the reference <b>%s</b>?
+ConfirmValidateSending=Бұл жөнелтімді <b>%s<span class='notranslate'></b> сілтемесімен растағыңыз келетініне сенімдісіз бе >?
 ConfirmCancelSending=Бұл жөнелтуден бас тартқыңыз келетініне сенімдісіз бе?
 DocumentModelMerou=Merou A5 моделі
 WarningNoQtyLeftToSend=Ескерту, жөнелтуді күтетін өнімдер жоқ.

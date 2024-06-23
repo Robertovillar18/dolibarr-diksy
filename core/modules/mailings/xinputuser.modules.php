@@ -135,7 +135,7 @@ class mailing_xinputuser extends MailingTargets
 
 		$cibles = array();
 		if (!empty($email)) {
-			if (isValidEmail($email)) {
+			if (isValidEMail($email)) {
 				$cibles[] = array(
 					'email' => $email,
 					'lastname' => $lastname,

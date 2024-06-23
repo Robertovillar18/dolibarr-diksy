@@ -1,6 +1,5 @@
 <?php
 /* Copyright (C) 2007-2012 Laurent Destailleur  <eldy@users.sourceforge.net>
- * Copyright (C) 2024       Frédéric France             <frederic.france@free.fr>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +17,7 @@
 
 /**
  *      \file       compta/facture/class/paymentterm.class.php
- *      \ingroup    invoice
+ *      \ingroup    facture
  *      \brief      This file is an example for a CRUD class file (Create/Read/Update/Delete)
  */
 
@@ -433,7 +432,7 @@ class PaymentTerm // extends CommonObject
 	 *  Used to build previews or test instances.
 	 *	id must be 0 if object instance is a specimen.
 	 *
-	 *  @return	int
+	 *  @return	void
 	 */
 	public function initAsSpecimen()
 	{
@@ -447,7 +446,5 @@ class PaymentTerm // extends CommonObject
 		$this->type_cdr = '';
 		$this->nbjour = '';
 		$this->decalage = '';
-
-		return 1;
 	}
 }

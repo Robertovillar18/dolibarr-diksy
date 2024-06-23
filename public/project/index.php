@@ -36,7 +36,6 @@ if (!defined('NOBROWSERNOTIF')) {
 
 // For MultiCompany module.
 // Do not use GETPOST here, function is not defined and get of entity must be done before including main.inc.php
-// Because 2 entities can have the same ref.
 $entity = (!empty($_GET['entity']) ? (int) $_GET['entity'] : (!empty($_POST['entity']) ? (int) $_POST['entity'] : (!empty($_GET['e']) ? (int) $_GET['e'] : (!empty($_POST['e']) ? (int) $_POST['e'] : 1))));
 if (is_numeric($entity)) {
 	define("DOLENTITY", $entity);
@@ -60,9 +59,8 @@ $langs->loadLangs(array("other", "dict", "bills", "companies", "errors", "paybox
 // Security check
 // No check on module enabled. Done later according to $validpaymentmethod
 
-$errmsg = '';
 $action = GETPOST('action', 'aZ09');
-$id = GETPOSTINT('id');
+$id = GETPOST('id', 'int');
 $securekeyreceived = GETPOST("securekey", 'alpha');
 $securekeytocompare = dol_hash(getDolGlobalString('EVENTORGANIZATION_SECUREKEY').'conferenceorbooth'.((int) $id), 'md5');
 
@@ -222,7 +220,7 @@ print '<input type="hidden" name="tag" value="'.GETPOST("tag", 'alpha').'">'."\n
 print '<input type="hidden" name="id" value="'.dol_escape_htmltag($id).'">'."\n";
 print '<input type="hidden" name="securekey" value="'.dol_escape_htmltag($securekeyreceived).'">'."\n";
 print '<input type="hidden" name="e" value="'.$entity.'" />';
-print '<input type="hidden" name="forcesandbox" value="'.GETPOSTINT('forcesandbox').'" />';
+print '<input type="hidden" name="forcesandbox" value="'.GETPOST('forcesandbox', 'int').'" />';
 print "\n";
 
 

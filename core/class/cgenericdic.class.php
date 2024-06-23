@@ -3,8 +3,6 @@
  * Copyright (C) 2014-2016  Juanjo Menent       <jmenent@2byte.es>
  * Copyright (C) 2016       Florian Henry       <florian.henry@atm-consulting.fr>
  * Copyright (C) 2015       Raphaël Doursenaud  <rdoursenaud@gpcsolutions.fr>
- * Copyright (C) 2024       Frédéric France             <frederic.france@free.fr>
- * Copyright (C) 2024		MDW							<mdeweerd@users.noreply.github.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -61,7 +59,7 @@ class CGenericDic extends CommonDict
 	/**
 	 * Constructor
 	 *
-	 * @param DoliDB $db Database handler
+	 * @param DoliDb $db Database handler
 	 */
 	public function __construct(DoliDB $db)
 	{
@@ -73,11 +71,12 @@ class CGenericDic extends CommonDict
 	/**
 	 * Create object into database
 	 *
-	 * @param  User $user      	User that creates
-	 * @param  int 	$notrigger 	0=launch triggers after, 1=disable triggers
-	 * @return int 				Return integer <0 if KO, Id of created object if OK
+	 * @param  User $user      User that creates
+	 * @param  bool $notrigger false=launch triggers after, true=disable triggers
+	 *
+	 * @return int Return integer <0 if KO, Id of created object if OK
 	 */
-	public function create(User $user, $notrigger = 0)
+	public function create(User $user, $notrigger = false)
 	{
 		dol_syslog(__METHOD__, LOG_DEBUG);
 
@@ -99,7 +98,7 @@ class CGenericDic extends CommonDict
 			$this->label = trim($this->label);
 		}
 		if (isset($this->active)) {
-			$this->active = (int) $this->active;
+			$this->active = trim($this->active);
 		}
 
 		// Insert request
@@ -221,15 +220,16 @@ class CGenericDic extends CommonDict
 	/**
 	 * Load object in memory from the database
 	 *
-	 * @param string 		$sortorder 		Sort Order
-	 * @param string 		$sortfield 		Sort field
-	 * @param int    		$limit     		Limit
-	 * @param int    		$offset    		offset limit
-	 * @param string|array  $filter    		filter USF
-	 * @param string 		$filtermode 	filter mode (AND or OR)
-	 * @return int 							Return integer <0 if KO, >0 if OK
+	 * @param string $sortorder Sort Order
+	 * @param string $sortfield Sort field
+	 * @param int    $limit     offset limit
+	 * @param int    $offset    offset limit
+	 * @param array  $filter    filter array
+	 * @param string $filtermode filter mode (AND or OR)
+	 *
+	 * @return int Return integer <0 if KO, >0 if OK
 	 */
-	public function fetchAll($sortorder = '', $sortfield = '', $limit = 0, $offset = 0, $filter = '', $filtermode = 'AND')
+	public function fetchAll($sortorder = '', $sortfield = '', $limit = 0, $offset = 0, array $filter = array(), $filtermode = 'AND')
 	{
 		dol_syslog(__METHOD__, LOG_DEBUG);
 
@@ -243,36 +243,23 @@ class CGenericDic extends CommonDict
 		}
 
 		$sql = "SELECT";
-		$sql .= " t.".$this->db->sanitize($fieldrowid).",";
+		$sql .= " t.".$fieldrowid.",";
 		$sql .= " t.code,";
-		$sql .= " t.".$this->db->sanitize($fieldlabel)." as label,";
+		$sql .= " t.".$fieldlabel." as label,";
 		$sql .= " t.active";
 		$sql .= " FROM ".$this->db->prefix().$this->table_element." as t";
 
 		// Manage filter
-		if (is_array($filter)) {
-			$sqlwhere = array();
-			if (count($filter) > 0) {
-				foreach ($filter as $key => $value) {
-					$sqlwhere[] = $this->db->sanitize($key)." LIKE '%".$this->db->escape($value)."%'";
-				}
+		$sqlwhere = array();
+		if (count($filter) > 0) {
+			foreach ($filter as $key => $value) {
+				$sqlwhere[] = $key." LIKE '%".$this->db->escape($value)."%'";
 			}
-			if (count($sqlwhere) > 0) {
-				$sql .= " WHERE ".implode(' '.$this->db->escape($filtermode).' ', $sqlwhere);
-			}
-
-			$filter = '';
 		}
 
-		// Manage filter
-		$errormessage = '';
-		$sql .= forgeSQLFromUniversalSearchCriteria($filter, $errormessage);
-		if ($errormessage) {
-			$this->errors[] = $errormessage;
-			dol_syslog(__METHOD__.' '.implode(',', $this->errors), LOG_ERR);
-			return -1;
+		if (count($sqlwhere) > 0) {
+			$sql .= " WHERE ".implode(' '.$this->db->escape($filtermode).' ', $sqlwhere);
 		}
-
 		if (!empty($sortfield)) {
 			$sql .= $this->db->order($sortfield, $sortorder);
 		}
@@ -307,11 +294,12 @@ class CGenericDic extends CommonDict
 	/**
 	 * Update object into database
 	 *
-	 * @param  User $user      	User that modifies
-	 * @param  int 	$notrigger 	0=launch triggers after, 1=disable triggers
-	 * @return int 				Return integer <0 if KO, >0 if OK
+	 * @param  User $user      User that modifies
+	 * @param  bool $notrigger false=launch triggers after, true=disable triggers
+	 *
+	 * @return int Return integer <0 if KO, >0 if OK
 	 */
-	public function update(User $user, $notrigger = 0)
+	public function update(User $user, $notrigger = false)
 	{
 		$error = 0;
 
@@ -335,7 +323,7 @@ class CGenericDic extends CommonDict
 			$this->label = trim($this->label);
 		}
 		if (isset($this->active)) {
-			$this->active = (int) $this->active;
+			$this->active = trim($this->active);
 		}
 
 		// Check parameters
@@ -382,11 +370,12 @@ class CGenericDic extends CommonDict
 	/**
 	 * Delete object in database
 	 *
-	 * @param User 	$user      	User that deletes
-	 * @param int 	$notrigger 	0=launch triggers after, 1=disable triggers
-	 * @return int 				Return integer <0 if KO, >0 if OK
+	 * @param User $user      User that deletes
+	 * @param bool $notrigger false=launch triggers after, true=disable triggers
+	 *
+	 * @return int Return integer <0 if KO, >0 if OK
 	 */
-	public function delete(User $user, $notrigger = 0)
+	public function delete(User $user, $notrigger = false)
 	{
 		dol_syslog(__METHOD__, LOG_DEBUG);
 
@@ -485,7 +474,7 @@ class CGenericDic extends CommonDict
 	 * Initialise object with example values
 	 * Id must be 0 if object instance is a specimen
 	 *
-	 * @return int
+	 * @return void
 	 */
 	public function initAsSpecimen()
 	{
@@ -494,7 +483,5 @@ class CGenericDic extends CommonDict
 		$this->code = 'CODE';
 		$this->label = 'Label';
 		$this->active = 1;
-
-		return 1;
 	}
 }

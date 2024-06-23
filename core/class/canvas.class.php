@@ -224,6 +224,5 @@ class Canvas
 			$ret = $this->control->doActions($action, $id);
 			return $ret;
 		}
-		return null;
 	}
 }

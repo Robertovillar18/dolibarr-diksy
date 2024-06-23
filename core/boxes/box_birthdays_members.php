@@ -3,7 +3,6 @@
  * Copyright (C) 2004-2010 Laurent Destailleur  <eldy@users.sourceforge.net>
  * Copyright (C) 2005-2009 Regis Houssin        <regis.houssin@inodbox.com>
  * Copyright (C) 2015-2023 Frederic France      <frederic.france@netlogic.fr>
- * Copyright (C) 2024		MDW							<mdeweerd@users.noreply.github.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,7 +37,16 @@ class box_birthdays_members extends ModeleBoxes
 	public $boxlabel = "BoxTitleMemberNextBirthdays";
 	public $depends  = array("adherent");
 
+	/**
+	 * @var DoliDB Database handler.
+	 */
+	public $db;
+
 	public $enabled = 1;
+
+	public $info_box_head = array();
+	public $info_box_contents = array();
+
 
 	/**
 	 *  Constructor
@@ -116,7 +124,7 @@ class box_birthdays_members extends ModeleBoxes
 					$memberstatic->datefin = $this->db->jdate($data[$j]->datefin);
 
 					$dateb = $this->db->jdate($data[$j]->birth);
-					$age = idate('Y', dol_now()) - idate('Y', $dateb);
+					$age = date('Y', dol_now()) - date('Y', $dateb);
 
 					$typea = '<i class="fas fa-birthday-cake inline-block"></i>';
 

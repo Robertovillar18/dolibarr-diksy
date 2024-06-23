@@ -1,6 +1,5 @@
 <?php
 /* Copyright (C) 2007-2011 Laurent Destailleur  <eldy@users.sourceforge.net>
- * Copyright (C) 2024		MDW							<mdeweerd@users.noreply.github.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -52,7 +51,7 @@ class CUnits extends CommonDict
 	/**
 	 *  Constructor
 	 *
-	 *  @param      DoliDB		$db      Database handler
+	 *  @param      DoliDb		$db      Database handler
 	 */
 	public function __construct($db)
 	{
@@ -89,7 +88,7 @@ class CUnits extends CommonDict
 			$this->unit_type = trim($this->unit_type);
 		}
 		if (isset($this->active)) {
-			$this->active = (int) $this->active;
+			$this->active = trim($this->active);
 		}
 		if (isset($this->scale)) {
 			$this->scale = trim($this->scale);
@@ -208,15 +207,15 @@ class CUnits extends CommonDict
 	/**
 	 * Load list of objects in memory from the database.
 	 *
-	 * @param  string      	$sortorder    	Sort Order
-	 * @param  string      	$sortfield    	Sort field
-	 * @param  int         	$limit        	Limit
-	 * @param  int         	$offset       	Offset
-	 * @param  string|array $filter       	Filter USF
-	 * @param  string      	$filtermode   	Filter mode (AND or OR)
-	 * @return array|int                 	int <0 if KO, array of pages if OK
+	 * @param  string      $sortorder    Sort Order
+	 * @param  string      $sortfield    Sort field
+	 * @param  int         $limit        limit
+	 * @param  int         $offset       Offset
+	 * @param  array       $filter       Filter array. Example array('field'=>'valueforlike', 'customurl'=>...)
+	 * @param  string      $filtermode   Filter mode (AND or OR)
+	 * @return array|int                 int <0 if KO, array of pages if OK
 	 */
-	public function fetchAll($sortorder = '', $sortfield = '', $limit = 0, $offset = 0, $filter = '', $filtermode = 'AND')
+	public function fetchAll($sortorder = '', $sortfield = '', $limit = 0, $offset = 0, array $filter = array(), $filtermode = 'AND')
 	{
 		dol_syslog(__METHOD__, LOG_DEBUG);
 
@@ -230,38 +229,23 @@ class CUnits extends CommonDict
 		$sql .= " t.scale,";
 		$sql .= " t.active";
 		$sql .= " FROM ".$this->db->prefix()."c_units as t";
-		$sql .= " WHERE 1 = 1";
-
 		// Manage filter
-		if (is_array($filter)) {
-			$sqlwhere = array();
-			if (count($filter) > 0) {
-				foreach ($filter as $key => $value) {
-					if ($key == 't.rowid' || $key == 't.active' || $key == 't.scale') {
-						$sqlwhere[] = $this->db->sanitize($key)." = ".((int) $value);
-					} elseif (strpos($key, 'date') !== false) {
-						$sqlwhere[] = $this->db->sanitize($key)." = '".$this->db->idate($value)."'";
-					} elseif ($key == 't.unit_type' || $key == 't.code' || $key == 't.short_label') {
-						$sqlwhere[] = $this->db->sanitize($key)." = '".$this->db->escape($value)."'";
-					} else {
-						$sqlwhere[] = $this->db->sanitize($key)." LIKE '%".$this->db->escape($this->db->escapeforlike($value))."%'";
-					}
+		$sqlwhere = array();
+		if (count($filter) > 0) {
+			foreach ($filter as $key => $value) {
+				if ($key == 't.rowid' || $key == 't.active' || $key == 't.scale') {
+					$sqlwhere[] = $key." = ".((int) $value);
+				} elseif (strpos($key, 'date') !== false) {
+					$sqlwhere[] = $key." = '".$this->db->idate($value)."'";
+				} elseif ($key == 't.unit_type' || $key == 't.code' || $key == 't.short_label') {
+					$sqlwhere[] = $key." = '".$this->db->escape($value)."'";
+				} else {
+					$sqlwhere[] = $key." LIKE '%".$this->db->escape($value)."%'";
 				}
 			}
-			if (count($sqlwhere) > 0) {
-				$sql .= ' AND ('.implode(' '.$this->db->escape($filtermode).' ', $sqlwhere).')';
-			}
-
-			$filter = '';
 		}
-
-		// Manage filter
-		$errormessage = '';
-		$sql .= forgeSQLFromUniversalSearchCriteria($filter, $errormessage);
-		if ($errormessage) {
-			$this->errors[] = $errormessage;
-			dol_syslog(__METHOD__.' '.implode(',', $this->errors), LOG_ERR);
-			return -1;
+		if (count($sqlwhere) > 0) {
+			$sql .= ' WHERE ('.implode(' '.$this->db->escape($filtermode).' ', $sqlwhere).')';
 		}
 
 		if (!empty($sortfield)) {
@@ -296,7 +280,7 @@ class CUnits extends CommonDict
 			return $this->records;
 		} else {
 			$this->errors[] = 'Error '.$this->db->lasterror();
-			dol_syslog(__METHOD__.' '.implode(',', $this->errors), LOG_ERR);
+			dol_syslog(__METHOD__.' '.join(',', $this->errors), LOG_ERR);
 
 			return -1;
 		}
@@ -334,7 +318,7 @@ class CUnits extends CommonDict
 			$this->scale = trim($this->scale);
 		}
 		if (isset($this->active)) {
-			$this->active = (int) $this->active;
+			$this->active = trim($this->active);
 		}
 
 		// Check parameters
@@ -422,9 +406,12 @@ class CUnits extends CommonDict
 	 */
 	public function getUnitFromCode($code, $mode = 'code', $unit_type = '')
 	{
-		if ($mode == 'short_label' || $mode == 'code') {
-			return dol_getIdFromCode($this->db, $code, 'c_units', $mode, 'rowid', 0, " AND unit_type = '".$this->db->escape($unit_type)."'");
+		if ($mode == 'short_label') {
+			return dol_getIdFromCode($this->db, $code, 'c_units', 'short_label', 'rowid', 0, " AND unit_type = '".$this->db->escape($unit_type)."'");
+		} elseif ($mode == 'code') {
+			return dol_getIdFromCode($this->db, $code, 'c_units', 'code', 'rowid', 0, " AND unit_type = '". $this->db->escape($unit_type) ."'");
 		}
+
 		return $code;
 	}
 
@@ -473,7 +460,7 @@ class CUnits extends CommonDict
 			// TODO : add base col into unit dictionary table
 			$unit = $this->db->fetch_object($sql);
 			if ($unit) {
-				// TODO : if base exists in unit dictionary table, remove this conversion exception and update conversion infos in database.
+				// TODO : if base exists in unit dictionary table, remove this convertion exception and update convertion infos in database.
 				// Example time hour currently scale 3600 will become scale 2 base 60
 				if ($unit->unit_type == 'time') {
 					return (float) $unit->scale;

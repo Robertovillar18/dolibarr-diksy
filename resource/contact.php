@@ -37,7 +37,7 @@ require_once DOL_DOCUMENT_ROOT.'/core/class/html.formcompany.class.php';
 // Load translation files required by the page
 $langs->loadLangs(array('companies', 'resource', 'sendings'));
 
-$id = GETPOSTINT('id');
+$id = GETPOST('id', 'int');
 $ref = GETPOST('ref', 'alpha');
 $action = GETPOST('action', 'aZ09');
 
@@ -66,7 +66,7 @@ if (!$user->hasRight('resource', 'read')) {
 // Add a new contact
 if ($action == 'addcontact' && $user->hasRight('resource', 'write')) {
 	if ($result > 0 && $id > 0) {
-		$contactid = (GETPOSTINT('userid') ? GETPOSTINT('userid') : GETPOSTINT('contactid'));
+		$contactid = (GETPOST('userid', 'int') ? GETPOST('userid', 'int') : GETPOST('contactid', 'int'));
 		$typeid = (GETPOST('typecontact') ? GETPOST('typecontact') : GETPOST('type'));
 		$result = $object->add_contact($contactid, $typeid, GETPOST("source", 'aZ09'));
 	}
@@ -86,10 +86,10 @@ if ($action == 'addcontact' && $user->hasRight('resource', 'write')) {
 	}
 } elseif ($action == 'swapstatut' && $user->hasRight('resource', 'write')) {
 	// Toggle the status of a contact
-	$result = $object->swapContactStatus(GETPOSTINT('ligne'));
+	$result = $object->swapContactStatus(GETPOST('ligne', 'int'));
 } elseif ($action == 'deletecontact' && $user->hasRight('resource', 'write')) {
 	// Erase a contact
-	$result = $object->delete_contact(GETPOSTINT('lineid'));
+	$result = $object->delete_contact(GETPOST('lineid', 'int'));
 
 	if ($result >= 0) {
 		header("Location: ".$_SERVER['PHP_SELF']."?id=".$object->id);
@@ -109,8 +109,7 @@ $formcompany = new FormCompany($db);
 $contactstatic = new Contact($db);
 $userstatic = new User($db);
 
-$help_url = '';
-llxHeader('', $langs->trans("Resource"), $help_url, '', 0, 0, '', '', '', 'mod-resource page-card_contact');
+llxHeader('', $langs->trans("Resource"));
 
 // View and edit mode
 

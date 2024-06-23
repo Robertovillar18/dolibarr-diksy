@@ -24,7 +24,7 @@
 
 
 /**
- * Return if a BVRB number is valid or not (For Switzerland)
+ * Return if a BVRB number is valid or not (For switzerland)
  *
  * @param	string	$bvrb		BVRB number
  * @return 	boolean				True if OK, false if KO
@@ -32,7 +32,6 @@
 function dol_ch_controle_bvrb($bvrb)
 {
 	// Init array for control
-	$tableau = array();
 	$tableau[0][0] = 0;
 	$tableau[0][1] = 9;
 	$tableau[0][2] = 4;
@@ -157,14 +156,14 @@ function dol_ch_controle_bvrb($bvrb)
 	// Clean data
 	$bv = str_replace(' ', '', $bvrb);
 
-	// Check (verify/validate)
+	// Make control
 	$report = 0;
 	while (dol_strlen($bv) > 1) {
 		$match = substr($bv, 0, 1);
 		$report = $tableau[$report][$match];
 		$bv = substr($bv, 1);
 	}
-	$check = $tableau[$report][10];
+	$controle = $tableau[$report][10];
 
-	return ($check == $bv);
+	return ($controle == $bv);
 }

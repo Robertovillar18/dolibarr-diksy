@@ -3674,9 +3674,7 @@ class PclZip
                     fclose($v_dest_file);
 
                     // ----- Change the file mtime
-                    // @CHANGE LDR
-                    //touch($p_entry['filename'], $p_entry['mtime']);
-                    @touch($p_entry['filename'], $p_entry['mtime']);
+                    touch($p_entry['filename'], $p_entry['mtime']);
 
                 } else {
                     // ----- TBC

@@ -34,9 +34,9 @@ require_once DOL_DOCUMENT_ROOT.'/bookcal/lib/bookcal_availabilities.lib.php';
 $langs->loadLangs(array("agenda", "other"));
 
 // Get parameters
-$id = GETPOSTINT('id');
+$id = GETPOST('id', 'int');
 $ref = GETPOST('ref', 'alpha');
-$lineid = GETPOSTINT('lineid');
+$lineid = GETPOST('lineid', 'int');
 
 $action = GETPOST('action', 'aZ09');
 $confirm = GETPOST('confirm', 'alpha');
@@ -57,7 +57,7 @@ $extrafields->fetch_name_optionals_label($object->table_element);
 
 $search_array_options = $extrafields->getOptionalsFromPost($object->table_element, '', 'search_');
 
-// Initialize array of search criteria
+// Initialize array of search criterias
 $search_all = GETPOST("search_all", 'alpha');
 $search = array();
 foreach ($object->fields as $key => $val) {
@@ -72,9 +72,6 @@ if (empty($action) && empty($id) && empty($ref)) {
 
 // Load object
 include DOL_DOCUMENT_ROOT.'/core/actions_fetchobject.inc.php'; // Must be include, not include_once.
-
-//avoid warning on missing/undef entity
-$object->entity					= (GETPOSTISSET('entity') ? GETPOSTINT('entity') : $conf->entity);
 
 // There is several ways to check permission.
 // Set $enablepermissioncheck to 1 to enable a minimum low level of checks
@@ -108,10 +105,6 @@ if (!$permissiontoread) {
 }
 
 
-
-
-
-
 /*
  * Actions
  */
@@ -139,48 +132,8 @@ if (empty($reshook)) {
 
 	$triggermodname = 'BOOKCAL_AVAILABILITIES_MODIFY'; // Name of trigger action code to execute when we modify record
 
-
-	$startday = GETPOST('startday', 'int');
-	$startmonth = GETPOST('startmonth', 'int');
-	$startyear = GETPOST('startyear', 'int');
-	$starthour = GETPOST('startHour', 'int');
-
-	if ($starthour == "0") {
-		$error++;
-		setEventMessages($langs->trans("ErrorStartHourIsNull"), $hookmanager->errors, 'errors');
-	}
-
-	$dateStartTimestamp = dol_mktime($starthour, 0, 0, $startmonth, $startday, $startyear);
-
-	$endday = GETPOST('endday', 'int');
-	$endmonth = GETPOST('endmonth', 'int');
-	$endyear = GETPOST('endyear', 'int');
-	$endhour = GETPOST('endHour', 'int');
-
-	if ($endhour == "0") {
-		$error++;
-		setEventMessages($langs->trans("ErrorEndHourIsNull"), $hookmanager->errors, 'errors');
-	}
-
-	$dateEndTimestamp = dol_mktime($endhour, 0, 0, $endmonth, $endday, $endyear);
-
-	// check hours
-	if ($starthour > $endhour) {
-		if ($dateStartTimestamp === $dateEndTimestamp) {
-			$error++;
-			setEventMessages($langs->trans("ErrorEndTimeMustBeGreaterThanStartTime"), $hookmanager->errors, 'errors');
-		}
-	}
-
-	// check date
-	if (($dateStartTimestamp != "") && ($dateStartTimestamp >= $dateEndTimestamp)) {
-		$error++;
-		setEventMessages($langs->trans("ErrorIncoherentDates"), $hookmanager->errors, 'errors');
-	}
-
-
-		// Actions cancel, add, update, update_extras, confirm_validate, confirm_delete, confirm_deleteline, confirm_clone, confirm_close, confirm_setdraft, confirm_reopen
-		include DOL_DOCUMENT_ROOT.'/core/actions_addupdatedelete.inc.php';
+	// Actions cancel, add, update, update_extras, confirm_validate, confirm_delete, confirm_deleteline, confirm_clone, confirm_close, confirm_setdraft, confirm_reopen
+	include DOL_DOCUMENT_ROOT.'/core/actions_addupdatedelete.inc.php';
 
 	// Actions when linking object each other
 	include DOL_DOCUMENT_ROOT.'/core/actions_dellink.inc.php';
@@ -195,10 +148,10 @@ if (empty($reshook)) {
 	include DOL_DOCUMENT_ROOT.'/core/actions_builddoc.inc.php';
 
 	if ($action == 'set_thirdparty' && $permissiontoadd) {
-		$object->setValueFrom('fk_soc', GETPOSTINT('fk_soc'), '', '', 'date', '', $user, $triggermodname);
+		$object->setValueFrom('fk_soc', GETPOST('fk_soc', 'int'), '', '', 'date', '', $user, $triggermodname);
 	}
 	if ($action == 'classin' && $permissiontoadd) {
-		$object->setProject(GETPOSTINT('projectid'));
+		$object->setProject(GETPOST('projectid', 'int'));
 	}
 
 	// Actions to send emails
@@ -248,14 +201,11 @@ if ($action == 'create') {
 		exit;
 	}
 
-	print load_fiche_titre($langs->trans("NewAvailabilities"), '', '', 'object_'.$object->picto);
+	print load_fiche_titre($langs->trans("NewObject", $langs->transnoentitiesnoconv("Availabilities")), '', 'object_'.$object->picto);
+
 	print '<form method="POST" action="'.$_SERVER["PHP_SELF"].'">';
 	print '<input type="hidden" name="token" value="'.newToken().'">';
-	if ($error != 0) {
-		print '<input type="hidden" name="action" value="create">';
-	} else {
-		print '<input type="hidden" name="action" value="add">';
-	}
+	print '<input type="hidden" name="action" value="add">';
 	if ($backtopage) {
 		print '<input type="hidden" name="backtopage" value="'.$backtopage.'">';
 	}
@@ -264,6 +214,9 @@ if ($action == 'create') {
 	}
 
 	print dol_get_fiche_head(array(), '');
+
+	// Set some default values
+	//if (! GETPOSTISSET('fieldname')) $_POST['fieldname'] = 'myvalue';
 
 	print '<table class="border centpercent tableforfieldcreate">'."\n";
 
@@ -458,7 +411,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		// Show object lines
 		$result = $object->getLinesArray();
 
-		print '	<form name="addproduct" id="addproduct" action="'.$_SERVER["PHP_SELF"].'?id='.$object->id.(($action != 'editline') ? '' : '#line_'.GETPOSTINT('lineid')).'" method="POST">
+		print '	<form name="addproduct" id="addproduct" action="'.$_SERVER["PHP_SELF"].'?id='.$object->id.(($action != 'editline') ? '' : '#line_'.GETPOST('lineid', 'int')).'" method="POST">
 		<input type="hidden" name="token" value="' . newToken().'">
 		<input type="hidden" name="action" value="' . (($action != 'editline') ? 'addline' : 'updateline').'">
 		<input type="hidden" name="mode" value="">
@@ -476,7 +429,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		}
 
 		if (!empty($object->lines)) {
-			$object->printObjectLines($action, $mysoc, null, GETPOSTINT('lineid'), 1);
+			$object->printObjectLines($action, $mysoc, null, GETPOST('lineid', 'int'), 1);
 		}
 
 		// Form to add new line

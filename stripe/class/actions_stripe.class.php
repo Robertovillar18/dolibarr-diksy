@@ -2,7 +2,6 @@
 /* Copyright (C) 2009-2016 Regis Houssin  <regis.houssin@inodbox.com>
  * Copyright (C) 2011      Herve Prot     <herve.prot@symeos.com>
  * Copyright (C) 2014      Philippe Grand <philippe.grand@atoo-net.com>
- * Copyright (C) 2024		MDW							<mdeweerd@users.noreply.github.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -58,10 +57,10 @@ class ActionsStripeconnect extends CommonHookActions
 	/**
 	 * formObjectOptions
 	 *
-	 * @param	array			$parameters		Parameters
-	 * @param	CommonObject	$object			Object
-	 * @param	string			$action			Action
-	 * @return int
+	 * @param	array	$parameters		Parameters
+	 * @param	Object	$object			Object
+	 * @param	string	$action			Action
+	 * @return bool
 	 */
 	public function formObjectOptions($parameters, &$object, &$action)
 	{
@@ -97,7 +96,7 @@ class ActionsStripeconnect extends CommonHookActions
 				$this->resprints .= $langs->trans("NoStripe");
 			}
 			$this->resprints .= '</td></tr>';
-		} elseif ($object instanceof CommonObject && $object->element == 'member') {
+		} elseif (is_object($object) && $object->element == 'member') {
 			$this->resprints .= '<tr><td>';
 			$this->resprints .= '<table width="100%" class="nobordernopadding"><tr><td>';
 			$this->resprints .= $langs->trans('StripeCustomer');
@@ -131,7 +130,7 @@ class ActionsStripeconnect extends CommonHookActions
 				$this->resprints .= $langs->trans("NoStripe");
 			}
 			$this->resprints .= '</td></tr>';
-		} elseif ($object instanceof CommonObject && $object->element == 'adherent_type') {
+		} elseif (is_object($object) && $object->element == 'adherent_type') {
 			$this->resprints .= '<tr><td>';
 			$this->resprints .= '<table width="100%" class="nobordernopadding"><tr><td>';
 			$this->resprints .= $langs->trans('PlanStripe');
@@ -166,7 +165,7 @@ class ActionsStripeconnect extends CommonHookActions
 		global $conf, $langs;
 
 		if (is_object($object) && $object->element == 'facture') {
-			// Verify if the invoice has payments
+			// On verifie si la facture a des paiements
 			$sql = 'SELECT pf.amount';
 			$sql .= ' FROM '.MAIN_DB_PREFIX.'paiement_facture as pf';
 			$sql .= ' WHERE pf.fk_facture = '.((int) $object->id);

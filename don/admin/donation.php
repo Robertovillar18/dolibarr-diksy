@@ -5,7 +5,6 @@
  * Copyright (C) 2015-2020  Alexandre Spangaro		<aspangaro@open-dsi.fr>
  * Copyright (C) 2015       Benoit Bruchard			<benoitb21@gmail.com>
  * Copyright (C) 2019       Thibault FOUCART		<support@ptibogxiv.net>
- * Copyright (C) 2024		MDW							<mdeweerd@users.noreply.github.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -63,10 +62,10 @@ if ($action == 'specimen') {
 	// Search template files
 	$dir = DOL_DOCUMENT_ROOT."/core/modules/dons/";
 	$file = $modele.".modules.php";
-	if ($modele !== '' && file_exists($dir.$file)) {
+	if (file_exists($dir.$file)) {
+		$classname = $modele;
 		require_once $dir.$file;
 
-		$classname = (string) $modele;
 		$obj = new $classname($db);
 
 		if ($obj->write_file($don, $langs) > 0) {
@@ -174,9 +173,7 @@ if (isModEnabled('accounting')) {
 	$formaccounting = new FormAccounting($db);
 }
 
-$help_url = '';
-llxHeader('', $langs->trans("DonationsSetup"), $help_url, '', 0, 0, '', '', '', 'mod-donation page-admin');
-
+llxHeader('', $langs->trans("DonationsSetup"), 'DonConfiguration');
 $linkback = '<a href="'.DOL_URL_ROOT.'/admin/modules.php?restore_lastsearch_values=1">'.$langs->trans("BackToModuleList").'</a>';
 print load_fiche_titre($langs->trans("DonationsSetup"), $linkback, 'title_setup');
 
@@ -200,9 +197,7 @@ if ($resql) {
 	$num_rows = $db->num_rows($resql);
 	while ($i < $num_rows) {
 		$array = $db->fetch_array($resql);
-		if (is_array($array)) {
-			array_push($def, $array[0]);
-		}
+		array_push($def, $array[0]);
 		$i++;
 	}
 } else {

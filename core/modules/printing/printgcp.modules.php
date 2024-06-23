@@ -28,6 +28,7 @@ require_once DOL_DOCUMENT_ROOT.'/includes/OAuth/bootstrap.php';
 
 use OAuth\Common\Storage\DoliStorage;
 use OAuth\Common\Consumer\Credentials;
+use OAuth\OAuth2\Service\Google;
 
 /**
  *     Class to provide printing with Google Cloud Print
@@ -90,7 +91,7 @@ class printing_printgcp extends PrintingDriver
 	const PRINTERS_SEARCH_URL = 'https://www.google.com/cloudprint/search';
 	const PRINTERS_GET_JOBS = 'https://www.google.com/cloudprint/jobs';
 	const PRINT_URL = 'https://www.google.com/cloudprint/submit';
-
+	const LANGFILE = 'printgcp';
 
 	/**
 	 *  Constructor
@@ -232,7 +233,7 @@ class printing_printgcp extends PrintingDriver
 			$html .= '<td>'.$printer_det['status'].'</td>';
 			$html .= '<td>'.$langs->trans('STATE_'.$printer_det['connectionStatus']).'</td>';
 			$html .= '<td>'.$langs->trans('TYPE_'.$printer_det['type']).'</td>';
-			// Default
+			// Defaut
 			$html .= '<td class="center">';
 			if ($conf->global->PRINTING_GCP_DEFAULT == $printer_det['id']) {
 				$html .= img_picto($langs->trans("Default"), 'on');
@@ -307,7 +308,7 @@ class printing_printgcp extends PrintingDriver
 		$printers = $responsedata['printers'];
 		// Check if we have printers?
 		if (is_array($printers) && count($printers) == 0) {
-			// We don't have printers so return blank array
+			// We dont have printers so return blank array
 			$ret['available'] = array();
 		} else {
 			// We have printers so returns printers as array
@@ -347,7 +348,7 @@ class printing_printgcp extends PrintingDriver
 				$printer_id = $obj->printer_id;
 			} else {
 				if (getDolGlobalString('PRINTING_GCP_DEFAULT')) {
-					$printer_id = getDolGlobalString('PRINTING_GCP_DEFAULT');
+					$printer_id = $conf->global->PRINTING_GCP_DEFAULT;
 				} else {
 					$this->errors[] = 'NoDefaultPrinterDefined';
 					$error++;

@@ -6,7 +6,6 @@
  * Copyright (C) 2019       Nicolas ZABOURI         <info@inovea-conseil.com>
  * Copyright (C) 2021-2023	Frédéric France			<frederic.france@netlgic.fr>
  * Copyright (C) 2021-2023  Waël Almoman            <info@almoman.com>
- * Copyright (C) 2024		MDW							<mdeweerd@users.noreply.github.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -54,11 +53,11 @@ $result = restrictedArea($user, 'adherent');
  * Actions
  */
 
-$userid = GETPOSTINT('userid');
+$userid = GETPOST('userid', 'int');
 if (GETPOST('addbox')) {
 	// Add box (when submit is done from a form when ajax disabled)
 	require_once DOL_DOCUMENT_ROOT.'/core/class/infobox.class.php';
-	$zone = GETPOSTINT('areacode');
+	$zone = GETPOST('areacode', 'int');
 	$boxorder = GETPOST('boxorder', 'aZ09');
 	$boxorder .= GETPOST('boxcombo', 'aZ09');
 	$result = InfoBox::saveboxorder($db, $zone, $boxorder, $userid);
@@ -91,13 +90,13 @@ print load_fiche_titre($langs->trans("MembersArea"), $resultboxes['selectboxlist
 
 $boxgraph = '';
 if ($conf->use_javascript_ajax) {
-	$year = idate('Y');
+	$year = date('Y');
 	$numberyears = getDolGlobalInt("MAIN_NB_OF_YEAR_IN_MEMBERSHIP_WIDGET_GRAPH");
 
-	$boxgraph .= '<div class="div-table-responsive-no-min">';
-	$boxgraph .= '<table class="noborder nohover centpercent">';
-	$boxgraph .= '<tr class="liste_titre"><th colspan="2">'.$langs->trans("Statistics").($numberyears ? ' ('.($year - $numberyears).' - '.$year.')' : '').'</th></tr>';
-	$boxgraph .= '<tr><td class="center" colspan="2">';
+	$boxgraph .='<div class="div-table-responsive-no-min">';
+	$boxgraph .='<table class="noborder nohover centpercent">';
+	$boxgraph .='<tr class="liste_titre"><th colspan="2">'.$langs->trans("Statistics").($numberyears ? ' ('.($year-$numberyears).' - '.$year.')' : '').'</th></tr>';
+	$boxgraph .='<tr><td class="center" colspan="2">';
 
 	require_once DOL_DOCUMENT_ROOT.'/adherents/class/adherentstats.class.php';
 	$stats = new AdherentStats($db, 0, $userid);
@@ -134,7 +133,7 @@ if ($conf->use_javascript_ajax) {
 	$dolgraph->SetType(array('pie'));
 	$dolgraph->setHeight('200');
 	$dolgraph->draw('idgraphstatus');
-	$boxgraph .= $dolgraph->show($total ? 0 : 1);
+	$boxgraph .=$dolgraph->show($total ? 0 : 1);
 
 	$boxgraph .= '</td></tr>';
 	$boxgraph .= '<tr class="liste_total"><td>'.$langs->trans("Total").'</td><td class="right">';

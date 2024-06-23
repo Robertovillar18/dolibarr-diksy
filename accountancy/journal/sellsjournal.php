@@ -4,12 +4,11 @@
  * Copyright (C) 2011       Juanjo Menent           <jmenent@2byte.es>
  * Copyright (C) 2012       Regis Houssin           <regis.houssin@inodbox.com>
  * Copyright (C) 2013       Christophe Battarel     <christophe.battarel@altairis.fr>
- * Copyright (C) 2013-2024  Alexandre Spangaro      <alexandre@inovea-conseil.com>
+ * Copyright (C) 2013-2023  Alexandre Spangaro      <aspangaro@easya.solutions>
  * Copyright (C) 2013-2016  Florian Henry           <florian.henry@open-concept.pro>
  * Copyright (C) 2013-2016  Olivier Geffroy         <jeff@jeffinfo.com>
  * Copyright (C) 2014       Raphaël Doursenaud      <rdoursenaud@gpcsolutions.fr>
  * Copyright (C) 2018-2021  Frédéric France         <frederic.france@netlogic.fr>
- * Copyright (C) 2024       MDW                     <mdeweerd@users.noreply.github.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -45,7 +44,7 @@ require_once DOL_DOCUMENT_ROOT.'/accountancy/class/bookkeeping.class.php';
 // Load translation files required by the page
 $langs->loadLangs(array("commercial", "compta", "bills", "other", "accountancy", "errors"));
 
-$id_journal = GETPOSTINT('id_journal');
+$id_journal = GETPOST('id_journal', 'int');
 $action = GETPOST('action', 'aZ09');
 
 $date_startmonth = GETPOST('date_startmonth');
@@ -71,7 +70,7 @@ if (!isModEnabled('accounting')) {
 if ($user->socid > 0) {
 	accessforbidden();
 }
-if (!$user->hasRight('accounting', 'bind', 'write')) {
+if (!$user->hasRight('accounting', 'mouvements', 'lire')) {
 	accessforbidden();
 }
 
@@ -86,7 +85,7 @@ $reshook = $hookmanager->executeHooks('doActions', $parameters, $user, $action);
 
 $accountingaccount = new AccountingAccount($db);
 
-// Get information of journal
+// Get informations of journal
 $accountingjournalstatic = new AccountingJournal($db);
 $accountingjournalstatic->fetch($id_journal);
 $journal = $accountingjournalstatic->code;
@@ -110,7 +109,7 @@ if (empty($date_endmonth)) {
 	$pastmonth = $dates['pastmonth'];
 }
 if (getDolGlobalString('ACCOUNTANCY_JOURNAL_USE_CURRENT_MONTH')) {
-	$pastmonth += 1;
+	$pastmonth+=1;
 }
 
 if (!GETPOSTISSET('date_startmonth') && (empty($date_start) || empty($date_end))) { // We define date_start and date_end, only if we did not submit the form
@@ -305,18 +304,12 @@ if ($result) {
 
 		$tabttc[$obj->rowid][$compta_soc] += $total_ttc;
 		$tabht[$obj->rowid][$compta_prod] += $obj->total_ht * $situation_ratio;
-		$tva_npr = ((($obj->info_bits & 1) == 1) ? 1 : 0);
+		$tva_npr = (($obj->info_bits & 1 == 1) ? 1 : 0);
 		if (!$tva_npr) { // We ignore line if VAT is a NPR
-			if (getDolGlobalInt('INVOICE_USE_SITUATION') == 2) {
-				$tabtva[$obj->rowid][$compta_tva] += $obj->total_tva;
-				$tablocaltax1[$obj->rowid][$compta_localtax1] += $obj->total_localtax1;
-				$tablocaltax2[$obj->rowid][$compta_localtax2] += $obj->total_localtax2;
-			} else {
-				$tabtva[$obj->rowid][$compta_tva] += $obj->total_tva * $situation_ratio;
-				$tablocaltax1[$obj->rowid][$compta_localtax1] += $obj->total_localtax1 * $situation_ratio;
-				$tablocaltax2[$obj->rowid][$compta_localtax2] += $obj->total_localtax2 * $situation_ratio;
-			}
+			$tabtva[$obj->rowid][$compta_tva] += $obj->total_tva * $situation_ratio;
 		}
+		$tablocaltax1[$obj->rowid][$compta_localtax1] += $obj->total_localtax1 * $situation_ratio;
+		$tablocaltax2[$obj->rowid][$compta_localtax2] += $obj->total_localtax2 * $situation_ratio;
 
 		$compta_revenuestamp = 'NotDefined';
 		if (!empty($revenuestamp)) {
@@ -353,13 +346,6 @@ if ($result) {
 		);
 
 		$i++;
-
-		// Check for too many lines.
-		if ($i > getDolGlobalInt('ACCOUNTANCY_MAX_TOO_MANY_LINES_TO_PROCESS', 10000)) {
-			$error++;
-			setEventMessages("ErrorTooManyLinesToProcessPleaseUseAMoreSelectiveFilter", null, 'errors');
-			break;
-		}
 	}
 
 	// After the loop on each line
@@ -367,6 +353,11 @@ if ($result) {
 	dol_print_error($db);
 }
 
+// Check for too many invoices first.
+if (count($tabfac) > 10000) {
+	$error++;
+	setEventMessages("TooManyInvoicesToProcessPleaseUseAMoreSelectiveFilter", null, 'errors');
+}
 
 $errorforinvoice = array();
 
@@ -401,7 +392,7 @@ WHERE
     fd.product_type <= 2
     AND fd.fk_code_ventilation <= 0
     AND fd.total_ttc <> 0
-	AND fk_facture IN (".$db->sanitize(implode(",", array_keys($tabfac))).")
+	AND fk_facture IN (".$db->sanitize(join(",", array_keys($tabfac))).")
 GROUP BY fk_facture
 ";
 $resql = $db->query($sql);
@@ -424,11 +415,12 @@ if ($action == 'writebookkeeping' && !$error) {
 
 	$companystatic = new Societe($db);
 	$invoicestatic = new Facture($db);
-
 	$accountingaccountcustomer = new AccountingAccount($db);
+
 	$accountingaccountcustomer->fetch(null, getDolGlobalString('ACCOUNTING_ACCOUNT_CUSTOMER'), true);
 
 	$accountingaccountcustomerwarranty = new AccountingAccount($db);
+
 	$accountingaccountcustomerwarranty->fetch(null, getDolGlobalString('ACCOUNTING_ACCOUNT_CUSTOMER_RETAINED_WARRANTY'), true);
 
 	foreach ($tabfac as $key => $val) {		// Loop on each invoice
@@ -437,7 +429,7 @@ if ($action == 'writebookkeeping' && !$error) {
 		$totalcredit = 0;
 		$totaldebit = 0;
 
-		$db->begin();		// We accept transaction into loop so if we hang, we can continue transfer from last error
+		$db->begin();
 
 		$companystatic->id = $tabcompany[$key]['id'];
 		$companystatic->name = $tabcompany[$key]['name'];
@@ -470,15 +462,15 @@ if ($action == 'writebookkeeping' && !$error) {
 		}
 
 		// Error if some lines are not binded/ready to be journalized
-		if (isset($errorforinvoice[$key]) && $errorforinvoice[$key] == 'somelinesarenotbound') {
+		if ($errorforinvoice[$key] == 'somelinesarenotbound') {
 			$error++;
 			$errorforline++;
 			setEventMessages($langs->trans('ErrorInvoiceContainsLinesNotYetBounded', $val['ref']), null, 'errors');
 		}
 
 		// Warranty
-		if (!$errorforline && getDolGlobalString('INVOICE_USE_RETAINED_WARRANTY')) {
-			if (isset($tabwaranty[$key]) && is_array($tabwarranty[$key])) {
+		if (!$errorforline && getDolGlobalString('INVOICE_USE_RETAINED_WARRANTY') && isset($tabwarranty[$key])) {
+			if (is_array($tabwarranty[$key])) {
 				foreach ($tabwarranty[$key] as $k => $mt) {
 					$bookkeeping = new BookKeeping($db);
 					$bookkeeping->doc_date = $val["date"];
@@ -586,18 +578,11 @@ if ($action == 'writebookkeeping' && !$error) {
 		// Product / Service
 		if (!$errorforline) {
 			foreach ($tabht[$key] as $k => $mt) {
-				if (empty($conf->cache['accountingaccountincurrententity'][$k])) {
-					$accountingaccount = new AccountingAccount($db);
-					$accountingaccount->fetch(0, $k, true);
-					$conf->cache['accountingaccountincurrententity'][$k] = $accountingaccount;
-				} else {
-					$accountingaccount = $conf->cache['accountingaccountincurrententity'][$k];
-				}
-
+				$resultfetch = $accountingaccount->fetch(null, $k, true);	// TODO Use a cache
 				$label_account = $accountingaccount->label;
 
 				// get compte id and label
-				if ($accountingaccount->id > 0) {
+				if ($resultfetch > 0) {
 					$bookkeeping = new BookKeeping($db);
 					$bookkeeping->doc_date = $val["date"];
 					$bookkeeping->date_lim_reglement = $val["datereg"];
@@ -690,7 +675,7 @@ if ($action == 'writebookkeeping' && !$error) {
 
 
 						$bookkeeping->label_operation = dol_trunc($companystatic->name, 16).' - '.$invoicestatic->ref;
-						$tmpvatrate = (empty($def_tva[$key][$k]) ? (empty($arrayofvat[$key][$k]) ? '' : $arrayofvat[$key][$k]) : implode(', ', $def_tva[$key][$k]));
+						$tmpvatrate = (empty($def_tva[$key][$k]) ? (empty($arrayofvat[$key][$k]) ? '' : $arrayofvat[$key][$k]) : join(', ', $def_tva[$key][$k]));
 						$bookkeeping->label_operation .= ' - '.$langs->trans("Taxes").' '.$tmpvatrate.' %';
 						$bookkeeping->label_operation .= ($numtax ? ' - Localtax '.$numtax : '');
 
@@ -959,8 +944,8 @@ if ($action == 'exportcsv' && !$error) {		// ISO and not UTF8 !
 					print '"'.length_accountg(html_entity_decode($k)).'"'.$sep;
 					print '"'.length_accountg(html_entity_decode($k)).'"'.$sep;
 					print '""'.$sep;
-					print '"'.$langs->trans("VAT").' - '.implode(', ', $def_tva[$key][$k]).' %"'.$sep;
-					print '"'.mb_convert_encoding(dol_trunc($companystatic->name, 16), 'ISO-8859-1').' - '.$invoicestatic->ref.' - '.$langs->trans("VAT").implode(', ', $def_tva[$key][$k]).' %'.($numtax ? ' - Localtax '.$numtax : '').'"'.$sep;
+					print '"'.$langs->trans("VAT").' - '.join(', ', $def_tva[$key][$k]).' %"'.$sep;
+					print '"'.mb_convert_encoding(dol_trunc($companystatic->name, 16), 'ISO-8859-1').' - '.$invoicestatic->ref.' - '.$langs->trans("VAT").join(', ', $def_tva[$key][$k]).' %'.($numtax ? ' - Localtax '.$numtax : '').'"'.$sep;
 					print '"'.($mt < 0 ? price(-$mt) : '').'"'.$sep;
 					print '"'.($mt >= 0 ? price($mt) : '').'"'.$sep;
 					print '"'.$journal.'"';
@@ -996,8 +981,8 @@ if ($action == 'exportcsv' && !$error) {		// ISO and not UTF8 !
 
 if (empty($action) || $action == 'view') {
 	$title = $langs->trans("GenerationOfAccountingEntries").' - '.$accountingjournalstatic->getNomUrl(0, 2, 1, '', 1);
-	$help_url ='EN:Module_Double_Entry_Accounting|FR:Module_Comptabilit&eacute;_en_Partie_Double#G&eacute;n&eacute;ration_des_&eacute;critures_en_comptabilit&eacute;';
-	llxHeader('', dol_string_nohtmltag($title), $help_url, '', 0, 0, '', '', '', 'mod-accountancy accountancy-generation page-sellsjournal');
+
+	llxHeader('', dol_string_nohtmltag($title));
 
 	$nom = $title;
 	$nomlink = '';
@@ -1011,7 +996,7 @@ if (empty($action) || $action == 'view') {
 		$description .= $langs->trans("DepositsAreIncluded");
 	}
 
-	$listofchoices = array('notyet' => $langs->trans("NotYetInGeneralLedger"), 'already' => $langs->trans("AlreadyInGeneralLedger"));
+	$listofchoices = array('notyet'=>$langs->trans("NotYetInGeneralLedger"), 'already'=>$langs->trans("AlreadyInGeneralLedger"));
 	$period = $form->selectDate($date_start ? $date_start : -1, 'date_start', 0, 0, 0, '', 1, 0).' - '.$form->selectDate($date_end ? $date_end : -1, 'date_end', 0, 0, 0, '', 1, 0);
 	$period .= ' -  '.$langs->trans("JournalizationInLedgerStatus").' '.$form->selectarray('in_bookkeeping', $listofchoices, $in_bookkeeping, 1);
 
@@ -1147,7 +1132,7 @@ if (empty($action) || $action == 'view') {
 			$i++;
 			continue;
 		}
-		if (isset($errorforinvoice[$key]) && $errorforinvoice[$key] == 'somelinesarenotbound') {
+		if ($errorforinvoice[$key] == 'somelinesarenotbound') {
 			print '<tr class="oddeven">';
 			print "<!-- Some lines are not bound -->";
 			print "<td>".$date."</td>";
@@ -1234,13 +1219,8 @@ if (empty($action) || $action == 'view') {
 
 		// Product / Service
 		foreach ($tabht[$key] as $k => $mt) {
-			if (empty($conf->cache['accountingaccountincurrententity'][$k])) {
-				$accountingaccount = new AccountingAccount($db);
-				$accountingaccount->fetch(0, $k, true);
-				$conf->cache['accountingaccountincurrententity'][$k] = $accountingaccount;
-			} else {
-				$accountingaccount = $conf->cache['accountingaccountincurrententity'][$k];
-			}
+			$accountingaccount = new AccountingAccount($db);
+			$accountingaccount->fetch(null, $k, true);
 
 			print '<tr class="oddeven">';
 			print "<!-- Product -->";
@@ -1307,8 +1287,8 @@ if (empty($action) || $action == 'view') {
 					print '</td>';
 					print "<td>".$companystatic->getNomUrl(0, 'customer', 16).' - '.$invoicestatic->ref;
 					// $def_tva is array[invoiceid][accountancy_code_sell_of_vat_rate_found][vatrate]=vatrate
-					//var_dump($arrayofvat[$key]); //var_dump($key); //var_dump($k);
-					$tmpvatrate = (empty($def_tva[$key][$k]) ? (empty($arrayofvat[$key][$k]) ? '' : $arrayofvat[$key][$k]) : implode(', ', $def_tva[$key][$k]));
+					//var_dump($arrayofvat[$key]); var_dump($key); var_dump($k);
+					$tmpvatrate = (empty($def_tva[$key][$k]) ? (empty($arrayofvat[$key][$k]) ? '' : $arrayofvat[$key][$k]) : join(', ', $def_tva[$key][$k]));
 					print ' - '.$langs->trans("Taxes").' '.$tmpvatrate.' %';
 					print($numtax ? ' - Localtax '.$numtax : '');
 					print "</td>";

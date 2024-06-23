@@ -18,7 +18,7 @@
 // Protection to avoid direct call of template
 if (empty($conf) || !is_object($conf)) {
 	print "Error, template page can't be called as URL";
-	exit(1);
+	exit;
 }
 
 print '<!-- linesalesrepresentative.tpl.php -->';
@@ -41,8 +41,7 @@ if ($action == 'editsalesrepresentatives') {
 	print '<input type="hidden" name="action" value="set_salesrepresentatives" />';
 	print '<input type="hidden" name="token" value="'.newToken().'" />';
 	print '<input type="hidden" name="socid" value="'.$object->id.'" />';
-	$userlist = $form->select_dolusers('', '', 0, null, 0, '', '', 'default', 0, 0, '', 0, '', '', 0, 1);
-
+	$userlist = $form->select_dolusers('', '', 0, null, 0, '', '', 0, 0, 0, '', 0, '', '', 0, 1);
 	$arrayselected = GETPOST('commercial', 'array');
 	if (empty($arrayselected)) {
 		$arrayselected = $object->getSalesRepresentatives($user, 1);
@@ -52,7 +51,6 @@ if ($action == 'editsalesrepresentatives') {
 	print '</form>';
 } else {
 	$listsalesrepresentatives = $object->getSalesRepresentatives($user);
-
 	$nbofsalesrepresentative = count($listsalesrepresentatives);
 	if ($nbofsalesrepresentative > 0 && is_array($listsalesrepresentatives)) {
 		$userstatic = new User($db);

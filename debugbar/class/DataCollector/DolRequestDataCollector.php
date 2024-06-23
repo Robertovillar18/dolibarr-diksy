@@ -32,7 +32,7 @@ class DolRequestDataCollector extends RequestDataCollector
 	/**
 	 * Collects the data from the collectors
 	 *
-	 * @return array	Array of collected data
+	 * @return array
 	 */
 	public function collect()
 	{
@@ -68,7 +68,7 @@ class DolRequestDataCollector extends RequestDataCollector
 	/**
 	 *	Return widget settings
 	 *
-	 *  @return array	Array
+	 *  @return array
 	 */
 	public function getWidgets()
 	{

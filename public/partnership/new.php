@@ -4,10 +4,9 @@
  * Copyright (C) 2006-2013  Laurent Destailleur     <eldy@users.sourceforge.net>
  * Copyright (C) 2012       Regis Houssin           <regis.houssin@inodbox.com>
  * Copyright (C) 2012       J. Fernando Lagrange    <fernando@demo-tic.org>
- * Copyright (C) 2018-2024  Frédéric France         <frederic.france@free.fr>
+ * Copyright (C) 2018-2023  Frédéric France         <frederic.france@netlogic.fr>
  * Copyright (C) 2018       Alexandre Spangaro      <aspangaro@open-dsi.fr>
  * Copyright (C) 2021       Waël Almoman            <info@almoman.com>
- * Copyright (C) 2024		MDW							<mdeweerd@users.noreply.github.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -45,7 +44,7 @@ if (!defined('NOBROWSERNOTIF')) {
 
 // For MultiCompany module.
 // Do not use GETPOST here, function is not defined and define must be done before including main.inc.php
-// Because 2 entities can have the same ref.
+// TODO This should be useless. Because entity must be retrieve from object ref and not from url.
 $entity = (!empty($_GET['entity']) ? (int) $_GET['entity'] : (!empty($_POST['entity']) ? (int) $_POST['entity'] : 1));
 if (is_numeric($entity)) {
 	define("DOLENTITY", $entity);
@@ -186,7 +185,7 @@ if (empty($reshook) && $action == 'add') {
 
 	$db->begin();
 
-	if (GETPOSTINT('partnershiptype') <= 0) {
+	if (GETPOST('partnershiptype', 'int') <= 0) {
 		$error++;
 		$errmsg .= $langs->trans("ErrorFieldRequired", $langs->transnoentitiesnoconv("Type"))."<br>\n";
 	}
@@ -229,7 +228,7 @@ if (empty($reshook) && $action == 'add') {
 		$partnership->date_creation 		 = dol_now();
 		$partnership->date_partnership_start = dol_now();
 		$partnership->fk_user_creat          = 0;
-		$partnership->fk_type                = GETPOSTINT('partnershiptype');
+		$partnership->fk_type                = GETPOST('partnershiptype', 'int');
 		$partnership->url                    = GETPOST('url');
 		//$partnership->typeid               = $conf->global->PARTNERSHIP_NEWFORM_FORCETYPE ? $conf->global->PARTNERSHIP_NEWFORM_FORCETYPE : GETPOST('typeid', 'int');
 		$partnership->ip = getUserRemoteIP();
@@ -273,14 +272,14 @@ if (empty($reshook) && $action == 'add') {
 				$company->town        = GETPOST('town');
 				$company->email       = GETPOST('email');
 				$company->url         = GETPOST('url');
-				$company->country_id  = GETPOSTINT('country_id');
-				$company->state_id    = GETPOSTINT('state_id');
+				$company->country_id  = GETPOST('country_id', 'int');
+				$company->state_id    = GETPOST('state_id', 'int');
 				$company->name_alias  = dolGetFirstLastname(GETPOST('firstname'), GETPOST('lastname'));
 
-				$resultat = $company->create($user);
+				$resultat=$company->create($user);
 				if ($resultat < 0) {
 					$error++;
-					$errmsg .= implode('<br>', $company->errors);
+					$errmsg .= join('<br>', $company->errors);
 				}
 
 				$partnership->fk_soc = $company->id;
@@ -301,7 +300,7 @@ if (empty($reshook) && $action == 'add') {
 				$company->town = GETPOST('town');
 			}
 			if (empty($company->country_id)) {
-				$company->country_id = GETPOSTINT('country_id');
+				$company->country_id = GETPOST('country_id', 'int');
 			}
 			if (empty($company->email)) {
 				$company->email = GETPOST('email');
@@ -310,16 +309,13 @@ if (empty($reshook) && $action == 'add') {
 				$company->url = GETPOST('url');
 			}
 			if (empty($company->state_id)) {
-				$company->state_id = GETPOSTINT('state_id');
+				$company->state_id = GETPOST('state_id', 'int');
 			}
 			if (empty($company->name_alias)) {
 				$company->name_alias = dolGetFirstLastname(GETPOST('firstname'), GETPOST('lastname'));
 			}
 
-			$res = $company->update(0, $user);
-			if ($res < 0) {
-				setEventMessages($company->error, $company->errors, 'errors');
-			}
+			$company->update(0);
 		}
 
 		// Fill array 'array_options' with data from add form
@@ -426,7 +422,7 @@ if (empty($reshook) && $action == 'add') {
 				if (!empty($backtopage)) {
 					$urlback = $backtopage;
 				} elseif (getDolGlobalString('PARTNERSHIP_URL_REDIRECT_SUBSCRIPTION')) {
-					$urlback = getDolGlobalString('PARTNERSHIP_URL_REDIRECT_SUBSCRIPTION');
+					$urlback = $conf->global->PARTNERSHIP_URL_REDIRECT_SUBSCRIPTION;
 					// TODO Make replacement of __AMOUNT__, etc...
 				} else {
 					$urlback = $_SERVER["PHP_SELF"]."?action=added&token=".newToken();
@@ -495,7 +491,7 @@ if (empty($reshook) && $action == 'add') {
 							}
 						}
 					} else {
-						dol_print_error(null, "Autosubscribe form is setup to ask an online payment for a not managed online payment");
+						dol_print_error('', "Autosubscribe form is setup to ask an online payment for a not managed online payment");
 						exit;
 					}
 				}*/
@@ -506,7 +502,7 @@ if (empty($reshook) && $action == 'add') {
 				dol_syslog("partnership ".$partnership->ref." was created, we redirect to ".$urlback);
 			} else {
 				$error++;
-				$errmsg .= implode('<br>', $partnership->errors);
+				$errmsg .= join('<br>', $partnership->errors);
 			}
 		} else {
 			setEventMessage($errmsg, 'errors');
@@ -516,7 +512,7 @@ if (empty($reshook) && $action == 'add') {
 	if (!$error) {
 		$db->commit();
 
-		header("Location: ".$urlback);
+		Header("Location: ".$urlback);
 		exit;
 	} else {
 		$db->rollback();
@@ -562,7 +558,7 @@ print '<div id="divsubscribe">';
 
 print '<div class="center subscriptionformhelptext opacitymedium justify">';
 if (getDolGlobalString('PARTNERSHIP_NEWFORM_TEXT')) {
-	print $langs->trans(getDolGlobalString('PARTNERSHIP_NEWFORM_TEXT'))."<br>\n";
+	print $langs->trans($conf->global->PARTNERSHIP_NEWFORM_TEXT)."<br>\n";
 } else {
 	print $langs->trans("NewPartnershipRequestDesc", getDolGlobalString("MAIN_INFO_SOCIETE_MAIL"))."<br>\n";
 }
@@ -582,7 +578,7 @@ $messagemandatory = '<span class="">'.$langs->trans("FieldsWithAreMandatory", '*
 //print '<br><span class="opacitymedium small">'.$langs->trans("FieldsWithAreMandatory", '*').'</span><br>';
 //print $langs->trans("FieldsWithIsForPublic",'**').'<br>';
 
-print dol_get_fiche_head();
+print dol_get_fiche_head('');
 
 print '<script type="text/javascript">
 jQuery(document).ready(function () {
@@ -598,7 +594,7 @@ jQuery(document).ready(function () {
 
 // Type
 $partnershiptype = new PartnershipType($db);
-$listofpartnershipobj = $partnershiptype->fetchAll('', '', 1000, 0, '(active:=:1)');
+$listofpartnershipobj = $partnershiptype->fetchAll('', '', 1000, 0, array('active'=>1));
 $listofpartnership = array();
 foreach ($listofpartnershipobj as $partnershipobj) {
 	$listofpartnership[$partnershipobj->id] = $partnershipobj->label;
@@ -612,7 +608,7 @@ if (getDolGlobalString('PARTNERSHIP_NEWFORM_FORCETYPE')) {
 print '<table class="border" summary="form to subscribe" id="tablesubscribe">'."\n";
 if (!getDolGlobalString('PARTNERSHIP_NEWFORM_FORCETYPE')) {
 	print '<tr class="morphy"><td class="classfortooltip" title="'.dol_escape_htmltag($messagemandatory).'">'.$langs->trans('PartnershipType').' <span class="star">*</span></td><td>'."\n";
-	print $form->selectarray("partnershiptype", $listofpartnership, GETPOSTISSET('partnershiptype') ? GETPOSTINT('partnershiptype') : 'ifone', 1);
+	print $form->selectarray("partnershiptype", $listofpartnership, GETPOSTISSET('partnershiptype') ? GETPOST('partnershiptype', 'int') : 'ifone', 1);
 	print '</td></tr>'."\n";
 }
 // Company
@@ -653,7 +649,7 @@ print '</td></tr>';
 // Country
 print '<tr><td>'.$langs->trans('Country').'</td><td>';
 print img_picto('', 'country', 'class="pictofixedwidth"');
-$country_id = GETPOSTINT('country_id');
+$country_id = GETPOST('country_id', 'int');
 if (!$country_id && getDolGlobalString('PARTNERSHIP_NEWFORM_FORCECOUNTRYCODE')) {
 	$country_id = getCountry($conf->global->PARTNERSHIP_NEWFORM_FORCECOUNTRYCODE, 2, $db, $langs);
 }
@@ -682,8 +678,8 @@ if (!getDolGlobalString('SOCIETE_DISABLE_STATE')) {
 // Logo
 //print '<tr><td>'.$langs->trans("URLPhoto").'</td><td><input type="text" name="photo" class="minwidth150" value="'.dol_escape_htmltag(GETPOST('photo')).'"></td></tr>'."\n";
 // Other attributes
-$parameters['tdclass'] = 'titlefieldauto';
-$parameters['tpl_context'] = 'public';	// define template context to public
+$parameters['tdclass']='titlefieldauto';
+$parameters['tpl_context']='public';	// define template context to public
 include DOL_DOCUMENT_ROOT.'/core/tpl/extrafields_add.tpl.php';
 // Comments
 print '<tr>';

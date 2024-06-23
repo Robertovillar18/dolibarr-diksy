@@ -3,9 +3,8 @@
  * Copyright (C) 2004-2008  Laurent Destailleur     <eldy@users.sourceforge.net>
  * Copyright (C) 2011-2017  Alexandre Spangaro      <aspangaro@open-dsi.fr>
  * Copyright (C) 2018       Philippe Grand          <philippe.grand@atoo-net.com>
- * Copyright (C) 2018-2024  Frédéric France         <frederic.france@free.fr>
+ * Copyright (C) 2018       Frédéric France         <frederic.france@netlogic.fr>
  * Copyright (C) 2021       Gauthier VERDOL         <gauthier.verdol@atm-consulting.fr>
- * Copyright (C) 2024		MDW							<mdeweerd@users.noreply.github.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -56,19 +55,15 @@ class Tva extends CommonObject
 	 */
 	public $total;
 
+	public $tms;
 	public $datep;
 	public $datev;
 	public $amount;
 	public $type_payment;
-
-	/**
-	 * @var string      Payment reference
-	 *                  (Cheque or bank transfer reference. Can be "ABC123")
-	 */
 	public $num_payment;
 
 	/**
-	 * @var int     Creation date
+	 * @var DateTime
 	 */
 	public $datec;
 
@@ -86,6 +81,11 @@ class Tva extends CommonObject
 	 * @var int
 	 */
 	public $rappro;
+
+	/**
+	 * @var integer|string totalpaid
+	 */
+	public $totalpaid;
 
 	/**
 	 * @var string label
@@ -275,7 +275,7 @@ class Tva extends CommonObject
 	}
 
 	/**
-	 *    Tag TVA as paid completely
+	 *    Tag TVA as payed completely
 	 *
 	 *    @param    User    $user       Object user making change
 	 *    @return   int					Return integer <0 if KO, >0 if OK
@@ -295,7 +295,7 @@ class Tva extends CommonObject
 	}
 
 	/**
-	 *    Remove tag paid on TVA
+	 *    Remove tag payed on TVA
 	 *
 	 *    @param	User	$user       Object user making change
 	 *    @return	int					Return integer <0 if KO, >0 if OK
@@ -414,23 +414,21 @@ class Tva extends CommonObject
 	 *  Used to build previews or test instances.
 	 *	id must be 0 if object instance is a specimen.
 	 *
-	 *  @return	int
+	 *  @return	void
 	 */
 	public function initAsSpecimen()
 	{
 		$this->id = 0;
 
-		$this->tms = dol_now();
+		$this->tms = '';
 		$this->datep = '';
 		$this->datev = '';
 		$this->amount = '';
 		$this->label = '';
 		$this->note = '';
-		$this->fk_bank = 0;
-		$this->fk_user_creat = 0;
-		$this->fk_user_modif = 0;
-
-		return 1;
+		$this->fk_bank = '';
+		$this->fk_user_creat = '';
+		$this->fk_user_modif = '';
 	}
 
 
@@ -488,7 +486,7 @@ class Tva extends CommonObject
 
 	// phpcs:disable PEAR.NamingConventions.ValidFunctionName.ScopeNotCamelCaps
 	/**
-	 * 	VAT paid
+	 * 	VAT payed
 	 *
 	 *	@param	int		$year		Year
 	 *	@return	double				Amount
@@ -523,7 +521,7 @@ class Tva extends CommonObject
 
 	// phpcs:disable PEAR.NamingConventions.ValidFunctionName.ScopeNotCamelCaps
 	/**
-	 * 	Total of the VAT paid
+	 * 	Total of the VAT payed
 	 *
 	 *	@param	int		$year		Year
 	 *	@return	double				Amount
@@ -590,11 +588,11 @@ class Tva extends CommonObject
 			$this->error = $langs->trans("ErrorFieldRequired", $langs->transnoentities("Amount"));
 			return -4;
 		}
-		if (isModEnabled("bank") && (empty($this->accountid) || $this->accountid <= 0)) {
-			$this->error = $langs->trans("ErrorFieldRequired", $langs->transnoentities("BankAccount"));
+		if (isModEnabled("banque") && (empty($this->accountid) || $this->accountid <= 0)) {
+			$this->error = $langs->trans("ErrorFieldRequired", $langs->transnoentities("Account"));
 			return -5;
 		}
-		if (isModEnabled("bank") && (empty($this->type_payment) || $this->type_payment <= 0)) {
+		if (isModEnabled("banque") && (empty($this->type_payment) || $this->type_payment <= 0)) {
 			$this->error = $langs->trans("ErrorFieldRequired", $langs->transnoentities("PaymentMode"));
 			return -5;
 		}
@@ -641,7 +639,7 @@ class Tva extends CommonObject
 			$this->id = $this->db->last_insert_id(MAIN_DB_PREFIX."tva"); // TODO should be called 'payment_vat'
 
 			// Call trigger
-			//XXX: Should be done just before commit no ?
+			//XXX: Should be done just befor commit no ?
 			$result = $this->call_trigger('TVA_ADDPAYMENT', $user);
 			if ($result < 0) {
 				$this->id = 0;
@@ -651,7 +649,7 @@ class Tva extends CommonObject
 
 			if ($this->id > 0) {
 				$ok = 1;
-				if (isModEnabled("bank") && !empty($this->amount)) {
+				if (isModEnabled("banque") && !empty($this->amount)) {
 					// Insert into llx_bank
 					require_once DOL_DOCUMENT_ROOT.'/compta/bank/class/account.class.php';
 
@@ -662,9 +660,9 @@ class Tva extends CommonObject
 					}
 
 					if ($this->amount > 0) {
-						$bank_line_id = $acc->addline($this->datep, $this->type_payment, $this->label, -abs((float) $this->amount), $this->num_payment, '', $user);
+						$bank_line_id = $acc->addline($this->datep, $this->type_payment, $this->label, -abs($this->amount), $this->num_payment, '', $user);
 					} else {
-						$bank_line_id = $acc->addline($this->datep, $this->type_payment, $this->label, abs((float) $this->amount), $this->num_payment, '', $user);
+						$bank_line_id = $acc->addline($this->datep, $this->type_payment, $this->label, abs($this->amount), $this->num_payment, '', $user);
 					}
 
 					// Update fk_bank into llx_tva. So we know vat line used to generate bank transaction
@@ -824,7 +822,7 @@ class Tva extends CommonObject
 	}
 
 	/**
-	 *	Information of vat payment object
+	 *	Informations of vat payment object
 	 *
 	 *	@param	int		$id     Id of vat payment
 	 *	@return	void
@@ -859,7 +857,7 @@ class Tva extends CommonObject
 	 *  Return the label of the VAT status f object
 	 *
 	 *  @param	int		$mode       	0=long label, 1=short label, 2=Picto + short label, 3=Picto, 4=Picto + long label, 5=short label + picto, 6=Long label + picto
-	 *  @param  double	$alreadypaid	0=No payment already done, >0=Some payments were already done (we recommend to put here amount paid if you have it, 1 otherwise)
+	 *  @param  double	$alreadypaid	0=No payment already done, >0=Some payments were already done (we recommand to put here amount payed if you have it, 1 otherwise)
 	 *  @return	string        			Label
 	 */
 	public function getLibStatut($mode = 0, $alreadypaid = -1)
@@ -873,7 +871,7 @@ class Tva extends CommonObject
 	 *
 	 *  @param	int		$status        	Id status
 	 *  @param  int		$mode          	0=long label, 1=short label, 2=Picto + short label, 3=Picto, 4=Picto + long label, 5=short label + picto, 6=Long label + picto
-	 *  @param  double	$alreadypaid	0=No payment already done, >0=Some payments were already done (we recommend to put here amount paid if you have it, 1 otherwise)
+	 *  @param  double	$alreadypaid	0=No payment already done, >0=Some payments were already done (we recommand to put here amount payed if you have it, 1 otherwise)
 	 *  @return string        			Label
 	 */
 	public function LibStatut($status, $mode = 0, $alreadypaid = -1)

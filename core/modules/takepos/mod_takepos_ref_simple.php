@@ -3,8 +3,6 @@
  * Copyright (C) 2005-2009 Regis Houssin        <regis.houssin@capnetworks.com>
  * Copyright (C) 2013	   Juanjo Menent        <jmenent@2byte.es>
  * Copyright (C) 2020      Open-DSI	            <support@open-dsi.fr>
- * Copyright (C) 2024       Frédéric France             <frederic.france@free.fr>
- * Copyright (C) 2024		MDW							<mdeweerd@users.noreply.github.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -87,8 +85,8 @@ class mod_takepos_ref_simple extends ModeleNumRefTakepos
 	 *  Test if the numbers already in the database do not cause any conflicts that will prevent this
 	 *  of conflicts that will prevent this numbering from working.
 	 *
-	 *	@param	CommonObject	$object		Object we need next value for
-	 *  @return boolean     				false if KO (there is a conflict), true if OK
+	 *	@param	Object		$object		Object we need next value for
+	 *  @return boolean     			false if KO (there is a conflict), true if OK
 	 */
 	public function canBeActivated($object)
 	{
@@ -167,7 +165,7 @@ class mod_takepos_ref_simple extends ModeleNumRefTakepos
 			if ($max >= (pow(10, 4) - 1)) {
 				$num = $max; // If counter > 9999, we do not format on 4 chars, we take number as it is
 			} else {
-				$num = sprintf("%04d", $max);
+				$num = sprintf("%04s", $max);
 			}
 
 			$ref = '';
@@ -195,13 +193,13 @@ class mod_takepos_ref_simple extends ModeleNumRefTakepos
 			if ($max >= (pow(10, 4) - 1)) {
 				$num = $max + 1; // If counter > 9999, we do not format on 4 chars, we take number as it is
 			} else {
-				$num = sprintf("%04d", $max + 1);
+				$num = sprintf("%04s", $max + 1);
 			}
 
 			dol_syslog(get_class($this)."::getNextValue return ".$this->prefix.$pos_source.'-'.$yymm.'-'.$num);
 			return $this->prefix.$pos_source.'-'.$yymm.'-'.$num;
 		} else {
-			dol_print_error(null, 'Bad parameter for getNextValue');
+			dol_print_error('', 'Bad parameter for getNextValue');
 			return -1;
 		}
 	}
@@ -210,9 +208,8 @@ class mod_takepos_ref_simple extends ModeleNumRefTakepos
 	 *  Return next free value
 	 *
 	 * @param       Societe     $objsoc         Object third party
-	 * @param       Facture     $objforref      Object for number to search
+	 * @param       Object      $objforref      Object for number to search
 	 * @return      string      Next free value
-	 * @deprecated see getNextValue
 	 */
 	public function getNumRef($objsoc, $objforref)
 	{

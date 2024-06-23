@@ -3,7 +3,6 @@
  * Copyright (C) 2016		Gilles Poirier 		<glgpoirier@gmail.com>
  * Copyright (C) 2019		Josep Lluís Amador	<joseplluis@lliuretic.cat>
  * Copyright (C) 2021		Frédéric France		<frederic.france@netlogic.fr>
- * Copyright (C) 2023		William Mead			<william.mead@manchenumerique.fr>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -54,20 +53,20 @@ $hookmanager->initHooks(array('element_resource'));
 $object->available_resources = array('dolresource');
 
 // Get parameters
-$id                     = GETPOSTINT('id'); // resource id
-$element_id             = GETPOSTINT('element_id'); // element_id
+$id                     = GETPOST('id', 'int'); // resource id
+$element_id             = GETPOST('element_id', 'int'); // element_id
 $element_ref            = GETPOST('ref', 'alpha'); // element ref
 $element                = GETPOST('element', 'alpha'); // element_type
 $action                 = GETPOST('action', 'alpha');
 $mode                   = GETPOST('mode', 'alpha');
-$lineid                 = GETPOSTINT('lineid');
-$resource_id            = GETPOSTINT('fk_resource');
+$lineid                 = GETPOST('lineid', 'int');
+$resource_id            = GETPOST('fk_resource', 'int');
 $resource_type          = GETPOST('resource_type', 'alpha');
-$busy                   = GETPOSTINT('busy');
-$mandatory              = GETPOSTINT('mandatory');
+$busy                   = GETPOST('busy', 'int');
+$mandatory              = GETPOST('mandatory', 'int');
 $cancel                 = GETPOST('cancel', 'alpha');
 $confirm                = GETPOST('confirm', 'alpha');
-$socid                  = GETPOSTINT('socid');
+$socid                  = GETPOST('socid', 'int');
 
 if (empty($mandatory)) {
 	$mandatory = 0;
@@ -193,9 +192,9 @@ if (empty($reshook)) {
 		}
 	}
 
-	// Update resource
+	// Update ressource
 	if ($action == 'update_linked_resource' && $user->hasRight('resource', 'write') && !GETPOST('cancel', 'alpha')) {
-		$res = $object->fetchElementResource($lineid);
+		$res = $object->fetch_element_resource($lineid);
 		if ($res) {
 			$object->busy = $busy;
 			$object->mandatory = $mandatory;
@@ -256,7 +255,7 @@ if (empty($reshook)) {
 			}
 
 			if (!$error) {
-				$result = $object->updateElementResource($user);
+				$result = $object->update_element_resource($user);
 				if ($result < 0) {
 					$error++;
 				}
@@ -301,8 +300,7 @@ if ($reshook < 0) {
 $form = new Form($db);
 
 $pagetitle = $langs->trans('ResourceElementPage');
-$help_url = '';
-llxHeader('', $pagetitle, $help_url, '', 0, 0, '', '', '', 'mod-resource page-element_resource');
+llxHeader('', $pagetitle, '');
 
 $now = dol_now();
 $delay_warning = $conf->global->MAIN_DELAY_ACTIONS_TODO * 24 * 60 * 60;

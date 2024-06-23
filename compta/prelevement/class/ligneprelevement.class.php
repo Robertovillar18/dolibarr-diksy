@@ -78,7 +78,7 @@ class LignePrelevement
 	/**
 	 *  Constructor
 	 *
-	 *  @param	DoliDB	$db			Database handler
+	 *  @param	DoliDb	$db			Database handler
 	 */
 	public function __construct($db)
 	{
@@ -157,7 +157,7 @@ class LignePrelevement
 	 *
 	 *    @param	int		$status     Id status
 	 *    @param    int		$mode       0=Label, 1=Picto + label, 2=Picto, 3=Label + Picto
-	 * 	  @return   null|string      	Return status label (or null if $mode != 0, 1, 2, 3 or 4)
+	 * 	  @return   null|string      		Label
 	 */
 	public function LibStatut($status, $mode = 0)
 	{
@@ -191,8 +191,7 @@ class LignePrelevement
 				return $langs->trans($this->labelStatus[$status]).' '.img_picto($langs->transnoentitiesnoconv($this->labelStatus[$status]), 'statut8', 'class="valignmiddle"');
 			}
 		}
-		// return dolGetStatus($this->labelStatus[$status], $this->labelStatusShort[$status], '', $statusType, $mode);
-		return null;
+		//return dolGetStatus($this->labelStatus[$status], $this->labelStatusShort[$status], '', $statusType, $mode);
 	}
 
 	/**

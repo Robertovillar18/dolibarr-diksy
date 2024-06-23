@@ -32,7 +32,7 @@ require_once DOL_DOCUMENT_ROOT . '/asset/class/assetdepreciationoptions.class.ph
 $langs->loadLangs(array("assets", "companies"));
 
 // Get parameters
-$id = GETPOSTINT('id');
+$id = GETPOST('id', 'int');
 $ref = GETPOST('ref', 'alpha');
 $action = GETPOST('action', 'aZ09');
 $cancel = GETPOST('cancel', 'aZ09');
@@ -97,7 +97,7 @@ if (empty($reshook)) {
 $form = new Form($db);
 
 $help_url = '';
-llxHeader('', $langs->trans('Asset'), $help_url, '', 0, 0, '', '', '', 'mod-asset page-card_depreciation');
+llxHeader('', $langs->trans('Asset'), $help_url);
 
 if ($id > 0 || !empty($ref)) {
 	$head = assetPrepareHead($object);

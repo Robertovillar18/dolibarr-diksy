@@ -1,7 +1,6 @@
 <?php
 /* Copyright (C) 2007-2017 Laurent Destailleur  <eldy@users.sourceforge.net>
  * Copyright (C) 2023 Alice Adminson <aadminson@example.com>
- * Copyright (C) 2024       Frédéric France             <frederic.france@free.fr>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,7 +23,36 @@
  */
 
 // Load Dolibarr environment
-require '../main.inc.php';
+$res = 0;
+// Try main.inc.php into web root known defined into CONTEXT_DOCUMENT_ROOT (not always defined)
+if (!$res && !empty($_SERVER["CONTEXT_DOCUMENT_ROOT"])) {
+	$res = @include $_SERVER["CONTEXT_DOCUMENT_ROOT"]."/main.inc.php";
+}
+// Try main.inc.php into web root detected using web root calculated from SCRIPT_FILENAME
+$tmp = empty($_SERVER['SCRIPT_FILENAME']) ? '' : $_SERVER['SCRIPT_FILENAME']; $tmp2 = realpath(__FILE__); $i = strlen($tmp) - 1; $j = strlen($tmp2) - 1;
+while ($i > 0 && $j > 0 && isset($tmp[$i]) && isset($tmp2[$j]) && $tmp[$i] == $tmp2[$j]) {
+	$i--;
+	$j--;
+}
+if (!$res && $i > 0 && file_exists(substr($tmp, 0, ($i + 1))."/main.inc.php")) {
+	$res = @include substr($tmp, 0, ($i + 1))."/main.inc.php";
+}
+if (!$res && $i > 0 && file_exists(dirname(substr($tmp, 0, ($i + 1)))."/main.inc.php")) {
+	$res = @include dirname(substr($tmp, 0, ($i + 1)))."/main.inc.php";
+}
+// Try main.inc.php using relative path
+if (!$res && file_exists("../main.inc.php")) {
+	$res = @include "../main.inc.php";
+}
+if (!$res && file_exists("../../main.inc.php")) {
+	$res = @include "../../main.inc.php";
+}
+if (!$res && file_exists("../../../main.inc.php")) {
+	$res = @include "../../../main.inc.php";
+}
+if (!$res) {
+	die("Include of main fails");
+}
 
 require_once DOL_DOCUMENT_ROOT.'/contact/class/contact.class.php';
 require_once DOL_DOCUMENT_ROOT.'/core/class/html.formcompany.class.php';
@@ -32,12 +60,12 @@ dol_include_once('/bookcal/class/calendar.class.php');
 dol_include_once('/bookcal/lib/bookcal_calendar.lib.php');
 
 // Load translation files required by the page
-$langs->loadLangs(array("agenda", "companies", "other", "mails"));
+$langs->loadLangs(array("bookcal@bookcal", "companies", "other", "mails"));
 
-$id     = (GETPOST('id') ? GETPOSTINT('id') : GETPOSTINT('facid')); // For backward compatibility
+$id     = (GETPOST('id') ? GETPOST('id', 'int') : GETPOST('facid', 'int')); // For backward compatibility
 $ref    = GETPOST('ref', 'alpha');
-$lineid = GETPOSTINT('lineid');
-$socid  = GETPOSTINT('socid');
+$lineid = GETPOST('lineid', 'int');
+$socid  = GETPOST('socid', 'int');
 $action = GETPOST('action', 'aZ09');
 
 // Initialize technical objects
@@ -55,8 +83,8 @@ include DOL_DOCUMENT_ROOT.'/core/actions_fetchobject.inc.php'; // Must be includ
 // Set $enablepermissioncheck to 1 to enable a minimum low level of checks
 $enablepermissioncheck = 0;
 if ($enablepermissioncheck) {
-	$permissiontoread = $user->hasRight('bookcal', 'calendar', 'read');
-	$permission = $user->hasRight('bookcal', 'calendar', 'write');
+	$permissiontoread = $user->rights->bookcal->calendar->read;
+	$permission = $user->rights->bookcal->calendar->write;
 } else {
 	$permissiontoread = 1;
 	$permission = 1;
@@ -80,7 +108,7 @@ if (!$permissiontoread) {
  */
 
 if ($action == 'addcontact' && $permission) {
-	$contactid = (GETPOST('userid') ? GETPOSTINT('userid') : GETPOSTINT('contactid'));
+	$contactid = (GETPOST('userid') ? GETPOST('userid', 'int') : GETPOST('contactid', 'int'));
 	$typeid = (GETPOST('typecontact') ? GETPOST('typecontact') : GETPOST('type'));
 	$result = $object->add_contact($contactid, $typeid, GETPOST("source", 'aZ09'));
 
@@ -97,7 +125,7 @@ if ($action == 'addcontact' && $permission) {
 	}
 } elseif ($action == 'swapstatut' && $permission) {
 	// Toggle the status of a contact
-	$result = $object->swapContactStatus(GETPOSTINT('ligne'));
+	$result = $object->swapContactStatus(GETPOST('ligne', 'int'));
 } elseif ($action == 'deletecontact' && $permission) {
 	// Deletes a contact
 	$result = $object->delete_contact($lineid);

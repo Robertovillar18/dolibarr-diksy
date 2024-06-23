@@ -1,7 +1,5 @@
 <?php
 /* Copyright (C) 2014 Laurent Destailleur  <eldy@users.sourceforge.net>
- * Copyright (C) 2024		Frédéric France			<frederic.france@free.fr>
- * Copyright (C) 2024		MDW							<mdeweerd@users.noreply.github.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,7 +26,7 @@ require_once DOL_DOCUMENT_ROOT.'/core/class/commonnumrefgenerator.class.php';
 
 
 /**
- *	Parent class for barcode document generators (image)
+ *	Parent class for barcode document models
  */
 abstract class ModeleBarCode
 {
@@ -47,21 +45,6 @@ abstract class ModeleBarCode
 	{
 		return true;
 	}
-
-	/**
-	 *	Save an image file on disk (with no output)
-	 *
-	 *	@param	   string	    $code		      Value to encode
-	 *	@param	   string	    $encoding	      Mode of encoding ('QRCODE', 'EAN13', ...)
-	 *	@param	   string	    $readable	      Code can be read
-	 *	@param	   integer		$scale			  Scale (not used with this engine)
-	 *  @param     integer      $nooutputiferror  No output if error (not used with this engine)
-	 *	@return	   int			                  Return integer <0 if KO, >0 if OK
-	 */
-	public function writeBarCode($code, $encoding, $readable = 'Y', $scale = 1, $nooutputiferror = 0)
-	{
-		return -1;	// Error by default, this method must be implemented by the driver
-	}
 }
 
 
@@ -70,18 +53,25 @@ abstract class ModeleBarCode
  */
 abstract class ModeleNumRefBarCode extends CommonNumRefGenerator
 {
-	// variables inherited from CommonNumRefGenerator
+	/**
+	 * @var int Code facultatif
+	 */
 	public $code_null;
+
+	/**
+	 * @var int Automatic numbering
+	 */
+	public $code_auto;
 
 
 	/**
 	 *  Return next value available
 	 *
-	 *	@param	?CommonObject	$objcommon	Object Product, Thirdparty
-	 *	@param	string			$type		Type of barcode (EAN, ISBN, ...)
-	 *  @return string						Value
+	 *	@param	Product		$objproduct	Object Product
+	 *	@param	string		$type		Type of barcode (EAN, ISBN, ...)
+	 *  @return string      			Value
 	 */
-	public function getNextValue($objcommon = null, $type = '')
+	public function getNextValue($objproduct, $type = '')
 	{
 		global $langs;
 		return $langs->trans("Function_getNextValue_InModuleNotWorking");
@@ -97,13 +87,15 @@ abstract class ModeleNumRefBarCode extends CommonNumRefGenerator
 	 */
 	public function getToolTip($langs, $soc, $type)
 	{
+		global $conf;
+
 		$langs->loadLangs(array("admin", "companies"));
 
 		$s = '';
 		$s .= $langs->trans("Name").': <b>'.$this->name.'</b><br>';
 		$s .= $langs->trans("Version").': <b>'.$this->getVersion().'</b><br>';
 		if ($type != -1) {
-			$s .= $langs->trans("ValidityControledByModule").': <b>'.$this->getName($langs).'</b><br>';
+			$s .= $langs->trans("ValidityControledByModule").': <b>'.$this->getNom($langs).'</b><br>';
 		}
 		$s .= '<br>';
 		$s .= '<u>'.$langs->trans("ThisIsModuleRules").':</u><br>';

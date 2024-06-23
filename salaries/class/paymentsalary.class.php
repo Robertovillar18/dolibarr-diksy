@@ -2,8 +2,6 @@
 /* Copyright (C) 2011-2022  Alexandre Spangaro  <aspangaro@open-dsi.fr>
  * Copyright (C) 2014       Juanjo Menent       <jmenent@2byte.es>
  * Copyright (C) 2021       Gauthier VERDOL     <gauthier.verdol@atm-consulting.fr>
- * Copyright (C) 2024       Frédéric France             <frederic.france@free.fr>
- * Copyright (C) 2024		MDW							<mdeweerd@users.noreply.github.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,17 +34,17 @@ require_once DOL_DOCUMENT_ROOT.'/salaries/class/salary.class.php';
 class PaymentSalary extends CommonObject
 {
 	/**
-	 * @var string 			ID to identify managed object
+	 * @var string ID to identify managed object
 	 */
 	public $element = 'payment_salary';
 
 	/**
-	 * @var string 			Name of table without prefix where object is stored
+	 * @var string Name of table without prefix where object is stored
 	 */
 	public $table_element = 'payment_salary';
 
 	/**
-	 * @var string 			String with name of icon for myobject. Must be the part after the 'object_' into object_myobject.png
+	 * @var string String with name of icon for myobject. Must be the part after the 'object_' into object_myobject.png
 	 */
 	public $picto = 'payment';
 
@@ -58,24 +56,22 @@ class PaymentSalary extends CommonObject
 	public $chid;
 
 	/**
-	 * @var int 			ID of the salary linked to the payment
+	 * @var int ID
 	 */
 	public $fk_salary;
 
-	/**
-	 * @var int|string				Payment creation date
-	 */
 	public $datec = '';
+	public $tms = '';
 
 	/**
-	 * @var int|string		Date of payment
+	 * @var int|string date of payment
 	 * @deprecated
 	 * @see $datep
 	 */
 	public $datepaye = '';
 
 	/**
-	 * @var int|string		Date of payment
+	 * @var int|string date of payment
 	 */
 	public $datep = '';
 
@@ -85,18 +81,11 @@ class PaymentSalary extends CommonObject
 	 */
 	public $total;
 
-	/**
-	 * @var float			Total amount of payment
-	 */
-	public $amount;
+	public $amount; // Total amount of payment
+	public $amounts = array(); // Array of amounts
 
 	/**
-	 * @var array			Array of amounts
-	 */
-	public $amounts = array();
-
-	/**
-	 * @var int 			Payment type ID
+	 * @var int ID
 	 */
 	public $fk_typepayment;
 
@@ -107,56 +96,55 @@ class PaymentSalary extends CommonObject
 	public $num_paiement;
 
 	/**
-	 * @var string      Payment reference
-	 *                  (Cheque or bank transfer reference. Can be "ABC123")
+	 * @var string
 	 */
 	public $num_payment;
 
 	/**
-	 * @inheritdoc
+	 * @var int ID
 	 */
 	public $fk_bank;
 
 	/**
-	 * @var int				ID of bank_line
+	 * @var int ID of bank_line
 	 */
 	public $bank_line;
 
 	/**
-	 * @var int				ID of the user who created the payment
+	 * @var int ID
 	 */
 	public $fk_user_author;
 
 	/**
-	 * @var int				ID of the user who modified the payment
+	 * @var int ID
 	 */
 	public $fk_user_modif;
 
 	/**
-	 * @var int				Payment type
+	 * @var int Types paiement
 	 */
 	public $type_code;
 
 	/**
-	 * @var int				Payment label
+	 * @var int Paiement label
 	 */
 	public $type_label;
 
 	/**
-	 * @var int				Bank account description
+	 * @var int			bank account description
 	 */
 	public $bank_account;
 
 	/**
-	 * @var int|string		Payment validation date
+	 * @var int|string	validation date
 	 */
 	public $datev = '';
 
 	/**
-	 * @var array<string,array{type:string,label:string,enabled:int<0,2>|string,position:int,notnull?:int,visible:int,noteditable?:int,default?:string,index?:int,foreignkey?:string,searchall?:int,isameasure?:int,css?:string,csslist?:string,help?:string,showoncombobox?:int,disabled?:int,arrayofkeyval?:array<int,string>,comment?:string}>  Array with all fields and their property. Do not use it as a static var. It may be modified by constructor.
+	 * @var array
 	 */
 	public $fields = array(
-		'rowid' => array('type' => 'integer', 'label' => 'TechnicalID', 'enabled' => 1, 'visible' => -2, 'notnull' => 1, 'index' => 1, 'position' => 1, 'comment' => 'Id'),
+		'rowid' => array('type'=>'integer', 'label'=>'TechnicalID', 'enabled'=>1, 'visible'=>-2, 'notnull'=>1, 'index'=>1, 'position'=>1, 'comment'=>'Id'),
 	);
 
 	/**
@@ -174,7 +162,7 @@ class PaymentSalary extends CommonObject
 	 *  Use this->amounts to have list of lines for the payment
 	 *
 	 *  @param      User	$user   				User making payment
-	 *	@param		int		$closepaidcontrib   	1=Also close paid contributions to paid, 0=Do nothing more
+	 *	@param		int		$closepaidcontrib   	1=Also close payed contributions to paid, 0=Do nothing more
 	 *  @return     int     						Return integer <0 if KO, id of payment if OK
 	 */
 	public function create($user, $closepaidcontrib = 0)
@@ -193,7 +181,7 @@ class PaymentSalary extends CommonObject
 			$this->datep = $this->datepaye;
 		}
 
-		// Validate parameters
+		// Validate parametres
 		if (empty($this->datep)) {
 			$this->error = 'ErrorBadValueForParameterCreatePaymentSalary';
 			return -1;
@@ -204,7 +192,7 @@ class PaymentSalary extends CommonObject
 			$this->fk_salary = (int) $this->fk_salary;
 		}
 		if (isset($this->amount)) {
-			$this->amount = (float) $this->amount;
+			$this->amount = trim($this->amount);
 		}
 		if (isset($this->fk_typepayment)) {
 			$this->fk_typepayment = (int) $this->fk_typepayment;
@@ -230,13 +218,13 @@ class PaymentSalary extends CommonObject
 
 		$totalamount = 0;
 		foreach ($this->amounts as $key => $value) {  // How payment is dispatch
-			$newvalue = (float) price2num($value, 'MT');
+			$newvalue = price2num($value, 'MT');
 			$this->amounts[$key] = $newvalue;
 			$totalamount += $newvalue;
 		}
+		$totalamount = price2num($totalamount);
 
 		// Check parameters
-		$totalamount = (float) price2num($totalamount, 'MT'); // this is to ensure the following test is no biaised by a potential float equal to 0.0000000000001
 		if ($totalamount == 0) {
 			return -1;
 		} // On accepte les montants negatifs pour les rejets de prelevement mais pas null
@@ -248,13 +236,14 @@ class PaymentSalary extends CommonObject
 			// Insert array of amounts
 			foreach ($this->amounts as $key => $amount) {
 				$salary_id = $key;
+				$amount = price2num($amount);
 				if (is_numeric($amount) && !empty($amount)) {
 					// We can have n payments for 1 salary but we can't have 1 payments for n salaries (for invoices link is n-n, not for salaries).
 					$sql = "INSERT INTO ".MAIN_DB_PREFIX."payment_salary (entity, fk_salary, datec, datep, amount,";
 					$sql .= " fk_typepayment, num_payment, note, fk_user_author, fk_bank)";
 					$sql .= " VALUES (".((int) $conf->entity).", ".((int) $salary_id).", '".$this->db->idate($now)."',";
 					$sql .= " '".$this->db->idate($this->datep)."',";
-					$sql .= " ".((float) $amount).",";
+					$sql .= " ".price2num($amount).",";
 					$sql .= " ".((int) $this->fk_typepayment).", '".$this->db->escape($this->num_payment)."', '".$this->db->escape($this->note)."', ".((int) $user->id).",";
 					$sql .= " 0)";
 
@@ -263,7 +252,7 @@ class PaymentSalary extends CommonObject
 						$this->id = $this->db->last_insert_id(MAIN_DB_PREFIX."payment_salary");
 					}
 
-					// If we want to closed paid invoices
+					// If we want to closed payed invoices
 					if ($closepaidcontrib) {
 						$tmpsalary = new Salary($this->db);
 						$tmpsalary->fetch($salary_id);
@@ -387,7 +376,7 @@ class PaymentSalary extends CommonObject
 			$this->fk_salary = (int) $this->fk_salary;
 		}
 		if (isset($this->amount)) {
-			$this->amount = (float) $this->amount;
+			$this->amount = trim($this->amount);
 		}
 		if (isset($this->fk_typepayment)) {
 			$this->fk_typepayment = (int) $this->fk_typepayment;
@@ -557,25 +546,24 @@ class PaymentSalary extends CommonObject
 	 *  Used to build previews or test instances.
 	 *	id must be 0 if object instance is a specimen.
 	 *
-	 *  @return int
+	 *  @return	void
 	 */
 	public function initAsSpecimen()
 	{
 		$this->id = 0;
-		$this->fk_salary = 0;
+
+		$this->fk_salary = '';
 		$this->datec = '';
-		$this->tms = dol_now();
-		$this->datepaye = dol_now();
-		$this->amount = 0.0;
-		$this->fk_typepayment = 0;
+		$this->tms = '';
+		$this->datepaye = '';
+		$this->amount = '';
+		$this->fk_typepayment = '';
 		$this->num_payment = '';
 		$this->note_private = '';
 		$this->note_public = '';
-		$this->fk_bank = 0;
-		$this->fk_user_author = 0;
-		$this->fk_user_modif = 0;
-
-		return 1;
+		$this->fk_bank = '';
+		$this->fk_user_author = '';
+		$this->fk_user_modif = '';
 	}
 
 
@@ -600,7 +588,7 @@ class PaymentSalary extends CommonObject
 
 		$error = 0;
 
-		if (isModEnabled("bank")) {
+		if (isModEnabled("banque")) {
 			include_once DOL_DOCUMENT_ROOT.'/compta/bank/class/account.class.php';
 
 			$acc = new Account($this->db);
@@ -987,16 +975,11 @@ class PaymentSalary extends CommonObject
 		if ($selected >= 0) {
 			$return .= '<input id="cb'.$this->id.'" class="flat checkforselect fright" type="checkbox" name="toselect[]" value="'.$this->id.'"'.($selected ? ' checked="checked"' : '').'>';
 		}
-		if (property_exists($this, 'fk_bank') && is_numeric($this->fk_bank)) {
-			require_once DOL_DOCUMENT_ROOT.'/compta/bank/class/account.class.php';
-			$account = new AccountLine($this->db);
-			$account->fetch($this->fk_bank);
-			$return .= ' |  <span class="info-box-label">'.$account->getNomUrl(1).'</span>';
+		if (property_exists($this, 'fk_bank')) {
+			$return .= ' |  <span class="info-box-label">'.$this->fk_bank.'</span>';
 		}
-		if (property_exists($this, 'fk_user_author') && is_numeric($this->fk_user_author)) {
-			$userstatic = new User($this->db);
-			$userstatic->fetch($this->fk_user_author);
-			$return .= '<br><span class="info-box-status">'.$userstatic->getNomUrl(1).'</span>';
+		if (property_exists($this, 'fk_user_author')) {
+			$return .= '<br><span class="info-box-status">'.$this->fk_user_author.'</span>';
 		}
 
 		if (property_exists($this, 'fk_typepayment')) {

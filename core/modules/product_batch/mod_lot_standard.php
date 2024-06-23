@@ -2,8 +2,6 @@
 /* Copyright (C) 2005-2010 Laurent Destailleur  <eldy@users.sourceforge.net>
  * Copyright (C) 2005-2009 Regis Houssin        <regis.houssin@inodbox.com>
  * Copyright (C) 2021       Christophe Battarel			<christophe@altairis.fr>
- * Copyright (C) 2024       Frédéric France             <frederic.france@free.fr>
- * Copyright (C) 2024		MDW							<mdeweerd@users.noreply.github.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -79,7 +77,7 @@ class mod_lot_standard extends ModeleNumRefBatch
 	 *  Checks if the numbers already in the database do not
 	 *  cause conflicts that would prevent this numbering working.
 	 *
-	 *	@param	CommonObject	$object	Object we need next value for
+	 *	@param	Object		$object		Object we need next value for
 	 *  @return boolean     			false if KO (there is a conflict), true if OK
 	 */
 	public function canBeActivated($object)
@@ -104,7 +102,7 @@ class mod_lot_standard extends ModeleNumRefBatch
 				$max = 0;
 			}
 		}
-		if ($max && !preg_match('/'.$this->prefix.'[0-9][0-9][0-9][0-9]/i', (string) $max)) {
+		if ($max && !preg_match('/'.$this->prefix.'[0-9][0-9][0-9][0-9]/i', $max)) {
 			$langs->load("errors");
 			$this->error = $langs->trans('ErrorNumRefModel', $max);
 			return false;
@@ -118,7 +116,7 @@ class mod_lot_standard extends ModeleNumRefBatch
 	 *
 	 *  @param	Societe		$objsoc	    Object thirdparty
 	 *  @param  Productlot	$object		Object we need next value for
-	 *  @return string|-1      			Value if OK, -1 if KO
+	 *  @return string      			Value if KO, <0 if KO
 	 */
 	public function getNextValue($objsoc, $object)
 	{
@@ -146,12 +144,12 @@ class mod_lot_standard extends ModeleNumRefBatch
 
 		//$date=time();
 		$date = dol_now();
-		$yymm = dol_print_date($date, "%y%m");
+		$yymm = strftime("%y%m", $date);
 
 		if ($max >= (pow(10, 4) - 1)) {
 			$num = $max + 1;
 		} else { // If counter > 9999, we do not format on 4 chars, we take number as it is
-			$num = sprintf("%04d", $max + 1);
+			$num = sprintf("%04s", $max + 1);
 		}
 
 		dol_syslog("mod_lot_standard::getNextValue return ".$this->prefix.$yymm."-".$num);

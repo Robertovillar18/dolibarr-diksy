@@ -22,7 +22,7 @@
 
 /**
  *	\file       htdocs/core/modules/facture/modules_facture.php
- *	\ingroup    invoice
+ *	\ingroup    facture
  *	\brief      File that contains parent class for invoices models
  *              and parent class for invoices numbering models
  */

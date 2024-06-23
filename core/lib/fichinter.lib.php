@@ -4,7 +4,6 @@
  * Copyright (C) 2012		Regis Houssin			<regis.houssin@inodbox.com>
  * Copyright (C) 2016		Gilles Poirier 		   <glgpoirier@gmail.com>
  * Copyright (C) 2018		charlene Benke 		   <charlie@patas-monkey.com>
- * Copyright (C) 2024		MDW							<mdeweerd@users.noreply.github.com>
 
  *
  * This program is free software; you can redistribute it and/or modify
@@ -24,7 +23,7 @@
 
 /**
  *	\file       htdocs/core/lib/fichinter.lib.php
- *	\brief      Ensemble de functions de base pour le module fichinter
+ *	\brief      Ensemble de fonctions de base pour le module fichinter
  *	\ingroup    fichinter
  */
 
@@ -123,7 +122,7 @@ function fichinter_prepare_head($object)
 
 	$head[$h][0] = DOL_URL_ROOT.'/fichinter/agenda.php?id='.$object->id;
 	$head[$h][1] = $langs->trans('Events');
-	if (isModEnabled('agenda') && ($user->hasRight('agenda', 'myactions', 'read') || $user->hasRight('agenda', 'allactions', 'read'))) {
+	if (isModEnabled('agenda')&& ($user->hasRight('agenda', 'myactions', 'read') || $user->hasRight('agenda', 'allactions', 'read'))) {
 		$nbEvent = 0;
 		// Enable caching of thirdparty count actioncomm
 		require_once DOL_DOCUMENT_ROOT.'/core/lib/memory.lib.php';
@@ -163,7 +162,7 @@ function fichinter_prepare_head($object)
 }
 
 /**
- *  Return array head with list of tabs to view object information.
+ *  Return array head with list of tabs to view object informations.
  *
  *  @return	array   	        head array with tabs
  */
@@ -177,6 +176,8 @@ function fichinter_admin_prepare_head()
 
 	$h = 0;
 	$head = array();
+
+	$h = 0;
 
 	$head[$h][0] = DOL_URL_ROOT."/admin/fichinter.php";
 	$head[$h][1] = $langs->trans("Interventions");

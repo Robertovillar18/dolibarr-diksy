@@ -1,6 +1,5 @@
 <?php
 /* Copyright (C) 2016      Jean-François Ferry  <hello@librethic.io>
- * Copyright (C) 2024		MDW							<mdeweerd@users.noreply.github.com>
  *
  * A class containing a diff implementation
  *
@@ -32,8 +31,8 @@ class Diff
 	 *
 	 * @param	string	$string1            First string
 	 * @param	string	$string2            Second string
-	 * @param	boolean	$compareCharacters  true to compare characters, and false to compare lines; this optional parameter defaults to false
-	 * @return	array<array{0:string,1:int<0,2>}>		Array of diff
+	 * @param	string	$compareCharacters  true to compare characters, and false to compare lines; this optional parameter defaults to false
+	 * @return	array						Array of diff
 	 */
 	public static function compare($string1, $string2, $compareCharacters = false)
 	{
@@ -94,7 +93,7 @@ class Diff
 	 * @param	string	$file1              Path to the first file
 	 * @param	string	$file2              Path to the second file
 	 * @param	boolean	$compareCharacters  true to compare characters, and false to compare lines; this optional parameter defaults to false
-	 * @return	array<array{0:string,1:int<0,2>}>						Array of diff
+	 * @return	array						Array of diff
 	 */
 	public static function compareFiles(
 		$file1,
@@ -115,10 +114,10 @@ class Diff
 	 *
 	 * @param	string	$sequence1 	the first sequence
 	 * @param	string	$sequence2 	the second sequence
-	 * @param	int		$start     	the starting index
-	 * @param	int		$end1      	the ending index for the first sequence
-	 * @param	int		$end2      	the ending index for the second sequence
-	 * @return	array<array<int>>	array of diff
+	 * @param	string	$start     	the starting index
+	 * @param	string	$end1      	the ending index for the first sequence
+	 * @param	string	$end2      	the ending index for the second sequence
+	 * @return	array				array of diff
 	 */
 	private static function computeTable($sequence1, $sequence2, $start, $end1, $end2)
 	{
@@ -151,14 +150,14 @@ class Diff
 	}
 
 	/**
-	 * Returns the partial diff for the specified sequences, in reverse order.
+	 * Returns the partial diff for the specificed sequences, in reverse order.
 	 * The parameters are:
 	 *
-	 * @param	array<array{0:string,1:int<0,2>}>	$table     	the table returned by the computeTable function
+	 * @param	string	$table     	the table returned by the computeTable function
 	 * @param	string	$sequence1 	the first sequence
 	 * @param	string	$sequence2 	the second sequence
-	 * @param	int		$start     	the starting index
-	 * @return	array<array{0:string,1:int<0,2>}>	array of diff
+	 * @param	string	$start     	the starting index
+	 * @return	array				array of diff
 	 */
 	private static function generatePartialDiff($table, $sequence1, $sequence2, $start)
 	{
@@ -201,7 +200,7 @@ class Diff
 	 * deletions are prefixed by '- ', and insertions are prefixed by '+ '. The
 	 * parameters are:
 	 *
-	 * @param	array<array{0:string,1:int<0,2>}>	$diff      	the diff array
+	 * @param	array	$diff      	the diff array
 	 * @param	string	$separator 	the separator between lines; this optional parameter defaults to "\n"
 	 * @return	string				String
 	 */
@@ -238,7 +237,7 @@ class Diff
 	 * within 'span' elements, deletions are contained within 'del' elements, and
 	 * insertions are contained within 'ins' elements. The parameters are:
 	 *
-	 * @param	array<array{0:string,1:int<0,2>}>	$diff      	the diff array
+	 * @param	array	$diff      	the diff array
 	 * @param	string	$separator 	the separator between lines; this optional parameter defaults to '<br>'
 	 * @return	string				HTML string
 	 */
@@ -275,7 +274,7 @@ class Diff
 	/**
 	 * Returns a diff as an HTML table. The parameters are:
 	 *
-	 * @param	array<array{0:string,1:int<0,2>}>	$diff        	the diff array
+	 * @param	array	$diff        	the diff array
 	 * @param	string	$indentation 	indentation to add to every line of the generated HTML; this optional parameter defaults to ''
 	 * @param	string	$separator   	the separator between lines; this optional parameter defaults to '<br>'
 	 * @return	string					HTML string
@@ -305,7 +304,7 @@ class Diff
 					$rightCell = $leftCell;
 					break;
 
-					// display the deleted on the left and inserted content on the right
+				// display the deleted on the left and inserted content on the right
 				case self::DELETED:
 					$leftCell = self::getCellContent(
 						$diff,
@@ -323,7 +322,7 @@ class Diff
 					);
 					break;
 
-					// display the inserted content on the right
+				// display the inserted content on the right
 				case self::INSERTED:
 					$leftCell = '';
 					$rightCell = self::getCellContent(
@@ -368,7 +367,7 @@ class Diff
 	 * Returns the content of the cell, for use in the toTable function. The
 	 * parameters are:
 	 *
-	 * @param	array<array{0:string,1:int<0,2>}>	$diff        	the diff array
+	 * @param	array	$diff        	the diff array
 	 * @param	string	$indentation 	indentation to add to every line of the generated HTML
 	 * @param	string	$separator   	the separator between lines
 	 * @param	string	$index       	the current index, passes by reference

@@ -87,9 +87,9 @@ dol_include_once('/mymodule/lib/mymodule_myobject.lib.php');
 $langs->loadLangs(array("mymodule@mymodule", "other"));
 
 // Get parameters
-$id = GETPOSTINT('id');
+$id = GETPOST('id', 'int');
 $ref = GETPOST('ref', 'alpha');
-$lineid   = GETPOSTINT('lineid');
+$lineid   = GETPOST('lineid', 'int');
 
 $action = GETPOST('action', 'aZ09');
 $confirm = GETPOST('confirm', 'alpha');
@@ -116,7 +116,7 @@ $extrafields->fetch_name_optionals_label($object->table_element);
 
 $search_array_options = $extrafields->getOptionalsFromPost($object->table_element, '', 'search_');
 
-// Initialize array of search criteria
+// Initialize array of search criterias
 $search_all = trim(GETPOST("search_all", 'alpha'));
 $search = array();
 foreach ($object->fields as $key => $val) {
@@ -163,8 +163,6 @@ if (!$permissiontoread) {
 	accessforbidden();
 }
 
-$error = 0;
-
 
 /*
  * Actions
@@ -177,6 +175,8 @@ if ($reshook < 0) {
 }
 
 if (empty($reshook)) {
+	$error = 0;
+
 	$backurlforlist = dol_buildpath('/mymodule/myobject_list.php', 1);
 
 	if (empty($backtopage) || ($cancel && empty($id))) {
@@ -282,6 +282,8 @@ if ($action == 'create') {
 
 	print dol_get_fiche_head(array(), '');
 
+	// Set some default values
+	//if (! GETPOSTISSET('fieldname')) $_POST['fieldname'] = 'myvalue';
 
 	print '<table class="border centpercent tableforfieldcreate">'."\n";
 

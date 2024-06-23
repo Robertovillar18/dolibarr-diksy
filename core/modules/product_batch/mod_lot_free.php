@@ -1,7 +1,7 @@
 <?php
 /* Copyright (C) 2004      Rodolphe Quiedeville <rodolphe@quiedeville.org>
  * Copyright (C) 2006-2009 Laurent Destailleur  <eldy@users.sourceforge.net>
- * Copyright (C) 2023-2024	Frédéric France      <frederic.france@free.fr>
+ * Copyright (C) 2022-2023 Frédéric France      <frederic.france@netlogic.fr>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,9 +39,33 @@ class mod_lot_free extends ModeleNumRefBatch
 	 */
 
 
-	// variables inherited from ModeleNumRefBatch class
+	/**
+	 * @var string model name
+	 */
 	public $name = 'lot_free';
-	public $version = 'dolibarr';
+
+	/**
+	 * @var string Code modifiable
+	 */
+	public $code_modifiable;
+
+	public $code_modifiable_invalide; // Code modifiable si il est invalide
+
+	public $code_modifiable_null; // Code modifiables si il est null
+
+	public $code_null; // Code facultatif
+
+	/**
+	 * Dolibarr version of the loaded document
+	 * @var string
+	 */
+	public $version = 'dolibarr'; // 'development', 'experimental', 'dolibarr'
+
+	/**
+	 * @var int Automatic numbering
+	 */
+	public $code_auto;
+
 
 	/**
 	 *	Constructor

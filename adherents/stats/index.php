@@ -2,7 +2,6 @@
 /* Copyright (C) 2003      Rodolphe Quiedeville <rodolphe@quiedeville.org>
  * Copyright (C) 2004-2011 Laurent Destailleur  <eldy@users.sourceforge.net>
  * Copyright (C) 2005-2012 Regis Houssin        <regis.houssin@inodbox.com>
- * Copyright (C) 2024		MDW							<mdeweerd@users.noreply.github.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,12 +33,10 @@ require_once DOL_DOCUMENT_ROOT.'/core/lib/member.lib.php';
 $WIDTH = DolGraph::getDefaultGraphSizeForStats('width');
 $HEIGHT = DolGraph::getDefaultGraphSizeForStats('height');
 
-$userid = GETPOSTINT('userid');
-if ($userid < 0) {
+$userid = GETPOST('userid', 'int'); if ($userid < 0) {
 	$userid = 0;
 }
-$socid = GETPOSTINT('socid');
-if ($socid < 0) {
+$socid = GETPOST('socid', 'int'); if ($socid < 0) {
 	$socid = 0;
 }
 
@@ -50,7 +47,7 @@ if ($user->socid > 0) {
 }
 $result = restrictedArea($user, 'adherent', '', '', 'cotisation');
 
-$year = (int) dol_print_date(dol_now('gmt'), "%Y", 'gmt');
+$year = dol_print_date(dol_now('gmt'), "%Y", 'gmt');
 $startyear = $year - (!getDolGlobalInt('MAIN_STATS_GRAPHS_SHOW_N_YEARS') ? 2 : max(1, min(10, getDolGlobalInt('MAIN_STATS_GRAPHS_SHOW_N_YEARS'))));
 $endyear = $year;
 if (getDolGlobalString('MEMBER_SUBSCRIPTION_START_AFTER')) {
@@ -94,7 +91,6 @@ $mesg = $px1->isGraphKo();
 if (!$mesg) {
 	$px1->SetData($data);
 	$i = $startyear;
-	$legend = array();
 	while ($i <= $endyear) {
 		$legend[] = $i;
 		$i++;

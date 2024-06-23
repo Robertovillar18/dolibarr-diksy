@@ -35,8 +35,8 @@ require_once DOL_DOCUMENT_ROOT.'/bom/lib/bom.lib.php';
 $langs->loadLangs(array('mrp', 'other'));
 
 // Get parameters
-$id     = GETPOSTINT('id');
-$socid  = GETPOSTINT('socid');
+$id     = GETPOST('id', 'int');
+$socid  = GETPOST('socid', 'int');
 $ref    = GETPOST('ref', 'alpha');
 
 $action     = GETPOST('action', 'aZ09');
@@ -56,10 +56,10 @@ $search_rowid = GETPOST('search_rowid');
 $search_agenda_label = GETPOST('search_agenda_label');
 
 // Load variables for pagination
-$limit = GETPOSTINT('limit') ? GETPOSTINT('limit') : $conf->liste_limit;
+$limit = GETPOST('limit', 'int') ? GETPOST('limit', 'int') : $conf->liste_limit;
 $sortfield = GETPOST('sortfield', 'aZ09comma');
 $sortorder = GETPOST('sortorder', 'aZ09comma');
-$page = GETPOSTISSET('pageplusone') ? (GETPOSTINT('pageplusone') - 1) : GETPOSTINT("page");
+$page = GETPOSTISSET('pageplusone') ? (GETPOST('pageplusone') - 1) : GETPOST("page", 'int');
 if (empty($page) || $page == -1) {
 	$page = 0;
 }     // If $page is not defined, or '' or -1
@@ -131,8 +131,9 @@ $form = new Form($db);
 
 if ($object->id > 0) {
 	$title = $langs->trans("Agenda");
+	//if (!empty($conf->global->MAIN_HTML_TITLE) && preg_match('/thirdpartynameonly/',$conf->global->MAIN_HTML_TITLE) && $object->name) $title=$object->name." - ".$title;
 	$help_url = 'EN:Module_Agenda_En|FR:Module_Agenda|ES:Módulo_Agenda|DE:Modul_Agenda';
-	llxHeader('', $title, $help_url, '', 0, 0, '', '', '', 'mod-bom page-card_agenda');
+	llxHeader('', $title, $help_url);
 
 	if (isModEnabled('notification')) {
 		$langs->load("mails");
@@ -158,7 +159,8 @@ if ($object->id > 0) {
 	 {
 	 $langs->load("projects");
 	 $morehtmlref.='<br>'.$langs->trans('Project') . ' ';
-	 if ($user->hasRight('bom', 'creer')) {
+	 if ($user->rights->bom->creer)
+	 {
 	 if ($action != 'classify')
 		 //$morehtmlref.='<a class="editfielda" href="' . $_SERVER['PHP_SELF'] . '?action=classify&token='.newToken().'&id=' . $object->id . '">' . img_edit($langs->transnoentitiesnoconv('SetProject')) . '</a> : ';
 		 $morehtmlref.=' : ';

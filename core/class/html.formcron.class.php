@@ -19,7 +19,7 @@
 
 /**
  *      \file       htdocs/core/class/html.formcron.class.php
- *      \brief      Fichier de la class des functions predefinie de composants html cron
+ *      \brief      Fichier de la classe des fonctions predefinie de composants html cron
  */
 
 
@@ -63,14 +63,19 @@ class FormCron extends Form
 		// phpcs:enable
 		global $langs;
 
-		$langs->load('cron');
-
+		$langs->load('cron@cron');
 		$out = '';
 		if (!empty($readonly)) {
 			if ($selected == 'command') {
-				$out = img_picto('', 'terminal', 'class="pictofixedwidth marginrightonly"').'<span class="">'.$langs->trans('CronType_command').'</span>';
+				$out = $langs->trans('CronType_command');
+				$out .= '<SELECT name="'.$htmlname.'" id="'.$htmlname.'" style="display:none"/>';
+				$out .= '<OPTION value="command" selected>'.$langs->trans('CronType_command').'</OPTION>';
+				$out .= '</SELECT>';
 			} elseif ($selected == 'method') {
-				$out = img_picto('', 'code', 'class="pictofixedwidth marginrightonly"').'<span class="">'.$langs->trans('CronType_method').'</span>';
+				$out = $langs->trans('CronType_method');
+				$out .= '<SELECT name="'.$htmlname.'" id="'.$htmlname.'" style="display:none"/>';
+				$out .= '<OPTION value="method" selected>'.$langs->trans('CronType_method').'</OPTION>';
+				$out .= '</SELECT>';
 			}
 		} else {
 			$out = '<SELECT class="flat" name="'.$htmlname.'" id="'.$htmlname.'" />';

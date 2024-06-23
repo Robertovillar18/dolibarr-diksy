@@ -27,14 +27,14 @@ require_once DOL_DOCUMENT_ROOT.'/expensereport/class/expensereport.class.php';
 require_once DOL_DOCUMENT_ROOT.'/expensereport/class/paymentexpensereport.class.php';
 require_once DOL_DOCUMENT_ROOT.'/core/modules/expensereport/modules_expensereport.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/expensereport.lib.php';
-if (isModEnabled("bank")) {
+if (isModEnabled("banque")) {
 	require_once DOL_DOCUMENT_ROOT.'/compta/bank/class/account.class.php';
 }
 
 // Load translation files required by the page
 $langs->loadLangs(array('bills', 'banks', 'companies', 'trips'));
 
-$id = GETPOST('rowid') ? GETPOSTINT('rowid') : GETPOSTINT('id');
+$id = GETPOST('rowid') ? GETPOST('rowid', 'int') : GETPOST('id', 'int');
 $action = GETPOST('action', 'aZ09');
 $confirm = GETPOST('confirm');
 
@@ -121,7 +121,7 @@ print '<tr><td class="tdtop">'.$langs->trans('Note').'</td><td class="valeur sen
 
 $disable_delete = 0;
 // Bank account
-if (isModEnabled("bank")) {
+if (isModEnabled("banque")) {
 	if ($object->bank_account) {
 		$bankline = new AccountLine($db);
 		$bankline->fetch($object->bank_line);

@@ -34,10 +34,10 @@ if (!defined('NOREQUIREAJAX')) {
 // Load Dolibarr environment
 require '../../main.inc.php';
 
-$id = GETPOSTINT('id'); // id of thirdparty
+$id = GETPOST('id', 'int'); // id of thirdparty
 $action = GETPOST('action', 'aZ09');
 $htmlname = GETPOST('htmlname', 'alpha');
-$showempty = GETPOSTINT('showempty');
+$showempty = GETPOST('showempty', 'int');
 
 // Security check
 $result = restrictedArea($user, 'societe', $id, '&societe', '', 'fk_soc', 'rowid', 0);

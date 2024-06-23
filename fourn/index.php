@@ -32,7 +32,7 @@ require_once DOL_DOCUMENT_ROOT.'/categories/class/categorie.class.php';
 $langs->loadLangs(array("suppliers", "orders", "companies"));
 
 // Security check
-$socid = GETPOSTINT("socid");
+$socid = GETPOST("socid", 'int');
 if ($user->socid) {
 	$socid = $user->socid;
 }

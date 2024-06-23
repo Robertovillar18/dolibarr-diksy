@@ -1,9 +1,8 @@
 <?php
-/* Copyright (C) 2017-2024  Alexandre Spangaro      <aspangaro@easya.solutions>
- * Copyright (C) 2018-2024  Frédéric France         <frederic.france@free.fr>
+/* Copyright (C) 2017-2021  Alexandre Spangaro      <aspangaro@open-dsi.fr>
+ * Copyright (C) 2018-2020  Frédéric France         <frederic.france@netlogic.fr>
  * Copyright (C) 2023       Laurent Destailleur     <eldy@users.sourceforge.net>
  * Copyright (C) 2023       Joachim Kueter     		<git-jk@bloxera.com>
- * Copyright (C) 2024		MDW							<mdeweerd@users.noreply.github.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,19 +42,19 @@ if (isModEnabled('project')) {
 $langs->loadLangs(array("compta", "banks", "bills", "users", "accountancy", "categories"));
 
 // Get parameters
-$id = GETPOSTINT('id');
+$id = GETPOST('id', 'int');
 $action = GETPOST('action', 'alpha');
 $confirm = GETPOST('confirm');
 $cancel = GETPOST('cancel', 'aZ09');
 $backtopage = GETPOST('backtopage', 'alpha');
 
-$accountid = GETPOSTINT("accountid") > 0 ? GETPOSTINT("accountid") : 0;
+$accountid = GETPOST("accountid") > 0 ? GETPOST("accountid", "int") : 0;
 $label = GETPOST("label", "alpha");
-$sens = GETPOSTINT("sens");
-$amount = GETPOSTFLOAT("amount");
+$sens = GETPOST("sens", "int");
+$amount = price2num(GETPOST("amount", "alpha"));
 $paymenttype = GETPOST("paymenttype", "aZ09");
 $accountancy_code = GETPOST("accountancy_code", "alpha");
-$projectid = GETPOSTINT('projectid') ? GETPOSTINT('projectid') : GETPOSTINT('fk_project');
+$projectid = (GETPOST('projectid', 'int') ? GETPOST('projectid', 'int') : GETPOST('fk_project', 'int'));
 if (isModEnabled('accounting') && getDolGlobalString('ACCOUNTANCY_COMBO_FOR_AUX')) {
 	$subledger_account = GETPOST("subledger_account", "alpha") > 0 ? GETPOST("subledger_account", "alpha") : '';
 } else {
@@ -63,7 +62,7 @@ if (isModEnabled('accounting') && getDolGlobalString('ACCOUNTANCY_COMBO_FOR_AUX'
 }
 
 // Security check
-$socid = GETPOSTINT("socid");
+$socid = GETPOST("socid", "int");
 if ($user->socid) {
 	$socid = $user->socid;
 }
@@ -103,23 +102,23 @@ if (empty($reshook)) {
 	// Link to a project
 	if ($action == 'classin' && $permissiontoadd) {
 		$object->fetch($id);
-		$object->setProject(GETPOSTINT('projectid'));
+		$object->setProject(GETPOST('projectid', 'int'));
 	}
 
 	if ($action == 'add') {
 		$error = 0;
 
-		$datep = dol_mktime(12, 0, 0, GETPOSTINT("datepmonth"), GETPOSTINT("datepday"), GETPOSTINT("datepyear"));
-		$datev = dol_mktime(12, 0, 0, GETPOSTINT("datevmonth"), GETPOSTINT("datevday"), GETPOSTINT("datevyear"));
+		$datep = dol_mktime(12, 0, 0, GETPOST("datepmonth", 'int'), GETPOST("datepday", 'int'), GETPOST("datepyear", 'int'));
+		$datev = dol_mktime(12, 0, 0, GETPOST("datevmonth", 'int'), GETPOST("datevday", 'int'), GETPOST("datevyear", 'int'));
 		if (empty($datev)) {
 			$datev = $datep;
 		}
 
 		$object->ref = ''; // TODO
-		$object->accountid = GETPOSTINT("accountid") > 0 ? GETPOSTINT("accountid") : 0;
+		$object->accountid = GETPOST("accountid", 'int') > 0 ? GETPOST("accountid", "int") : 0;
 		$object->datev = $datev;
 		$object->datep = $datep;
-		$object->amount = GETPOSTFLOAT("amount");
+		$object->amount = price2num(GETPOST("amount", 'alpha'));
 		$object->label = GETPOST("label", 'restricthtml');
 		$object->note = GETPOST("note", 'restricthtml');
 		$object->type_payment = dol_getIdFromCode($db, GETPOST('paymenttype'), 'c_paiement', 'code', 'id', 1);
@@ -127,7 +126,7 @@ if (empty($reshook)) {
 		$object->chqemetteur = GETPOST("chqemetteur", 'alpha');
 		$object->chqbank = GETPOST("chqbank", 'alpha');
 		$object->fk_user_author = $user->id;
-		$object->category_transaction = GETPOSTINT("category_transaction");
+		$object->category_transaction = GETPOST("category_transaction", 'alpha');
 
 		$object->accountancy_code = GETPOST("accountancy_code") > 0 ? GETPOST("accountancy_code", "alpha") : "";
 		$object->subledger_account = $subledger_account;
@@ -145,7 +144,7 @@ if (empty($reshook)) {
 			setEventMessages($langs->trans("ErrorFieldRequired", $langs->transnoentitiesnoconv("Amount")), null, 'errors');
 			$error++;
 		}
-		if (isModEnabled("bank") && !$object->accountid > 0) {
+		if (isModEnabled("banque") && !$object->accountid > 0) {
 			$langs->load('errors');
 			setEventMessages($langs->trans("ErrorFieldRequired", $langs->transnoentitiesnoconv("BankAccount")), null, 'errors');
 			$error++;
@@ -265,8 +264,7 @@ if ($action == 'confirm_clone' && $confirm == 'yes' && $permissiontoadd) {
 	$object->fetch($id);
 
 	if ($object->id > 0) {
-		unset($object->id);
-		unset($object->ref);
+		$object->id = $object->ref = null;
 
 		if (GETPOST('clone_label', 'alphanohtml')) {
 			$object->label = GETPOST('clone_label', 'alphanohtml');
@@ -274,8 +272,8 @@ if ($action == 'confirm_clone' && $confirm == 'yes' && $permissiontoadd) {
 			$object->label = $langs->trans("CopyOf").' '.$object->label;
 		}
 
-		$newdatepayment = dol_mktime(0, 0, 0, GETPOSTINT('clone_date_paymentmonth'), GETPOSTINT('clone_date_paymentday'), GETPOSTINT('clone_date_paymentyear'));
-		$newdatevalue = dol_mktime(0, 0, 0, GETPOSTINT('clone_date_valuemonth'), GETPOSTINT('clone_date_valueday'), GETPOSTINT('clone_date_valueyear'));
+		$newdatepayment = dol_mktime(0, 0, 0, GETPOST('clone_date_paymentmonth', 'int'), GETPOST('clone_date_paymentday', 'int'), GETPOST('clone_date_paymentyear', 'int'));
+		$newdatevalue = dol_mktime(0, 0, 0, GETPOST('clone_date_valuemonth', 'int'), GETPOST('clone_date_valueday', 'int'), GETPOST('clone_date_valueyear', 'int'));
 		if ($newdatepayment) {
 			$object->datep = $newdatepayment;
 		}
@@ -286,13 +284,15 @@ if ($action == 'confirm_clone' && $confirm == 'yes' && $permissiontoadd) {
 		}
 
 		if (GETPOSTISSET("clone_sens")) {
-			$object->sens = GETPOSTINT("clone_sens");
-		} // else { $object->sens = $object->sens; }
-
-		if (GETPOSTISSET("clone_amount")) {
-			$object->amount = GETPOSTFLOAT("clone_amount");
+			$object->sens = GETPOST("clone_sens", 'int');
 		} else {
-			$object->amount = (float) price2num($object->amount);
+			$object->sens = $object->sens;
+		}
+
+		if (GETPOST("clone_amount", "alpha")) {
+			$object->amount = price2num(GETPOST("clone_amount", "alpha"));
+		} else {
+			$object->amount = price2num($object->amount);
 		}
 
 		if ($object->check()) {
@@ -355,9 +355,7 @@ $options = array();
 require_once DOL_DOCUMENT_ROOT.'/compta/bank/class/bankcateg.class.php';
 $bankcateg = new BankCateg($db);
 
-$arrayofbankcategs = $bankcateg->fetchAll();
-
-foreach ($arrayofbankcategs as $bankcategory) {
+foreach ($bankcateg->fetchAll() as $bankcategory) {
 	$options[$bankcategory->id] = $bankcategory->label;
 }
 
@@ -414,13 +412,13 @@ if ($action == 'create') {
 	// Date payment
 	print '<tr><td class="titlefieldcreate">';
 	print $form->editfieldkey('DatePayment', 'datep', '', $object, 0, 'string', '', 1).'</td><td>';
-	print $form->selectDate((empty($datep) ? -1 : $datep), "datep", 0, 0, 0, 'add', 1, 1);
+	print $form->selectDate((empty($datep) ? -1 : $datep), "datep", '', '', '', 'add', 1, 1);
 	print '</td></tr>';
 
 	// Date value for bank
 	print '<tr><td>';
 	print $form->editfieldkey('DateValue', 'datev', '', $object, 0).'</td><td>';
-	print $form->selectDate((empty($datev) ? -1 : $datev), "datev", 0, 0, 0, 'add', 1, 1);
+	print $form->selectDate((empty($datev) ? -1 : $datev), "datev", '', '', '', 'add', 1, 1);
 	print '</td></tr>';
 
 	// Label
@@ -436,7 +434,7 @@ if ($action == 'create') {
 	print '</td></tr>';
 
 	// Bank
-	if (isModEnabled("bank")) {
+	if (isModEnabled("banque")) {
 		print '<tr><td>';
 		print $form->editfieldkey('BankAccount', 'selectaccountid', '', $object, 0, 'string', '', 1).'</td><td>';
 		print img_picto('', 'bank_account', 'class="pictofixedwidth"');
@@ -451,7 +449,7 @@ if ($action == 'create') {
 	print '</tr>';
 
 	// Number
-	if (isModEnabled("bank")) {
+	if (isModEnabled("banque")) {
 		print '<tr><td><label for="num_payment">'.$langs->trans('Numero');
 		print ' <em>('.$langs->trans("ChequeOrTransferNumber").')</em>';
 		print '</label></td>';
@@ -560,9 +558,9 @@ if ($id) {
 
 		$formquestion = array(
 			array('type' => 'text', 'name' => 'clone_label', 'label' => $langs->trans("Label"), 'value' => $langs->trans("CopyOf").' '.$object->label),
-			array('type' => 'date', 'tdclass' => 'fieldrequired', 'name' => 'clone_date_payment', 'label' => $langs->trans("DatePayment"), 'value' => -1),
+			array('type' => 'date', 'tdclass'=>'fieldrequired', 'name' => 'clone_date_payment', 'label' => $langs->trans("DatePayment"), 'value' => -1),
 			array('type' => 'date', 'name' => 'clone_date_value', 'label' => $langs->trans("DateValue"), 'value' => -1),
-			array('type' => 'other', 'tdclass' => 'fieldrequired', 'name' => 'clone_accountid', 'label' => $langs->trans("BankAccount"), 'value' => $form->select_comptes($object->fk_account, "accountid", 0, '', 1, '', 0, 'minwidth200', 1)),
+			array('type' => 'other', 'tdclass'=>'fieldrequired', 'name' => 'clone_accountid', 'label' => $langs->trans("BankAccount"), 'value' => $form->select_comptes($object->fk_account, "accountid", 0, '', 1, '', 0, 'minwidth200', 1)),
 			array('type' => 'text', 'name' => 'clone_amount', 'label' => $langs->trans("Amount"), 'value' => price($object->amount)),
 			array('type' => 'select', 'name' => 'clone_sens', 'label' => $langs->trans("Sens").' '.$set_value_help, 'values' => $sensarray, 'default' => $object->sens),
 		);
@@ -614,9 +612,9 @@ if ($id) {
 	$morehtmlref .= '</div>';
 	$linkback = '<a href="'.DOL_URL_ROOT.'/compta/bank/various_payment/list.php?restore_lastsearch_values=1'.(!empty($socid) ? '&socid='.$socid : '').'">'.$langs->trans("BackToList").'</a>';
 
-	$morehtmlstatus = '';
+	$morehtmlright = '';
 
-	dol_banner_tab($object, 'id', $linkback, 1, 'rowid', 'ref', $morehtmlref, '', 0, '', $morehtmlstatus);
+	dol_banner_tab($object, 'id', $linkback, 1, 'rowid', 'ref', $morehtmlref, '', 0, '', $morehtmlright);
 
 	print '<div class="fichecenter">';
 	print '<div class="underbanner clearboth"></div>';
@@ -651,11 +649,10 @@ if ($id) {
 	$editvalue = '';
 	if (isModEnabled('accounting')) {
 		print '<tr><td class="nowrap">';
-		print $form->editfieldkey('AccountAccounting', 'accountancy_code', $object->accountancy_code, $object, (!$alreadyaccounted && $permissiontoadd), 'string', '', 0);
+		print $form->editfieldkey('AccountAccounting', 'accountancy_code', $object->accountancy_code, $object, (!$alreadyaccounted && $user->hasRight('banque', 'modifier')), 'string', '', 0);
 		print '</td><td>';
-		if ($action == 'editaccountancy_code' && (!$alreadyaccounted && $permissiontoadd)) {
-			//print $form->editfieldval('AccountAccounting', 'accountancy_code', $object->accountancy_code, $object, (!$alreadyaccounted && $user->hasRight('banque', 'modifier')), 'string', '', 0);
-			print $formaccounting->formAccountingAccount($_SERVER['PHP_SELF'].'?id='.$object->id, $object->accountancy_code, 'accountancy_code', 0, 1, '', 1);
+		if ($action == 'editaccountancy_code') {
+			print $form->editfieldval('AccountAccounting', 'accountancy_code', $object->accountancy_code, $object, (!$alreadyaccounted && $user->hasRight('banque', 'modifier')), 'string', '', 0);
 		} else {
 			$accountingaccount = new AccountingAccount($db);
 			$accountingaccount->fetch('', $object->accountancy_code, 1);
@@ -675,20 +672,12 @@ if ($id) {
 	print '<tr><td class="nowrap">';
 	print $form->editfieldkey('SubledgerAccount', 'subledger_account', $object->subledger_account, $object, (!$alreadyaccounted && $permissiontoadd), 'string', '', 0);
 	print '</td><td>';
-	if ($action == 'editsubledger_account' && (!$alreadyaccounted && $permissiontoadd)) {
-		if (getDolGlobalString('ACCOUNTANCY_COMBO_FOR_AUX')) {
-			print $formaccounting->formAccountingAccount($_SERVER['PHP_SELF'] . '?id=' . $object->id, $object->subledger_account, 'subledger_account', 1, 1, '', 1);
-		} else {
-			print $form->editfieldval('SubledgerAccount', 'subledger_account', $object->subledger_account, $object, (!$alreadyaccounted && $permissiontoadd), 'string', '', null, null, '', 1, 'lengthAccounta');
-		}
-	} else {
-		print length_accounta($object->subledger_account);
-	}
+	print $form->editfieldval('SubledgerAccount', 'subledger_account', $object->subledger_account, $object, (!$alreadyaccounted && $permissiontoadd), 'string', '', 0, null, '', 1, 'lengthAccounta');
 	print '</td></tr>';
 
 	$bankaccountnotfound = 0;
 
-	if (isModEnabled('bank')) {
+	if (isModEnabled('banque')) {
 		print '<tr>';
 		print '<td>'.$langs->trans('BankTransactionLine').'</td>';
 		print '<td colspan="3">';
@@ -711,7 +700,7 @@ if ($id) {
 	}
 
 	// Other attributes
-	$parameters = array('socid' => $object->id);
+	$parameters = array('socid'=>$object->id);
 	include DOL_DOCUMENT_ROOT.'/core/tpl/extrafields_view.tpl.php';
 
 	print '</table>';

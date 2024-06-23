@@ -42,7 +42,8 @@ class InterfaceActionsBlockedLog extends DolibarrTriggers
 		$this->name = preg_replace('/^Interface/i', '', get_class($this));
 		$this->family = "system";
 		$this->description = "Triggers of this module add action for BlockedLog module (Module of unalterable logs).";
-		$this->version = self::VERSIONS['prod'];
+		// 'development', 'experimental', 'dolibarr' or version
+		$this->version = self::VERSION_DOLIBARR;
 		$this->picto = 'technic';
 	}
 

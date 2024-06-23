@@ -183,9 +183,12 @@ class ExportCsv extends ModeleExports
 	public function write_title($array_export_fields_label, $array_selected_sorted, $outputlangs, $array_types)
 	{
 		// phpcs:enable
-		$outputlangs->charset_output = getDolGlobalString('EXPORT_CSV_FORCE_CHARSET');
+		global $conf;
+
+		$outputlangs->charset_output = $conf->global->EXPORT_CSV_FORCE_CHARSET;
 
 		$selectlabel = array();
+
 		foreach ($array_selected_sorted as $code => $value) {
 			$newvalue = $outputlangs->transnoentities($array_export_fields_label[$code]); // newvalue is now $outputlangs->charset_output encoded
 			$newvalue = $this->csvClean($newvalue, $outputlangs->charset_output);
@@ -197,7 +200,6 @@ class ExportCsv extends ModeleExports
 				$selectlabel[$code."_label"] = $newvalue."_label";
 			}
 		}
-
 		foreach ($selectlabel as $key => $value) {
 			fwrite($this->handle, $value.$this->separator);
 		}
@@ -221,7 +223,7 @@ class ExportCsv extends ModeleExports
 		// phpcs:enable
 		global $conf;
 
-		$outputlangs->charset_output = getDolGlobalString('EXPORT_CSV_FORCE_CHARSET');
+		$outputlangs->charset_output = $conf->global->EXPORT_CSV_FORCE_CHARSET;
 
 		$this->col = 0;
 
@@ -234,7 +236,7 @@ class ExportCsv extends ModeleExports
 				$alias = substr($code, strpos($code, ' as ') + 4);
 			}
 			if (empty($alias)) {
-				dol_print_error(null, 'Bad value for field with key='.$code.'. Try to redefine export.');
+				dol_print_error('', 'Bad value for field with key='.$code.'. Try to redefine export.');
 			}
 
 			$newvalue = $outputlangs->convToOutputCharset($objp->$alias); // objp->$alias must be utf8 encoded as any var in memory	// newvalue is now $outputlangs->charset_output encoded
